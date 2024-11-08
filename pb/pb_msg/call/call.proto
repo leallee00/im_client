@@ -1,0 +1,162 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/call";
+package pb_msg_call;
+
+/*
+PBCommData:
+    hashKey = callerId
+srcid 自己的id
+aimid 对方的id
+
+心跳消息
+    PbCommData.Exp["callerId": callerId]
+*/
+
+// 业务类型
+enum BusinessType {
+    NORMAL = 0; // 用户直接拨打
+    MATCH = 1; // 用户匹配拨打
+}
+
+// 拨打类型
+enum CallType {
+    VOICE = 0;
+    VIDEO = 1;
+}
+
+// 客户端使用的SDK
+enum SDK {
+    ZEGO = 0;
+    QINIU = 1;
+}
+
+// Call 拨打
+message CallReq{
+    BusinessType businessType = 1;
+    CallType type = 2; // 呼叫类型
+    string channel = 3; // 房间Channel
+    SDK sdk = 4;
+    int64 callId = 5;
+    string roomToken = 6; // sdk
+    int64 callAt = 7; // 拨打时间
+    int64 price = 8; // 单价
+    map<string, string> exp = 10; // 透传字段
+}
+message CallRsp{
+    int64 callId = 1;
+    string roomToken = 2;
+    int64 callAt = 3; // 拨打时间
+    int64 price = 4; // 单价
+}
+/*
+可能错误:
+    1. 被叫用户不在线
+*/
+
+
+
+// Accept 接听
+message AcceptReq{
+    int64 callId = 1;
+    int64 acceptAt = 2; // 接听时间
+    map<string, string> exp = 10; // 客户端透传字段
+}
+message AcceptRsp{
+    int64 acceptAt = 1; // 接听时间
+}
+/*
+可能错误:
+    1. 场景不存在
+    2. 状态不允许(非CALLING状态)
+*/
+
+
+// Decline 挂断
+message DeclineReq{
+    int64 callId = 1;
+    int64 declineAt = 2; // 挂断时间
+    int64 callerId = 3; // 主叫id
+    map<string, string> exp = 10; // 客户端透传字段
+    // enum Reason{
+    //     BUZY = 0; // 当前忙碌(直播中,连麦中,通话中)
+    //     DENY = 1; // 主动拒绝
+    // }
+    // Reason reason = 1;
+}
+message DeclineRsp{
+    int64 declineAt = 1; // 挂断时间
+}
+/*
+可能错误:
+*/
+
+
+// 已被接听通知
+message AcceptedNotify{
+    int64 callId = 1;
+}
+
+
+enum Reason{
+    CALLER_HEARTBEAT_TIMEOUT = 0; // 心跳超时
+    // CALLER_CANCEL = 1; // 未接通挂断
+    // CALLER_HANG_UP = 2; // 已接通挂断
+
+    CALLEE_HEARTBEAT_TIMEOUT = 10; // 被叫心跳超时
+    // CALLEE_CANCEL = 11; // 未接通挂断
+    // CALLEE_HANG_UP = 12; // 已接通挂断
+
+    USER_NO_MONEY = 20; // 用户余额不足
+    CALLING_TIMEOUT = 21; // 直接拨打呼叫超时
+    // MATCHING_TIMEOUT = 22; // 没有超时
+}
+
+// OverNotify 由IM和服务端触发通话结束
+message OverNotify{
+    int64 callId = 1;
+    Reason reason = 2; // 结束原因
+    int64 overAt = 3;
+    int64 feeUserId = 4; // 扣费用户Id
+}
+
+// StatsNotify 通话统计,只有成功通话才会发
+message StatsNotify{
+    int64 callId = 1; // 通话id
+    int64 duration = 2; // 通话时长
+}
+
+// 免费时长不足20秒提示
+message NoFreeTimeNotify{
+    int64 callId = 1;
+}
+
+// 余额不足通话一分钟提示
+message NoMoneyNotify{
+    int64 callId = 1;
+}
+
+// // 实时语音识别文件
+// message VoiceWordsReq{
+//     int64 callId = 1; // 通话id
+//     int64 callerId = 2; // 主叫id
+//     string words = 3; // 识别的文字
+// }
+// message VoiceWordsRsp{
+//     int64 callId = 1; // 通话id
+//     int64 sensitiveWords = 2; // 本次请求中的敏感词数量
+//     int64 allSensitiveWords = 3; // 本次通话中的敏感词总数
+// }
+
+////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////
+
+
+message ZegoRecordOverReq{
+    string TaskId = 1;
+    string RoomId = 2;
+    string ReplayUrl = 3;
+}
+
+message ZegoRecordOverRsp{}
+

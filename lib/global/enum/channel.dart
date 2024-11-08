@@ -1,0 +1,1 @@
+enum XChannel { laiwang, xiliao }

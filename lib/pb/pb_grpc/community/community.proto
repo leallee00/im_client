@@ -1,0 +1,123 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_grpc/community";
+
+// import "google/protobuf/any.proto";
+// import "pb_pub/comm.proto";
+import "pb_msg/community/community.proto";
+// import "pb_msg/gate/gate.proto";
+// import "pb_grpc/live_room/live_room.proto";
+
+package pb_grpc_community;
+
+service Community {
+    // 对模型的写操作
+
+    // 创建社团
+    rpc CreateCommunity (pb_msg_community.CreateCommunityReq) returns (pb_msg_community.CreateCommunityRsp);
+    // 更新社团
+    rpc UpdateCommunity (pb_msg_community.UpdateCommunityReq) returns (pb_msg_community.UpdateCommunityRsp);
+    // 申请入团
+    rpc ApplyJoin (pb_msg_community.ApplyJoinReq) returns (pb_msg_community.ApplyJoinRsp);
+    // 答复入团申请
+    rpc AnswerApply (pb_msg_community.AnswerApplyReq) returns (pb_msg_community.AnswerApplyRsp);
+    // 邀请入团
+    rpc InviteJoin (pb_msg_community.InviteJoinReq) returns (pb_msg_community.InviteJoinRsp);
+    // 答复入团邀请
+    rpc AnswerInvite (pb_msg_community.AnswerInviteReq) returns (pb_msg_community.AnswerInviteRsp);
+    // 口令,答题,自由方式加入社团
+    rpc JoinCommunity (pb_msg_community.JoinCommunityReq) returns (pb_msg_community.JoinCommunityRsp);
+    // 退出社团
+    rpc QuitCommunity (pb_msg_community.QuitCommunityReq) returns (pb_msg_community.QuitCommunityRsp);
+    // 更新成员
+    rpc UpdateMember (pb_msg_community.UpdateMemberReq) returns (pb_msg_community.UpdateMemberRsp);
+
+    // 添加话题
+    rpc AddTopic (pb_msg_community.AddTopicReq) returns (pb_msg_community.AddTopicRsp);
+    // 添加礼物配置
+    rpc AddGift (pb_msg_community.AddGiftReq) returns (pb_msg_community.AddGiftRsp);
+    // 发帖子
+    rpc Post (pb_msg_community.PostReq) returns (pb_msg_community.PostRsp);
+    // 发评论
+    rpc Comment (pb_msg_community.CommentReq) returns (pb_msg_community.CommentRsp);
+    // 发回复
+    rpc Reply (pb_msg_community.ReplyReq) returns (pb_msg_community.ReplyRsp);
+    // 顶或踩
+    rpc Like (pb_msg_community.LikeReq) returns (pb_msg_community.LikeRsp);
+    // 取消顶或踩
+    rpc Unlike (pb_msg_community.UnlikeReq) returns (pb_msg_community.UnlikeRsp);
+    // 分享
+    rpc Share (pb_msg_community.ShareReq) returns (pb_msg_community.ShareRsp);
+    // 投票
+    rpc Vote (pb_msg_community.VoteReq) returns (pb_msg_community.VoteRsp);
+    // 插眼
+    rpc Watch (pb_msg_community.WatchReq) returns (pb_msg_community.WatchRsp);
+    // 取消插眼
+    rpc Unwatch (pb_msg_community.UnwatchReq) returns (pb_msg_community.UnwatchRsp);
+    // 打赏
+    rpc Award (pb_msg_community.AwardReq) returns (pb_msg_community.AwardRsp);
+    // 收藏
+    rpc Favorite (pb_msg_community.FavoriteReq) returns (pb_msg_community.FavoriteRsp);
+    // 取消收藏
+    rpc Unfavorite (pb_msg_community.UnfavoriteReq) returns (pb_msg_community.UnfavoriteRsp);
+    // 发弹幕
+    rpc Shoot (pb_msg_community.ShootReq) returns (pb_msg_community.ShootRsp);
+    // 关注他人
+    rpc Follow (pb_msg_community.FollowReq) returns (pb_msg_community.FollowRsp);
+    // 取消关注
+    rpc Unfollow (pb_msg_community.UnfollowReq) returns (pb_msg_community.UnfollowRsp);
+    // 加入话题
+    rpc Participate (pb_msg_community.ParticipateReq) returns (pb_msg_community.ParticipateRsp);
+    // 退出话题
+    rpc Unparticipate (pb_msg_community.UnparticipateReq) returns (pb_msg_community.UnparticipateRsp);
+
+    // 对模型的读操作
+
+    // 社团成员列表
+    rpc Members (pb_msg_community.MembersReq) returns (pb_msg_community.MembersRsp);
+    // 社团详情
+    rpc CommunityDetail (pb_msg_community.CommunityDetailReq) returns (pb_msg_community.CommunityDetailRsp);
+    // 获取帖子列表
+    rpc Posts (pb_msg_community.PostsReq) returns (pb_msg_community.PostsRsp);
+    // 帖子详情
+    rpc PostDetail (pb_msg_community.PostDetailReq) returns (pb_msg_community.PostDetailRsp);
+    // 评论列表
+    rpc Comments (pb_msg_community.CommentsReq) returns (pb_msg_community.CommentsRsp);
+    // 评论详情
+    rpc CommentDetail (pb_msg_community.CommentDetailReq) returns (pb_msg_community.CommentDetailRsp);
+    // 回复列表
+    rpc Replies (pb_msg_community.RepliesReq) returns (pb_msg_community.RepliesRsp);
+    // 弹幕列表
+    rpc Barrages (pb_msg_community.BarragesReq) returns (pb_msg_community.BarragesRsp);
+
+    // 我的视角读操作
+
+    // 用户的社团
+    rpc UserCommunities (pb_msg_community.UserCommunitiesReq) returns (pb_msg_community.UserCommunitiesRsp);
+    // 社团列表
+    rpc AllCommunities (pb_msg_community.AllCommunitiesReq) returns (pb_msg_community.AllCommunitiesRsp);
+    // 用户的帖子
+    rpc UserPosts (pb_msg_community.UserPostsReq) returns (pb_msg_community.UserPostsRsp);
+    // 用户的评论
+    rpc UserComments (pb_msg_community.UserCommentsReq) returns (pb_msg_community.UserCommentsRsp);
+    // 用户的插眼
+    rpc UserWatchs (pb_msg_community.UserWatchsReq) returns (pb_msg_community.UserWatchsRsp);
+    // 用户的点赞
+    rpc UserLikes (pb_msg_community.UserLikesReq) returns (pb_msg_community.UserLikesRsp);
+    // 关注用户的
+    rpc UserFollowers (pb_msg_community.UserFollowersReq) returns (pb_msg_community.UserFollowersRsp);
+    // 用户的关注
+    rpc UserFollowees (pb_msg_community.UserFolloweesReq) returns (pb_msg_community.UserFolloweesRsp);
+    // 我的收藏
+    rpc UserFavorites (pb_msg_community.UserFavoritesReq) returns (pb_msg_community.UserFavoritesRsp);
+    // 用户参与的话题
+    rpc UserParticipates (pb_msg_community.UserParticipatesReq) returns (pb_msg_community.UserParticipatesRsp);
+    // 用户的投票
+    rpc UserBallots (pb_msg_community.UserBallotsReq) returns (pb_msg_community.UserBallotsRsp);
+    // 用户的文件
+    rpc UserFiles (pb_msg_community.UserFilesReq) returns (pb_msg_community.UserFilesRsp);
+    // 用户的打赏
+    rpc UserAwards (pb_msg_community.UserAwardsReq) returns (pb_msg_community.UserAwardsRsp);
+    // 用户的信息
+    rpc UserInfo (pb_msg_community.UserInfoReq) returns (pb_msg_community.UserInfoRsp);
+
+}

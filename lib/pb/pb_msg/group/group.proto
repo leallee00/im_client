@@ -1,0 +1,739 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/group";
+package pb_msg_group;
+//import "google/protobuf/any.proto";
+import "pb_pub/comm.proto";
+// import "pb_pub/comm_im.proto";
+
+/*
+Service = group
+Hashkey = groupId
+*/
+
+enum GroupType {
+		Comm = 0; // 普通群，需要入群才能交流
+		ChatRoom = 1; // 聊天室
+		Channel = 2; // 频道，关注即可，只可看，不可发言，只有频道主和管理员可以发言
+		SystemNotice = 3; // 系统通知
+}
+
+// 创建群聊,创建成功后群发给memberIds中的用户
+message CreateGroupReq { // srcId=创建者id
+	string name = 1; // 群名称
+	repeated int64 memberIds = 2; // 群成员ID列表,包含自己
+//	bool needReceipt = 3; // 是否需要展示阅读状态，展示阅读状态的群最大支持100人
+	int32 memberCountLimit = 4; // 最大成员数量限制,0为无限制
+		GroupType groupType = 5; //群类型
+}
+message CreateGroupRsp {
+	int64 groupId = 1;
+//	bool needReceipt = 2; // 是否需要展示阅读状态，展示阅读状态的群最大支持100人
+	int32 memberCountLimit = 3; // 最大成员数量限制,0为无限制
+}
+message CreateGroupNotify {
+	string name = 1; // 群名称
+}
+
+// 群主或者管理员(role>0)邀请他人入群,消息会被转发给被邀请方
+message InviteReq { // srcId=inviterId
+	repeated int64 inviteeIds = 1; // 邀请的用户列表
+	// 携带消息数
+	int64 shareMsgCount = 2; // -1 为所有消息
+}
+message InviteRsp {}
+
+
+
+// 被邀请入群的人应答是否接受邀请,消息会被转发给发出邀请的人
+message InviteAnswerReq { // srcId=inviteeId, aimIm=inviterId
+	bool agree = 1;
+}
+message InviteAnswerRsp {}
+// 用户接受邀请后广播全群
+message InviteeAgreedNotify {
+	int64 inviterId = 1;
+	int64 inviteeId = 2;
+	int32 memberCount = 3; // 当前群成员个数
+}
+
+// 批量邀请加入通知 可以展示为 xxx邀请xxx，xxx入群
+message InviteesAgreedNotify {
+	int64 inviterId = 1; // 邀请者id
+	repeated int64 inviteeIds = 2; // 被邀请的用户列表
+	repeated string inviteeNames = 3; // 邀请的用户名称列表,最多给2个，展示用
+	int32 memberCount = 4; // 当前群成员个数
+}
+
+// 用户申请入群,消息会被转发给群主及管理员
+message ApplyReq {
+	// 如果是扫码入群则填写此参数
+	string scanCodeKey = 1;
+} // srcId = 申请人id
+
+enum ApplyRspStatus {
+	WaitConfirm = 0;
+	SuccessAddedToGroup = 1;
+}
+
+message ApplyRsp {
+	string scanCodeKey = 1;
+		ApplyRspStatus applyStatus = 2;
+}
+
+// 群主或管理员应答是否批准入群申请,消息会被转发给申请人
+message ApplyAnswerReq { // srcId = 批准人id, aimId = 申请人id
+	bool agree = 1; // 是否同意入群申请
+}
+message ApplyAnswerRsp {}
+
+// 拨打类型
+enum EnterGroupType {
+	Create = 0;
+	Apply = 1;
+	Invite = 2;
+	ScanCode = 3;
+}
+
+// 群主或管理员批准后广播全群
+message approverApprovedNotify {
+	int64 applicantId = 1; // 申请人id
+	int64 approverId = 2; // 批准人id
+
+	// 加入方式
+	EnterGroupType enterGroutType = 3; // 0:创建入群，1:申请入群， 2:邀请入群 3:扫描入群
+	int32 memberCount = 4; // 群内当前人数
+}
+
+// 用于展示群列表的群信息
+message Group {
+	int64  groupId   = 1; // 群ID
+	string name      = 2; // 群名称
+	string avatar = 3;
+	bool top = 4; // 群是否置顶
+	bool newMemberRemindClosed = 5; //是否关闭新成员入群提醒，0：开启，1：关闭 关闭状态下不会震动/响铃提醒
+	GroupType groupType = 6; // 群类型
+}
+// 用户获取自己的群列表
+message GroupsReq {} // srcId=用户id
+message GroupsRsp {
+	repeated Group groups = 1; // 用户的群列表
+}
+
+// @experiment
+message GroupIdsReq {}
+message GroupIdsRsp {
+	repeated int64 ids = 1;
+}
+
+// 获取指定群的详细信息
+message GroupDetailReq {} // srcId=用户id, groupId=指定群的id
+message GroupDetailRsp {
+	int64  groupId   = 1; // 群id
+	string name      = 2; // 群名称
+	bool   disbanded = 3; // 是否解散 
+	bool   banned    = 4; // 是否被禁
+	int32  memberCount   = 5; // 成员数量
+	string notice    = 6; // 群公告
+	int64  ownerId   = 7; // 群主id
+	string avatar = 8; //头像
+	string bgPic = 9; //背景图片
+//	bool needReceipt = 10; // 是否需要展示阅读状态，展示阅读状态的群最大支持100人
+	int32 memberCountLimit = 11; // 最大成员数量限制,0为无限制
+	int32 inviteRoleLimit = 12; // 可以邀请成员的角色最低限制
+	bool top = 13; // 是否置顶
+	string	remark = 14; // 群备注
+	int32 memberChatBannedStatus = 15; //群成员禁言状态 0:全员可发言，1：管理员可发言 2：群主可发言
+	bool 	newMemberRemindClosed = 16; // 新成员提醒是否关闭，0：未关闭，1关闭
+	bool 	ScanCodeJoinGroupSwitchStatus = 17; // 扫码入群是否开启
+	string ScanCodeJoinGroupParam = 18; // 扫码入群携带参数,生产二维码使用
+	int32 noticeVersion = 19;// 公告版本号
+	bool 	freeJoin = 20; // 是否开放加入 true：开放，false 需要审核才能加入
+	GroupType groupType = 21; // 群类型
+	bool	forbiddenAddFriendsToEachOther = 22;// 是否禁止互加好友
+}
+
+// GroupInfo 群信息，设置属性的时候使用
+//message GroupInfo {
+//	int64  groupId   = 1; // 群ID
+//	string name      = 2; // 群名称
+//	bool   disbanded = 3; // 是否解散
+//	bool   banned    = 4; // 是否被禁
+//	int32  memberCount   = 5; // 成员数量
+//	string notice    = 6; // 群公告
+//	int64  ownerId   = 7; // 群主id
+//	string avatar = 8; //头像
+//	GroupType groupType = 9; // 群类型
+//	int32 memberCountLimit = 11; // 最大成员数量限制,0为无限制
+//	int32 inviteRoleLimit = 12; // 可以邀请成员的角色最低限制
+//	int32 memberChatBannedStatus = 15; //群成员禁言状态 0:全员可发言，1：管理员可发言 2：群主可发言
+//	bool 	newMemberRemindClosed = 16; // 新成员提醒是否关闭，0：未关闭，1关闭
+//	bool 	ScanCodeJoinGroupSwitchStatus = 17; // 扫码入群是否开启
+//	string ScanCodeJoinGroupParam = 18; // 扫码入群携带参数,生产二维码使用
+//	int32 noticeVersion = 19;// 公告版本号
+//	bool 	freeJoin = 20; // 是否开放加入 true：开放，false 需要审核才能加入
+//
+//	// 下面的只影响自己，设置在群成员信息中
+//	string bgPic = 50; //背景图片
+//	bool top = 51; // 是否置顶
+//	string	remark = 52; // 群备注
+//}
+
+// 用于展示群成员列表的成员信息
+message Member {
+	int64   userId    = 1;
+	int64   groupId   = 2;
+	string  username  = 3; // 名称
+	string  remark    = 4; // 备注
+	string  avatar    = 5; // 头像
+	int32   role      = 6; // 角色
+	bool	banned = 7; // 是否被禁言
+}
+// 获取群中全部成员
+message MembersReq {
+	int32 page = 1; // 页码，从1开始
+	int32 pageSize = 2; // 每页最大100个
+} // srcId=用户id, groupId=群id
+message MembersRsp {
+	repeated Member members = 1; // 群成员列表
+	int32 page = 2; // 页码，从1开始
+	int32 pageSize = 3; // 每页最大100个
+	int64 totalCount = 4;
+}
+
+// 为@ 提供搜索服务，为群成员列表提供搜索功能
+message FindMembersReq{
+	string findString = 1;
+}
+message FindMembersRsp{
+	repeated Member members = 1;
+}
+
+// 查看指定成员的详细信息
+message MemberDetailReq {} // srcId=查看人id aimId=要查看的人id, groupId=群id
+message MemberDetailRsp {
+	int64   userId    = 1;
+	int64   groupId   = 2;
+	string  username  = 3;
+	string  remark    = 4; // 备注
+	string  avatar    = 5; // 头像
+    bool    banned    = 6; // 是否禁言
+    int32   role      = 7; // 角色
+}
+
+// 申请结构
+message Application {
+	int64 userId  	 = 1;
+	int64 groupId    = 2;
+	int64 approverId = 3; // 批准人ID,无人批准时为空
+	int32 status     = 4; // 申请状态。0：等待中，1：已同意，2：已拒绝，3：已取消
+}
+// 获取和我相关的全部申请: 我发出的入群申请, 我审批的入群申请
+message ApplicationsReq {} // srcId=用户ID
+message ApplicationsRsp {
+	repeated Application applications = 1; // 申请列表
+}
+
+// 获取和我相关的全部邀请: 我发出的入群邀请, 我审批的入群邀请
+message Invitation {
+	int64 groupId   = 1; // 群id
+	int64 inviterId = 2; // 邀请人id
+	int64 inviteeId = 3; // 被邀请人id
+	int32 status    = 4; // 邀请状态。0：等待中，1：已同意，2：已拒绝，3：已取消
+}
+// 用户获取邀请数据: 我发出的入群邀请和我收到的入群邀请
+message InvitationsReq {}
+message InvitationsRsp {
+	repeated Invitation invitations = 1; // 邀请列表
+}
+
+// 编辑群名称
+message EditNameReq {
+	string name = 1;
+}
+message EditNameRsp {}
+
+// 群名称变更通知
+message NameChangeNotify { // srcId=修改者的Id
+	string name = 1;
+}
+
+// 编辑群头像
+message EditAvatarReq {
+	string avatar = 1;
+}
+message EditAvatarRsp {}
+
+// 群头像变更通知
+message AvatarChangeNotify { // srcId=修改者的Id
+	string avatar = 1;
+}
+
+message EditInviteRoleLimitReq{
+	int32 roleLimit = 1; // 可以邀请成员的角色最低限制
+}
+
+message EditInviteRoleLimitRsp{
+	int32 roleLimit = 1; // 可以邀请成员的角色最低限制
+}
+
+// 群头像变更通知
+message InviteRoleLimitChangeNotify { // srcId=修改者的Id
+	int32 roleLimit = 1;
+}
+
+// 编辑群公告
+message EditNoticeReq {
+	string notice = 1;
+}
+message EditNoticeRsp {}
+
+// 群公告变更通知
+message NoticeChangeNotify{ // srcId=发布者的Id
+	string notice = 1;
+	int32 noticeVersion = 2; // 公告版本号
+}
+
+// 修改备注
+message EditRemarkReq{ // srcId=修改者, aimId=被修改者, groupId=群id
+	string remark = 1; // 群昵称
+	int64 editedUserId = 2; // 被修改的用户
+}
+message EditRemarkRsp{
+	string remark = 1; // 原样返回
+	int64 editedUserId = 2; // 被修改的用户
+}
+message RemarkChangeNotify{
+	string remark = 1;
+	int64 editedUserId = 2; // 被修改的用户
+}
+
+message EditBGPicReq{
+	string bgPic = 1;
+}
+message EditBGPicRsp{
+	string bgPic = 1;
+}
+message BGPicChangeNotify{
+	string bgPic = 1;
+}
+
+// 是否需要展示阅读状态，展示阅读状态的群最大支持100人
+message EditNeedReceiptReq{
+	bool needReceipt = 1;
+}
+message EditNeedReceiptRsp{
+	bool needReceipt = 1;
+}
+message NeedReceiptChangeNotify{
+	bool needReceipt = 1;
+}
+
+// 最大成员数量限制,0为无限制
+message EditMemberCountLimitReq{
+	int32 memberCountLimit = 1;
+}
+message EditMemberCountLimitRsp{
+	int32 memberCountLimit = 1;
+}
+message MemberCountLimitChangeNotify{
+	int32 memberCountLimit = 1;
+}
+
+// 添加群管理员
+message AddAdminsReq { // srcId=操作者id, groupId=群id
+	repeated int64 memberIds = 1; // 新增管理员列表
+}
+message AddAdminsRsp {}
+
+message AddAdminsNotify { // srcId=操作者id, groupId=群id
+	repeated int64 memberIds = 1; // 新增管理员列表
+}
+
+// 移除管理员
+message RemoveAdminsReq {  // srcId=操作者id, groupId=群id
+	repeated int64 memberIds = 1; // 移除的管理员列表
+}
+message RemoveAdminsRsp {}
+
+message RemoveAdminsNotify { // srcId=操作者id, groupId=群id
+	repeated int64 memberIds = 1; // 移除的管理员列表
+}
+
+// 群主转让,转让后变成普通成员
+message GroupTransferReq {} // srcId=原群主 groupId=群 aimId=新群主
+message GroupTransferRsp {}
+
+message GroupTransferNotify { // srcId=原群主 groupId=群
+	int64 ownerId = 1; // 新群主id
+}
+
+// 封禁群组
+message BanGroupsReq {
+	repeated int64 groupIds = 1;
+}
+message BanGroupsRsp {}
+message GroupBannedNotify{}
+
+// 解禁群组
+message UnbanGroupsReq {
+	repeated int64 groupIds = 1;
+}
+message UnbanGroupsRsp {}
+message GroupUnbannedNotify{}
+
+// 解散群组
+message DisbandGroupsReq {
+	repeated int64 groupIds = 1;
+}
+message DisbandGroupsRsp {}
+message GroupDisbandedNotify{}
+
+// 退出群组
+message QuitReq {}
+message QuitRsp {}
+message QuitNotify {
+	int64 memberId = 1;
+}
+
+// 禁言成员
+message BanMemberReq{} // aimId=被禁用户
+message BanMemberRsp{}
+message BanMemberNotify{
+	int64 memberId = 1; // 被禁用户
+}
+
+// 解禁成员
+message UnbanMemberReq{} // aimId=被解禁用户
+message UnbanMemberRsp{}
+message UnbanMemberNotify{
+	int64 memberId = 1; // 被解禁用户
+}
+
+// 踢出群组
+message KickoutReq{} // aimId=被踢用户
+message KickoutRsp{}
+message KickoutNotify{
+	int64 memberId = 1; // 被踢用户
+	int32 memberCount = 2;//房间当前还剩多少人
+}
+
+// 历史消息读取
+//message GroupHistoryMsg{
+//	int64  id = 1;
+//	int64 senderUserId = 2;
+//	int64  createdAt = 3;
+//	int64 updateAt = 4;
+//	int64 groupId = 5;
+//	int64 msgSn = 6;
+//	string pbName = 7;
+//	bytes pbCommData = 8;
+//	bytes pbData = 9;
+//	pb_pub.MSG_STATE msgStatus = 10;
+//	int32 syncCount = 11;
+//	int32 readCount = 12;
+//}
+
+message GroupHistoryMsgReq{
+	int64 page = 1; // 页码，默认第一页
+	int64 pageSize = 2;// 每页条数
+	bool  filterNew = 3; //是否过滤新消息，多端同步使用
+}
+
+message GroupHistoryMsgRsp{
+	int64 page = 1; // 页码，默认第一页
+	int64 pageSize = 2;// 每页条数
+	int64 totalCount = 3; // 还有多少条
+
+	// 消息
+	repeated GroupHistoryMsg pbHisMsg = 4;
+}
+
+// 读取单个消息
+//rpc GetOneGroupHistoryMsg(pb_msg_group.OneGroupHistoryMsgReq) returns (pb_msg_group.OneGroupHistoryMsgRsp);
+// 至少填一个
+message OneGroupHistoryMsgReq{
+	int64 id = 1;
+	int64 msgSn = 2;
+}
+
+message OneGroupHistoryMsgRsp{
+		GroupHistoryMsg groupHistoryMsg = 1;
+}
+
+// 删除单个消息
+//rpc DelOneGroupHistoryMsg(pb_msg_group.DelOneGroupHistoryMsgReq) returns (pb_msg_group.DelOneGroupHistoryMsgRsp);
+message DelGroupHistoryMsgReq{
+	repeated int64 id = 1;
+	repeated int64 msgSn = 2;
+}
+
+message DelGroupHistoryMsgRsp{
+}
+
+///////////////////
+// 读取列表一次读完
+// 已读用户列表
+message ReadUserInfo{
+	int64 readerUserId = 1;
+	pb_pub.MSG_STATE readStatus = 2;
+	int64 upDateAt = 3;
+}
+message GroupMsgReadListReq{
+	int64 msgSn = 1; // 相关消息sn
+}
+message GroupMsgReadListRsp{
+	// 条数
+	int64 msgSn = 1; // 相关消息sn
+
+	repeated ReadUserInfo readUserInfo = 2;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// 以下为群聊消息
+
+// 纯文本聊天
+message GroupChat{
+    int64 aim_user_id = 2;	// 对方id
+    pb_pub.TextChatType chat_type = 3;	// 聊天类型
+    string data = 4;	// 携带数据，如：图片地址，视频地址，礼物地址，id等
+    string text = 5;	// 聊天文字
+    map<string, string> exp = 6; // 扩展参数
+    int64 aimUserAppId = 7;
+    string aimUserAppUserId = 8;
+}
+
+// 表情
+message GroupEmoticon{
+	int32 packageId = 1;  // 表情包id，默认0系统包
+	int32 emoticonId = 2; // 表情id，每个表情包唯一
+}
+
+// 多媒体
+message GroupMedia{
+	int32 mediaType = 1; // 0:图片 1:语音 2:视频 3:文件
+	string srcPath = 2; // 资源路径
+}
+
+// 礼物
+message GroupGift{
+	int32 giftId = 1;
+}
+
+message BigGroupHisMsg{
+	int64 msgId = 1; // 群内消息自增
+
+	///////////////////////////////////////////////////////////
+	// 组建pbcommdata 参数  begin
+	// CommData 结构冗余东西太多，这里给他精简，尽量减小总体消息包
+	// 客户端根据这些参数组装commdata,另行存储
+	int64 groupId = 2;
+	int64 msgSn = 3;
+	int64 srcId = 4;
+	int64 createdAt = 7;
+	repeated int64 atList = 8; // @列表
+	// 组建pbcommdata 参数 结束
+	////////////////////////////////////////////////////////////
+
+	string pbName = 5;
+	bytes pbData = 6;
+}
+
+message UserReadStatus{
+	int64 userId = 1;
+	pb_pub.MSG_STATE readStatus = 2;
+	//	int64  upDateAt = 3;
+}
+
+message GroupHistoryMsg{
+	int64 groupId = 1;
+	int64 groupMsgSn = 2; // 群消息sn，每个群自增
+	int64 msgSn = 3;
+	int64 srcId = 4;
+	string pbName = 5;
+	bytes pbData = 6;
+	pb_pub.MSG_STATE msgStatus = 7; // 本消息的状态
+	repeated UserReadStatus atUserReadStatus = 8;	 // 被at到的用户的读写状态
+	int64 createdAt = 9;
+	int64 updatedAt = 10;
+	bytes pbCommData = 11;
+}
+
+// 准备好接收群新消息信息，无返回，发送成功即可
+message ReadyForGroupsNewMsgInfoReq{
+}
+message ReadyForGroupsNewMsgInfoRsp{
+}
+// 获取用户相关所有群新消息信息
+message UserGroupsNewMsgInfo{
+	int64 groupId = 1;//相关群id
+	int32 newMsgCount = 2;// 相关群未读消息数
+	GroupHistoryMsg lastHisMsg = 3; // 最后一条消息
+}
+// ReadyForGroupsNewMsgInfoReq 消息到服务端后会触发下面的notify
+message GroupsNewMsgInfoNotify{
+	repeated UserGroupsNewMsgInfo infoItem = 4;
+}
+
+//////////////////////// 主动读取
+message FetchGroupHistoryMsgReq{
+	int64 page = 1; // 页码，默认第一页
+	int64 pageSize = 2;// 每页条数
+
+	// 查询条件
+	int64 startCreatedAt = 3;
+	int64 endCreatedAt   =4;
+	int64 startUpdatedAt =5;
+	int64 endUpdatedAt   =6;
+	int64 msgSn = 7;
+	int64 groupId = 8;
+	int32 msgStatus = 9;
+	int64 srcId = 10;
+	string pbName = 11;
+//	Msg          string `json:"msg" form:"msg"`
+}
+
+message FetchGroupHistoryMsgRsp{
+	int64 page = 1; // 页码，默认第一页
+	int64 pageSize = 2;// 每页条数
+	int64 total = 3;// 总数
+	// 消息
+	repeated GroupHistoryMsg pbHisMsg = 4;
+}
+
+//////////////////////// 主动读取
+message FetchGroupHistoryMsgFromGroupMsgSnReq{
+	int64 startGroupMsgSn = 1; // 群消息sn，每个群自增;
+	int64 wantCount = 2;// 条数
+	bool orderDesc = 3; // 排序规则，是否倒叙，0：正序，1:倒叙
+}
+
+message FetchGroupHistoryMsgFromGroupMsgSnRsp{
+	int64 startGroupMsgSn = 1; // 群消息sn，每个群自增;
+	int64 wantCount = 2;// 条数
+	bool 	orderDesc = 3; // 排序规则，是否倒叙，0：正序，1:倒叙
+
+	// 消息
+	repeated GroupHistoryMsg pbHisMsg = 4;
+}
+
+// 群置顶请求,true 为置顶， false：取消置顶
+message GroupTopSetReq{
+	bool top = 1;
+}
+message GroupTopSetRsp{
+	bool top = 1;
+}
+
+// 修改群备注参数
+message EditGroupRemarkReq{
+	string remark = 1;
+}
+message EditGroupRemarkRsp{
+	string remark = 1;
+}
+
+// 修改群成员备注参数
+message EditMemberRemarkReq{
+	int64 remarkedUserId = 1;
+	string remark = 2;
+}
+message EditMemberRemarkRsp{
+	int64 remarkedUserId = 1;
+	string remark = 2;
+}
+
+// 判断是否群成员
+message IsGroupMemberReq{}
+message IsGroupMemberRsp{
+	bool IsGroupMember = 1; // false:不是 true:是
+}
+
+message StatusChangeItem{
+	int64 msgSn = 1;
+	pb_pub.MSG_STATE msgCurStatus = 2; // 离线消息最终状态
+}
+
+// 服务端发送给客户端
+message GroupOfflineMsgStatusChangeNotify{
+	int64 session = 1; // 客户端发送确认收到消息时把此数据原样返回
+	repeated StatusChangeItem StatusChangeItems = 2;
+}
+
+// 客户端发回给服务端，确认已经收到
+message GroupOfflineMsgStatusChangeNotifyReceived{
+	int64 session = 1; // 此数据取自GroupOfflineMsgStatusChangeNotify 消息的session字段
+}
+
+// 群用户禁言状态，只有管理员才可发言
+message SetMemberChatBannedStatusReq{
+	int32 bannedStatus = 1;
+}
+message SetMemberChatBannedStatusRsp{
+	int32 bannedStatus = 1;
+}
+
+// 群用户禁言状态，只有管理员才可发言
+message SetNewMemberRemindReq{
+	bool newMemberRemindClosed = 1;
+}
+message SetNewMemberRemindRsp{
+	bool newMemberRemindClosed = 1;
+}
+
+// 禁言状态改变通知
+message MemberChatBannedStatusChangeNotify{
+	int32 bannedStatus = 1;
+}
+
+/////////////////////////////
+// 扫码入群开关 开始
+// 关闭状态： 二维码永久失效，无法扫码入群，再次开启则会使用新的key产生新的二维码
+// 开启状态: 用户可以通过扫码入群
+message SetScanCodeJoinGroupSwitchReq{
+	bool switchStatus = 1; // false 关闭扫码入群；true开启扫码入群
+}
+
+message SetScanCodeJoinGroupSwitchRsp{
+	bool switchStatus = 1; // false 关闭扫码入群；true开启扫码入群
+	string scanCodeKey = 2; // 扫码加群需要携带的参数，用于验证是否有效
+}
+
+// 扫码入群开关通知
+message ScanCodeJoinGroupSwitchStatusChangeNotify{
+	bool switchStatus = 1;
+	string scanCodeKey = 2; // 扫码加群需要携带的参数，用于验证是否有效
+}
+// 扫码入群开关 开始
+/////////////////////////////
+
+//////////////////////////////
+// 清理群历史消息 开始
+message ClearHisMsgReq{
+}
+
+message ClearHisMsgRsp{
+}
+// 清理群历史消息 结束
+////////////////////////////////
+
+// 设置是否可以自由加入
+message SetFreeJoinStatusReq{
+	bool freeJoinStatus = 1; // false:不开放，需要审核才能加入群， true:开放，无需审核即可加入群
+}
+message SetFreeJoinStatusRsp{
+	bool freeJoinStatus = 1; // false:不开放，需要审核才能加入群， true:开放，无需审核即可加入群
+}
+message FreeJoinStatusChangeNotify{
+	bool freeJoinStatus = 1; // false:不开放，需要审核才能加入群， true:开放，无需审核即可加入群
+}
+
+// 设置属性统一接口
+message SetGroupPropReq{
+	string key= 1; // 更新的字段名,格式同json
+	string value = 2;// 更新的数据, bool 型 0:false, 其他true
+}
+
+message GroupPropChangeNotify{
+	string key= 1; // 更新的字段名
+	string value = 2;// 更新的数据, bool 型 0:false, 其他true
+}

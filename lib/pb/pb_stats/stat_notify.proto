@@ -1,0 +1,43 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_stats";
+package pb_pub;
+
+import "pb_pub/comm.proto";
+
+message StatisticNotify {
+    PBCommData pbCommData = 1;
+    string pbName = 2;
+    bytes pbData = 3;
+}
+
+// 邀请状态变更
+message InvitationStatusChanged {
+    int64 callerId = 1;
+    int64 calleeId = 2;
+    int64 inviteTime = 3;
+    int64 interval = 4;
+    int64 price = 5;
+    int32 status = 6;
+}
+
+// chatroom 关闭
+message ChatRoomClosed {
+    int64 roomId = 1;
+    int64 callerId = 2;
+    int64 calleeId = 3;
+    int64 startTime = 4;
+    int64 closeTime = 5;
+    int64 duration = 6;
+    int64 interval = 7;
+    int64 price = 8;
+    int64 round = 9;
+}
+
+// videoroom 关闭
+message VideoRoomClosed {
+    int64 userId = 1; // 用户Id
+    int64 roomId = 2; // 房间Id
+    int64 EnterTime = 3; // 进入时刻(ts 精度秒)
+    int64 ExitTime = 4; // 离开时刻(ts 精度秒)
+    int64 WatchTime = 5; // 观播▶️时长
+}

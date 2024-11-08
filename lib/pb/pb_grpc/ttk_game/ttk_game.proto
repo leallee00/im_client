@@ -1,0 +1,12 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_grpc/ttk_game";
+
+// import "pb_pub/comm.proto";
+// import "pb_msg/ttk_game/ttk_game.proto";
+import "pb_msg/ttk_game/ttk_game.proto";
+
+package pb_grpc_ttk_game;
+
+service TTKGame {
+    rpc TTKGameState(pb_msg_ttk_game.TTKGameStateReq) returns (pb_msg_ttk_game.TTKGameStateRsp) {}
+}

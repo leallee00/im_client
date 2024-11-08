@@ -1,0 +1,27 @@
+config:
+  - cfgAllocatorUrl: http://139.198.115.35:11000
+    urlUploadFile: http://139.198.115.35:11070
+    cfgImInterApiUrl: http://139.198.115.35:11190
+    cfgImOutApiUrl: http://139.198.115.35:11120
+    cfgAppGateApiHost: http://139.198.115.35:11260
+    score: 1000
+    name: 广东节点
+    delay: 1000
+  - cfgAllocatorUrl: http://3.28.76.231:11000
+    urlUploadFile: http://3.28.76.231:11070
+    cfgImInterApiUrl: http://3.28.76.231:11190
+    cfgImOutApiUrl: http://3.28.76.231:11120
+    cfgAppGateApiHost: http://3.28.76.231:11260
+    score: 1000
+    name: 迪拜节点
+    delay: 1000
+
+test:
+  - cfgAllocatorUrl: http://121.41.75.71:11000/Allocater/GetTcpGate
+    urlUploadFile: http://121.41.75.71:11070
+    cfgImInterApiUrl: http://121.41.75.71:11190
+    cfgImOutApiUrl: http://121.41.75.71:11120
+    cfgAppGateApiHost: http://121.41.75.71:11260
+    score: 1000
+    name: 开发环境
+    delay: 1000

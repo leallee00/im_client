@@ -1,0 +1,26 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_grpc/game_scene";
+
+// import "google/protobuf/any.proto";
+import "pb_pub/comm.proto";
+import "pb_msg/game_scene/game_scene.proto";
+// import "pb_grpc/live_room/live_room.proto";
+
+package pb_grpc_game_scene;
+
+service GameScene {
+    rpc HeartBeat(pb_pub.HeartBeat) returns (pb_pub.HeartBeat) {}
+    rpc GameInvite (pb_msg_game_scene.GameInviteReq) returns (pb_msg_game_scene.GameInviteRsp);
+    rpc GameDisinvite (pb_msg_game_scene.GameDisinviteReq) returns (pb_msg_game_scene.GameDisinviteRsp);
+    rpc GameAnswer (pb_msg_game_scene.GameAnswerReq) returns (pb_msg_game_scene.GameAnswerRsp);
+    rpc GameOver (pb_msg_game_scene.GameOverReq) returns (pb_msg_game_scene.GameOverRsp);
+    // rpc GameStatus (GameStatusReq) returns (GameStatusRsp);
+}
+
+// message GameStatusReq {
+//     int64 userId = 1;
+// }
+// message GameStatusRsp {
+//     bool has = 1;
+//     int64 peerId = 2;
+// }

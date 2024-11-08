@@ -1,0 +1,64 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/live_room";
+package pb_msg_live_room;
+
+// 开始PK srcid 自己, aimid 房间ID
+message MultiPKStartReq {
+    int64 competeDuration = 1;
+    int64 penalizeDuration = 2;
+}
+message MultiPKStartRsp {}
+
+// 主动结束PK  srcid 自己, aimid 房间ID
+message MultiPKStopReq {} 
+message MultiPKStopRsp {}
+
+// PK状态
+enum MULTI_PK_STATE {
+    IDLING     = 0; // 空闲中
+    COMPETING  = 1; // 比赛中
+    PENALIZING = 2; // 惩罚中
+}
+
+// PK信息
+// 1. 进房时单推
+message MultiPKInfo {
+    MULTI_PK_STATE state = 1; // 状态
+    int64 endTime = 2; // 当前状态结束时间点
+    int64 blueScore = 3; // 蓝队PK值
+    int64 redScore = 4; // 红队PK值
+    // map<int64,int64> anchorsScore = 5; // userId >> score
+}
+
+// PK状态变化通知
+message MultiPKStateChangeNotify {
+    MULTI_PK_STATE fromState = 1;
+    MultiPKInfo info = 2;
+}
+
+// PK值变化通知
+// srcId 主播ID aimId 房间ID
+message MultiPKScoreChangeNotify {
+    int64 actorId = 1;       // PK贡献值变化的主播Id
+    int64 score = 2;        // 该主播(srcId)的最新PK贡献值
+    int64 blueScore = 3;    // 蓝方最新PK值
+    int64 redScore = 4;     // 红方最新PK值
+    int64 timestamp = 5;    // 旧的不能覆盖新的
+}
+
+// // 主播PK值变化通知
+// message MultiPKAnchorScoreChangeNotify { // srcid 主播ID, aimId 房间ID
+//     int64 score = 1;
+//     int64 timestamp = 2;
+// }
+
+
+/*
+状态机
+
+IDLING
+    COMPETING       -- 比赛开始
+        PENALIZING  -- 比赛阶段结束
+            IDLING  -- 惩罚阶段结束
+        IDLING      -- 客户端主动结束,比赛阶段提前结束
+*/

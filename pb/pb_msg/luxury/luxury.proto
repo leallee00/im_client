@@ -1,0 +1,56 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/luxury";
+package pb_msg_luxury;
+
+// 拍卖最高出价信息推送
+message TopAuctionBidNotify {
+    int64 goodsId = 1;//商品id
+    int64 shopId = 2;
+    int64 topBidderId =3;//最高有效出价者id
+    double topBidPrice = 4;//最高出价
+}
+
+// 拍卖出价信息推送
+message AuctionBidNotify {
+    int64 goodsId = 1;//商品id
+    int64 shopId = 2;
+    string buyerName =3;//出价者
+    double bidPrice = 4;//价格
+}
+
+// 商品上架推送
+message GoodsOnShelfNotify {
+    int64 goodsId = 1;//商品id
+    string coverUrl =2;//封面url
+    string name = 3;//名字
+    double price = 4;//一口价时该字段有效   价格
+    int32 sellType = 5;//售卖类型 一口价：1，拍卖：2
+    double openingAsk = 6;//拍卖时，该字段有效  起拍价
+    double bidStepSize = 7;//拍卖时，该字段有效  拍卖每次加价数量
+    int64 shopId = 8;//商店id
+}
+
+// 商品下架推送
+message GoodsOffShelfNotify {
+    int64 goodsId = 1;//商品id
+    int64 shopId = 2;//商店id
+}
+
+// 买家购买消息推送
+message BuyNotify {
+    string buyerName = 1;//买家名字
+    string goodsName = 2; //商品名字
+    int64 shopId = 3;//商店id
+}
+
+// 集市买家付款成功消息推送
+message B2CPickUpPayResultNotify {
+    string systemOrderId = 1;//订单id
+    bool success = 2; //是否成功
+}
+
+// 集市买家核销成功消息推送
+message B2CApplyResultNotify {
+    string systemOrderId = 1;//订单id
+    bool success = 2; //是否成功
+}

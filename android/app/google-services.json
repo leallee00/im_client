@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "734556196796",
+    "project_id": "laiwang-2cb78",
+    "storage_bucket": "laiwang-2cb78.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:734556196796:android:a4df1c69c7616022eaa5b9",
+        "android_client_info": {
+          "package_name": "com.commim.uc"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "734556196796-16i1n1b0u7n093i256lrc8go3051ck27.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUKQ5rZ_uFP7KIl5hIKIGTEx-4TRwDDro"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "734556196796-16i1n1b0u7n093i256lrc8go3051ck27.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

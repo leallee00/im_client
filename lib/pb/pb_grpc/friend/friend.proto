@@ -1,0 +1,38 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_grpc/friend";
+
+// import "google/protobuf/any.proto";
+// import "pb_pub/comm.proto";
+import "pb_msg/friend/friend.proto";
+// import "pb_grpc/live_room/live_room.proto";
+
+package pb_grpc_friend;
+
+service Friend {
+    // 好友申请
+    rpc Apply (pb_msg_friend.ApplyReq) returns (pb_msg_friend.ApplyRsp);
+    // 应答入群申请
+    rpc ApplyAnswer (pb_msg_friend.ApplyAnswerReq) returns (pb_msg_friend.ApplyAnswerRsp);
+    // 获取我的好友
+    rpc Friends (pb_msg_friend.FriendsReq) returns (pb_msg_friend.FriendsRsp);
+    // 好友详情
+    rpc FriendDetail (pb_msg_friend.FriendDetailReq) returns (pb_msg_friend.FriendDetailRsp);
+    // 好友申请记录,我申请的&申请我的
+    rpc Applications (pb_msg_friend.ApplicationsReq) returns (pb_msg_friend.ApplicationsRsp);
+    // 更新好友信息
+    rpc UpdateFriend (pb_msg_friend.UpdateFriendReq) returns (pb_msg_friend.UpdateFriendRsp);
+    // 删除好友
+    rpc DeleteFriend(pb_msg_friend.DeleteFriendReq) returns (pb_msg_friend.DeleteFriendRsp);
+
+    // gm加好友
+    rpc GmMakeFriendRelation(pb_msg_friend.GmMakeFriendRelationReq) returns (pb_msg_friend.GmMakeFriendRelationRsp);
+
+    // 判断是否好友
+    rpc IsFriend(pb_msg_friend.IsFriendReq) returns (pb_msg_friend.IsFriendRsp);
+
+    // 读取黑名单列表
+    rpc ReadBlackList(pb_msg_friend.ReadBlackListReq) returns (pb_msg_friend.ReadBlackListRsp) {}
+
+    // 判断是否在黑名单中
+    rpc IsInBlackList(pb_msg_friend.IsInBlackListReq)returns (pb_msg_friend.IsInBlackListRsp) {}
+}

@@ -1,0 +1,228 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/pk_room";
+package pb_msg_pk_room;
+
+// 匹配PK ////////
+
+// 主播申请加入随机PK请求
+message PKEnqueueReq   // srcid 主播 aimid 主播 hashkey=srcid
+{
+    PK_TYPE pkType = 1; // 0 随机PK 1 段位PK 2 邀请PK(此处禁用)
+    int64   rank   = 2; // 段位积分
+}
+
+message PKEnqueueRsp
+{}
+
+// 从PK队列中移除
+message PKDequeueReq    // srcid 主播 aimid 主播 hashkey=srcid
+{
+    PK_TYPE pkType = 1;  // 0 随机PK 1 段位PK 2 邀请PK(此处禁用)
+}
+
+message PKDequeueRsp
+{}
+
+
+// 主播响应是否接受随机创建的PK
+message PKAnswerReq{    // srcid 己方 aimid 对方 hashkey=pkroomid
+    ANSWER answer = 1;
+}
+message PKAnswerRsp
+{}
+
+
+
+// 主动结束PK,逃兵
+message PKEscapeReq  // srcid 主退主播 aimid 被退主播 hashkey=pkroomid
+{}
+message PKEscapeRsp
+{}
+
+
+// 邀请PK ////////
+
+// 主播A邀请主播B进行PK
+message PKInviteReq  // srcid 邀请方 aimid 被邀方   hashkey=pkroomid
+{
+    string pkTopic = 1;
+}
+message PKInviteRsp
+{}
+
+
+// 邀请方取消PK邀请
+message PKInviteStopReq // srcid 邀请方 aimid 被邀方 hashkey=pkroomid
+{}
+message PKInviteStopRsp
+{}
+
+/*
+// 被邀请方响应是否接受邀请
+message PKInviteAnswerReq  // srcid 被邀方 aimid 邀请方 hashkey=pkroomid
+{
+    ANSWER answer = 1;
+}
+message PKInviteAnswerRsp
+{}
+*/
+
+enum ANSWER
+{
+    REFUSE = 0;  // 拒绝连麦
+    AGREE  = 1;  // 同意连麦
+}
+
+enum PK_TYPE
+{
+    RANDOM = 0;
+    RANK   = 1;
+    INVITE = 2;
+    GRAND_RANK = 3;
+    SUMMIT_FINAL = 4; // 巅峰决赛PK类型
+}
+
+// PKGameOverNotify 中 END_TYPE
+enum END_TYPE {
+    NATURAL = 0; // 自然结束
+    MANUAL  = 1; // 手动结束
+}
+
+enum PK_STATUS
+{
+    IDLING     = 0; // 空闲中
+    QUEUING    = 1; // 排队中
+    RINGING    = 2; // 响铃中
+    WAITING    = 3; // 等待对方表态中
+    COMPETING  = 4; // 比赛中
+    PENALIZING = 5; // 惩罚中
+}
+
+message PKRoomInfo{
+    PK_STATUS pkStatus = 1; // pk状态
+    int64     endTime  = 2; // 比赛截止时间
+    PK_TYPE   pkType   = 3; // PK类型
+    string    pkTopic  = 4; // pk主题
+    int64     pkScore  = 5; // 我方PK值
+    PKUser    peer     = 6; // 对方信息
+    END_TYPE  endType  = 7;
+    int64     winnerId = 8;
+    MVP       mvp      = 9;
+}
+
+// PKUser, 强烈建议大佬们看下在下面涉及peer的消息中复用此结构可好
+message PKUser
+{
+    int64   id                  = 1; // 对方ID
+    string  username            = 2; // 对方用户名
+    string  headerImageOriginal = 3; // 对方头像
+    int64   rank                = 4; // 对方段位
+    int64   victoryTimes        = 5; // 对方连胜次数
+    string  pullStreamAddress   = 6; // 对方拉流地址
+    int64   pkScore             = 7; // 对方PK值
+}
+
+// 房间PK状态更新通知
+message PKStatusChangeNotify
+{
+    // int32    roomStatus   = 1; // 房间状态更新
+    PK_STATUS pkStatus = 1; // pk状态
+    // int64    endTime      = 3; // 状态结束时间点
+}
+
+// 匹配成功通知消息
+message PKMatchedNotify
+{
+    int64   endTime                 = 1; // 等待截止时间
+    PK_TYPE pkType                  = 2; // PK类型
+    string  pkTopic                 = 3; // pk主题
+    int64   peerId                  = 4; // 对方ID
+    string  peerUsername            = 5; // 对方用户名
+    string  peerHeaderImageOriginal = 6; // 对方头像
+    int64   peerRank                = 7; // 对方段位
+    int64   peerVictoryTimes        = 8; // 对方连胜次数
+    string  peerPullStreamAddress   = 9; // 对方拉流地址
+}
+
+// 对方已拒绝
+message PKPeerRefusedNotify
+{}
+
+// PK开始
+message PKStartNotify
+{
+    int64   endTime                 = 1; // 比赛截止时间
+    PK_TYPE pkType                  = 2; // PK类型
+    string  pkTopic                 = 3; // pk主题
+    int64   peerId                  = 4; // 对方ID
+    string  peerUsername            = 5; // 对方用户名
+    string  peerHeaderImageOriginal = 6; // 对方头像
+    int64   peerRank                = 7; // 对方段位
+    int64   peerVictoryTimes        = 8; // 对方连胜次数
+    string  peerPullStreamAddress   = 9; // 对方拉流地址
+}
+
+// PK比赛阶段结束
+message PKGameOverNotify
+{
+    int64    endTime          = 1;  // 惩罚截止时间, endType为自然结束时有效
+    END_TYPE endType          = 2;  // 结束类型
+    int64    pkScore          = 3;  // 我方PK值
+    int64    rank             = 4;  // 我方段位
+    int64    victoryTimes     = 5;  // 我方连胜次数
+    int64    peerPKScore      = 11; // 对方PK值
+    int64    peerRank         = 12; // 对方段位
+    int64    peerVictoryTimes = 13; // 对方连胜次数
+    int64    winnerId         = 21; // 胜方ID
+    MVP      mvp              = 22; // MVP
+}
+// PKGameOverNotify 中 MVP 信息
+message MVP
+{
+    int32   actorGrade          = 1;
+    string  bigImageOriginal    = 2;
+    string  headerImageOriginal = 3;
+    bool    isLiving            = 4;
+    bool    levelPrivilegeOpen  = 5;
+    string  nickName            = 6;
+    int64   userID              = 7;
+    string  userLevel           = 8;
+}
+
+message PKOverNotify
+{
+    PK_STATUS pkStatus = 1; // 结束时状态
+}
+
+message PassivePKRefuseReq {
+    int64 opponentId = 1;
+    int64 refuseId = 2;
+    string topic = 3;
+}
+
+// 主动普通pk切换为被动段位pk
+message PKSwitchPassiveReq {
+    int64 roomId = 1;
+    int64 rank = 2;
+}
+
+// 被动PK通知
+message PassivePkNotify {
+    pb_msg_pk_room.PK_TYPE pkType = 1;  // 被动pk类型，1为段位pk，3为大奖赛段位pk
+}
+
+// 大奖赛权限变更通知
+message PKTournamentChangeNotify {
+    bool   isQualifiedPkTournament  = 1; // 是否参加大奖赛,true->可参加
+    string pkTournamentBeginTime    = 2; // 大奖赛开始时间
+    string pkTounamentTip           = 3; // 大奖赛展示
+}
+
+message CanJoinPkTournamentReq {
+}
+
+message CanJoinPkTournamentRsp {
+    bool isQualifiedPkTournament = 1;
+    string PkTournamentBeginTime = 2;
+    string PkTounamentTip = 3;
+}

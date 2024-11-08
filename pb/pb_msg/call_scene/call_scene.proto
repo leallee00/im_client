@@ -1,0 +1,157 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/call_scene";
+package pb_msg_call_scene;
+import "pb_pub/error_code.proto";
+
+// 通话场景状态
+enum CALL_SCENE_STATE{
+    CALL_SCENE_STATE_INIT = 0; // 初始状态
+    CALL_SCENE_STATE_CALLING = 1; // 呼叫中
+    CALL_SCENE_STATE_ONLINE = 2; // 通话中
+    CALL_SCENE_STATE_CALL_END = 3; // 通话结束
+}
+
+// 通话场景结束原因
+enum CALL_OVER_RESION{
+    CALL_OVER_RESION_TIMEOUT = 0; // 用户掉线
+    CALL_OVER_RESION_CALLEE_NOT_ONLINE = 1; // 对方不在线
+    CALL_OVER_RESION_CALLEE_NO_ANSWER = 2; // 对方无应答
+    CALL_OVER_RESION_CALLEE_OFFLINE = 3; // 被叫掉线
+    CALL_OVER_RESION_CALLER_OFFLINE = 4; // 主叫掉线
+    CALL_OVER_RESION_CALLER_HANGUP = 5; // 主叫设备错误
+    CALL_OVER_RESION_CALLEE_HANGUP = 6; // 被叫设备错误
+    CALL_OVER_RESION_BALANCE_NOT_ENOUGH = 7; // 余额不足
+    CALL_OVER_RESION_CALLER_CANCEL = 8; // 主叫取消
+    CALL_OVER_RESION_CALLEE_BUZY = 9; // 被叫忙碌
+    CALL_OVER_RESION_CALLEE_NOT_ANSWER = 10; // 被叫动画播放完却没有接听
+}
+
+//通话类型
+enum CALL_TYPE{
+    CALL_TYPE_UNKNOWN = 0;
+    CALL_TYPE_VIDEO = 1;      // 视频
+    CALL_TYPE_VOICE = 2;      // 语音
+}
+
+// 开启通话请求
+message DialReq{
+    int64 CalleeId= 1;
+    CALL_TYPE CallType = 2;  // 通话类型
+    int32 ChatCoinType = 3;  // 0: 默认, 1:聊币版本
+    string ChannelName = 4;  // 通话房间
+}
+
+message DialRsp{
+    pb_pub.ErrCode result = 1; // 0 successed, other error
+    pb_pub.ErrCode code = 2; // 0 successed, other error
+}
+
+//message StartCallReq{
+//    int64 CalleeId = 1;   //被叫id
+//}
+//
+//message StartCallRsp{
+//    pb_pub.ErrCode result = 1; // 0 successed, other error
+//}
+
+// 已经通过第三方发起请求,等待对方回应，通知状态到服务器，通知一下不需返回
+message WaitForCalleeAnswerNotifyToServer{
+    int64 CalleeId = 1;    //被叫id
+    int64 YXChatId = 2;
+}
+
+//应答请求
+message AnswerCallReq{
+    ANSWER_OF_CALL answer = 1;
+}
+
+message AnswerCallRsp{
+    pb_pub.ErrCode result = 1; // 0 successed, other error
+    pb_pub.ErrCode code = 2; // 0 successed, other error
+}
+
+enum ANSWER_OF_CALL{
+    REFUSE = 0;  //拒绝通话
+    AGREE  = 1;  //同意通话
+    BUZY = 2; //忙碌
+    NOT_ANSWER = 3; // 动画播完没接听, 实际上没必要, 客户端非要, 随他吧
+}
+
+// 挂断请求
+message HangUpReq{
+    int64 userId  = 1;   //挂断方id
+    int64 sceneId = 2;   //房间id, 若userId=sceneId说明是主播挂断
+}
+
+message HangUpRsp{
+    pb_pub.ErrCode result = 1; // 0 successed, other error
+    pb_pub.ErrCode code = 2; // 0 successed, other error
+}
+
+//通话结束通知
+message CallOverNotify{
+    int64 Caller  = 1;  	// 主叫
+    int64 Callee = 2;	// 被叫
+	int64 CallerTotalFee = 3; // 主叫总花费
+	int64 CalleeTotalEarn = 4; // 被叫总收入
+    int64 CallTime = 5;  // 通话总时长
+    CALL_OVER_RESION CallOverResion = 6; // 结束原因
+}
+
+// 场景状态变化通知
+message CallSceneStateChangeNotify{
+    int64 Caller  = 1;  	// 主叫
+    int64 Callee = 2;	// 被叫
+    int64 YXChatId = 3;     //云信id
+    CALL_SCENE_STATE OldState = 4;
+    CALL_SCENE_STATE NewState = 5;
+}
+
+//场景恢复通知
+message SceneRecoverNotify{
+    int64 Caller  = 1;         // 主叫
+    int64 Callee = 2;	       // 被叫
+    int64 SceneBeginTime = 3;  // 场景开始时间
+    int64 OnLineBeginTime = 4; // 通话时间
+    int64 YXChatId = 5;        //云信id
+}
+
+//// 场景创建请求
+//message CreateSceneReq{
+//    int64 CalleeId= 1;
+//}
+//
+//message CreateSceneRsp{
+//    int32 Result = 1;  // 0  成功 其他失败码
+//}
+/////////////////////////////////
+// 财富变更通知
+message WealthChangeNotify{
+    WealthType WealthType = 1;   // 财富类型
+    int64 Change = 2; //变化量， 增加为正， 减少为负值
+    int64 Leave = 3; // 剩余量
+    WealthChangeReason Reason = 4;  // 变化原因
+}
+
+enum WealthType{
+    Unknown = 0;
+    Balance = 1; // 钻石
+    YeCoin = 2;    // 耶币
+}
+
+enum WealthChangeReason{
+    CallFee = 0;    // 拨打电话付费
+    EarnCallFee = 1;// 接听电话赚取
+}
+// 财富变更通知
+/////////////////////////////////
+
+//message Record {
+//    int64 UserId                 = 1;   // 变更方id
+//    int64 RelateId               = 2;   // 关联方id
+//    WealthType WealthType        = 3;   // 变更类型
+//    int64 Change                 = 4;   // 变更数量，正为加 负为减
+//    int64 Leave                  = 5;   // 剩余量
+//    int64 ChangeTime             = 6;   // 变更时间
+//    WealthChangeReason Reason    = 7;   // 变更原因
+//}

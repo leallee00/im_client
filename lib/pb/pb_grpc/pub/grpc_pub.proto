@@ -1,0 +1,58 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_grpc/pub";
+package pb_grpc_pub;
+
+import "pb_pub/service.proto";
+
+message SendToAllUserReq{
+    map<string, string> exp = 1; // 扩展参数
+    string pbName = 2;
+    bytes pbData = 3;
+}
+
+message SendToAimUserReq{
+    map<string, string> exp = 1; // 扩展参数
+    string pbName = 2;
+    bytes pbData = 3;
+    int64  userId = 4;    // 在调用msg_sender时可不填,在调用Gate时由于可能是发给自己的其他端,为了不破坏pcd,必填
+}
+
+message SendToAimUserListReq{
+    map<string, string> exp = 1; // 扩展参数
+    repeated int64 userList = 2;
+    string pbName = 3;
+    bytes pbData = 4;
+}
+
+message SendToAllGroupReq{
+    pb_pub.Service serviceType = 1; // 房间类型， 普通房间 0， 直播间 1
+    map<string, string> exp = 2; // 扩展参数
+    string pbName = 3;
+    bytes pbData = 4;
+}
+
+message SendToAimGroupReq{
+    pb_pub.Service serviceType = 1; // 房间类型， 普通房间 0， 直播间 1
+    map<string, string> exp =2; // 扩展参数
+    string pbName = 3;
+    bytes pbData = 4;
+}
+
+message SendToAimClientsReq{
+    repeated int64 clients = 1;
+    string pbName = 2;
+    bytes pbData = 3;
+}
+
+// message SendToGroupMemberReq{
+//     string pbName = 1;
+//     bytes pbData = 2;
+//     map<string, string> exp = 3; // 扩展参数
+// }
+
+// message SendToUserAllClientsReq{
+//     int64 userId = 1;   // 在调用msg_sender时可不填,在调用Gate时由于可能是发给自己的其他端,为了不破坏pcd,必填
+//     string pbName = 2;
+//     bytes pbData = 3;
+//     map<string, string> exp = 4; // 扩展参数
+// }

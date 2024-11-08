@@ -1,0 +1,54 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_grpc/gate";
+package pb_grpc_gate;
+
+import "pb_msg/gate/gate.proto";
+import "pb_pub/comm.proto";
+import "pb_grpc/pub/grpc_pub.proto";
+import "pb_pub/service.proto";
+
+service Gate {
+    // 私聊逻辑判断
+    rpc KickOffUser(pb_msg_gate.KickOffUser) returns (pb_pub.CommRsp) {}
+
+    // 发送到指定用户
+    rpc SendToAimUser(pb_grpc_pub.SendToAimUserReq) returns (pb_pub.CommRsp) {}
+
+    // 发送到指定群
+    rpc SendToAimGroup(pb_grpc_pub.SendToAimGroupReq) returns (pb_pub.CommRsp) {}
+
+    // 发送到所有用户
+    rpc SendToAllUser(pb_grpc_pub.SendToAllUserReq) returns (pb_pub.CommRsp) {}
+
+    // 发送到所有群
+    rpc SendToAllGroup(pb_grpc_pub.SendToAllGroupReq) returns (pb_pub.CommRsp) {}
+
+    // 发送到所有群
+    rpc SendToAimClients(pb_grpc_pub.SendToAimClientsReq) returns (pb_pub.CommRsp) {}
+
+    // 回执消息
+    rpc MsgReceipt (pb_pub.MsgReceipt) returns (pb_pub.CommRsp);
+
+    // // 发送给用户的所有在线客户端
+    // rpc SendToUserAllClients(pb_grpc_pub.SendToUserAllClientsReq) returns (pb_pub.CommRsp) {}
+
+    // 把用户从gate上的房间移除
+    rpc RemoveUserFromGateRoom(pb_msg_gate.RemoveUserFromGateRoomReq) returns (pb_pub.CommRsp);
+
+    // 服务端直接发送消息
+    rpc SendMsgFromServer(pb_pub.PBMessage) returns (pb_pub.PBMessage);
+}
+
+// 进入房间通知
+message UserEnterRoomNotify{
+    int64 userId = 1;
+    pb_pub.Service serviceType = 2;
+    int32 groupId = 3;
+}
+
+// 离开房间通知
+message UserExitRoomNotify{
+    int64 userId = 1;
+    pb_pub.Service serviceType = 2;
+    int32 groupId = 3;
+}

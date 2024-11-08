@@ -1,0 +1,20 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_grpc/followship";
+
+// import "google/protobuf/any.proto";
+// import "pb_pub/comm.proto";
+import "pb_msg/followship/followship.proto";
+// import "pb_grpc/live_room/live_room.proto";
+
+package pb_grpc_followship;
+
+service Followship {
+    // 关注
+    rpc Follow (pb_msg_followship.FollowReq) returns (pb_msg_followship.FollowRsp);
+    // 取消关注
+    rpc Unfollow (pb_msg_followship.UnfollowReq) returns (pb_msg_followship.UnfollowRsp);
+    // 关注我的人
+    rpc Followers (pb_msg_followship.FollowersReq) returns (pb_msg_followship.FollowersRsp);
+    // 我关注的人
+    rpc Followees (pb_msg_followship.FolloweesReq) returns (pb_msg_followship.FolloweesRsp);
+}

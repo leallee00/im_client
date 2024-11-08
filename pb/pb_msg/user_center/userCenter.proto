@@ -1,0 +1,276 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/user_center";
+package pb_msg_userCenter;
+import "pb_pub/error_code.proto";
+import "pb_pub/comm.proto";
+
+// 是否需要这个结构
+message FriendInfoReq {
+	repeated int64 friendUserIds = 1; //接受一个id 的列表
+}
+
+message FriendInfoRsp {
+	repeated FriendInfo results = 1; // 返回结果顺序和请求id 顺序一致,如果用户信息不存在，那FriendInfo 中除UserId外其他字段均为零值
+}
+
+// 这个就是取用户信息，如果取自己的信息就到uaa去取
+message UsersInfoReq {
+	repeated int64 UserIds = 1; //接受一个id 的列表
+}
+
+message UsersInfoRsp {
+	repeated UsersInfo results = 1; // 返回结果顺序和请求id 顺序一致,如果用户信息不存在，那FriendInfo 中除UserId外其他字段均为零值
+}
+
+message UsersInfo {
+	int64  userId                = 1; // 用户id,imid
+	string appUserId  = 2;//  用户在注册app上的用户id
+	int64 appId  = 3;// 注册的app 在im系统中注册的id
+	string registerApp = 4;//注册的app名称，通过那个app注册的
+	string gender                = 5; // 性别
+	string headerImageOriginal   = 6; // 用户头像url
+	string userLevel             = 7; // 用户等级
+	string authAccess            = 8; // 实名认证是否通过
+	string nickName              = 9; // 昵称
+	string sign                  = 10; // 用户签名
+	int32  actorGrade            = 11; // 主播等级
+	int32		role =12;//  角色
+	bool		banned = 13;         //是否封禁
+	int32 memberFlag = 14;        // 成员标识
+	string bigImageOriginal = 15;// 背景大图链接
+	int32	userSourceVersion = 16;// 用户信息版本号，用户每改一次信息版本号+1
+	pb_pub.USER_STATE_TYPE State = 17; // 用户在线状态
+	bool freeAddMeFriend = 18; //是否开启不确认加好友，自由加好友
+	int32 status = 19; // 0:正常 10:注销
+}
+
+message FriendInfo {
+	int64  userId                = 1; // 用户id
+	string gender                = 2; // 性别
+	string headerImageOriginal   = 3; // 用户头像url
+	string userLevel             = 4; // 用户等级
+	string authAccess            = 5; // 实名认证是否通过
+	string nickName              = 6; // 昵称
+	string sign                  = 7; // 用户签名
+	int32  actorGrade            = 8; // 主播等级
+	string packageName           = 9; // 包名
+	string systemVersion         = 10; // 手机操作系统版本号    12.2
+	string phoneModels           = 11; // 手机型号             iPhone 7
+	string appVersion            = 12; // 椰趣版本号           2.2.5/debug2.5.6(build256)
+	string systemName            = 13; //                     android/iOS
+	string identifier            = 14; // 手机设备号
+	pb_pub.USER_STATE_TYPE userState = 15; // 用户在线状态
+	bool   switchToBack          = 16; //是否至后台
+	int64  updateTime            = 17; //用户状态更新时间
+	map<string, string> exp      = 18; // 扩展参数
+	int64 appId = 19;
+	string appUserId = 20;
+	pb_pub.MODEL_TYPE modelType   = 21;   // 推送厂商类型
+	int32 userSourceVersion = 22; 				//用户资源版本号
+	int32 status = 23; // 0:正常 10:注销
+}
+
+message AppUidToImIdReq {
+	int64 appId = 1;
+	string appUserId = 2;
+}
+
+message AppUidToImIdRsp {
+	int64 appId = 1;
+	int64 userId = 2;
+	string appUserId = 3;
+}
+
+
+/////////////////////////////////////////////
+// IM内部消息(mq)
+/////////////////////////////////////////////
+
+message OnlineNotify{
+    int64 userId = 1;
+}
+message OfflineNotify{
+    int64 userId = 1;
+}
+
+message SwitchBackNotify{
+	int64 userId = 1;
+}
+message SwitchFrontNotify{
+	int64 userId = 1;
+}
+
+message HeartbeatNotify{
+	int64 userId = 1;
+}
+
+/////////////////////////////////////
+// 红包
+// 发红包
+enum GrantScene {
+	PrivateChat = 0; // 私聊
+	GroupChat = 1; // 群聊
+}
+
+enum GroupRedPacketType {
+	Lucky = 0; // 拼手气
+	Average = 1; // 平均分配
+}
+
+// 发红包
+message RedPacketHandOutReq{
+	int64 grantUserId = 1; // 校验是否本人使用
+	int32 walletType = 2; // 钱包类型,积分还是什么
+	GrantScene grantScene  = 3; // 发送场景
+	GroupRedPacketType groupRedPacketType = 4; // 群红包分配类型
+	int64 aimId = 5; // 目标id
+	int64 groupAimId = 6; //群发时带的目标用户id
+	string description = 7; // 描述
+	int32 createCount = 8; // 生成个数
+	int64 createValue = 9; // 金额
+	string walletPasswd = 10;//
+	string aimName = 11; // 目标名称
+}
+
+message RedPacketHandOutRsp{
+	int64 redPacketId = 1; // 红包id
+	RedPacketInfo info = 2;
+	pb_pub.ErrCode errCode = 3; // 返回码
+	string reason = 4; // 原因
+}
+
+
+enum RedPacketStatus{
+	Edit = 0; // 编辑
+	Going = 1; // 发放中
+	Completed = 2; // 领完了
+	Overtime = 3; // 超时未领完,待退款
+	Refunded = 4; // 已退还
+}
+
+// 红包信息
+message RedPacketInfo{
+	int64 redPacketId = 1; // 红包id
+	int64 grantUserId = 2; // 发放者id
+	GrantScene           grantScene = 3; // 发放场景
+	GroupRedPacketType groupRedPacketType = 4; // 红包分发方式
+	int64 aimId = 5; // 发放目标，用户或群id等
+	int64 groupAimId = 6; // 群发时带的目标用户id列表,逗号分隔
+	string description = 7; // 描述
+	int32 createCount = 8; // 生成个数
+	int64 createValue = 9; // 金额
+	int32 remainCount = 10; // 剩余个数, 自己发的红包这两个才有效
+	int64 remainValue = 11; // 剩余金额，自己发的红包这两个才有效
+	RedPacketStatus status = 12; // 红包状态
+	int64 createTime = 13; // 红包创建时间
+}
+
+// 生成红包后通知到目标用户
+message RedPacketNotify{
+	int64 redPacketId = 1; // 红包id
+	RedPacketInfo info = 2; // 数据信息
+}
+
+//  结果  pb_pub.CommRsp
+// 领红包
+message RedPacketReceiveReq{
+	int64 redPacketId = 1; // 红包id
+}
+message RedPacketReceiveRsp{
+	int64 redPacketId = 1; // 红包id
+	int32 walletType = 2; // 钱包类型,积分还是什么
+	int64 receivedValue = 3; // 领取了多少
+	int64 grantUserId = 4; // 发放者id
+	GrantScene           grantScene = 5; // 发放场景
+	GroupRedPacketType groupRedPacketType = 6; // 红包分发方式
+	int64 aimId = 7; // 发放目标，用户或群id等
+//	int64 createValue = 9; // 金额
+//	int32 remainCount = 10; // 剩余个数, 自己发的红包这两个才有效
+//	int64 remainValue = 11; // 剩余金额，自己发的红包这两个才有效
+	RedPacketStatus status = 12; // 红包状态
+}
+
+// 领取红包后的通知，一般只通知给发放者，界面展示 xx领取了您的红包
+message RedPacketReceivedNotify{
+	int64 redPacketId = 1; // 红包id
+	int64 receiveUserId = 2;// 领取者id
+	int64 grantUserId = 3; // 发放者id
+	int64 aimId = 4; // 发放目标，用户或群id等
+	int64 receivedValue = 5;
+	int32 remainCount = 6; // 剩余个数, 自己发的红包这两个才有效
+	int64 remainValue = 7; // 剩余金额，自己发的红包这两个才有效
+	RedPacketStatus status = 8; // 红包状态
+}
+
+// 获取单个红包信息
+message RedPacketInfoReq{
+	int64 redPacketId = 1; // 红包id
+}
+message RedPacketInfoRsp{
+	RedPacketInfo data = 1; // 红包信息
+	bool isMeReceived = 2; // 我是否领了红包
+	int64 iReceivedCount = 3; // 我领了多少
+}
+
+// 红包领取列表数据
+message RedPacketReceivedItem{
+	int64 redPacketId = 1; // 红包id
+	int64 grantUserId = 2; // 发放者id
+	GrantScene           grantScene = 3; // 发放场景
+	GroupRedPacketType groupRedPacketType = 4; // 红包分发方式
+	int64 aimId = 5; // 发放目标，用户或群id等
+	int64 groupAimId = 6; // 群发时带的目标用户id列表,逗号分隔
+	string description = 7; // 描述
+	int64 recipientUserId = 8;
+	int64 receivedValue = 9;
+	int64 createdTime = 10; // 领取时间
+}
+
+// 自己领取的
+message RedPacketMyReceivedListReq{
+	int32 page = 1;
+	int32 pageSize = 2;
+}
+message RedPacketMyReceivedListRsp{
+	int32 page = 1;
+	int32 pageSize = 2;
+	int64 totalCount = 3;
+	repeated RedPacketReceivedItem items = 4;
+}
+
+// 自己发出去的红包列表
+message RedPacketMyHandedOutListReq{
+	int32 page = 1;
+	int32 pageSize = 2;
+}
+
+message RedPacketMyHandedOutListRsp{
+	int32 page = 1;
+	int32 pageSize = 2;
+	int64 totalCount = 3;
+	repeated RedPacketInfo items = 4;
+}
+
+message RedPacketFlowItem{
+	int64 id = 1;
+	int64 redPacketId = 2;
+	int64 recipientUserId = 3;
+	int64 value = 4;
+	int64 createTime= 5;
+}
+
+// 获取当前红包领取列表，打开红包后下面的领取列表
+message RedPacketCurFlowReq{
+	int32 page = 1;
+	int32 pageSize = 2;
+	int64 redPacketId = 3; // 红包id
+}
+
+message RedPacketCurFlowRsp{
+	int32 page = 1;
+	int32 pageSize = 2;
+	int64 totalCount = 3;
+	repeated RedPacketFlowItem items = 4;
+}
+// 红包结束
+/////////////////////////////////////

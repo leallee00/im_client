@@ -1,0 +1,53 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/black_list";
+package pb_msg_blackList;
+
+import "pb_pub/error_code.proto";
+
+//读取srcuser的黑名单列表
+message ReadBlackListReq {
+    int64 src_userid = 1;
+}
+
+message ReadBlackListRsp {
+    pb_pub.ErrCode result = 1;           //错误码
+    repeated string aim_userid = 2;      //黑名单
+}
+
+//判断aimuser是否在srcuser的黑名单列表中
+message JudgeBlackListReq {
+    int64 src_userid = 1;
+    int64 aim_userid = 2;
+}
+
+message JudgeBlackListRsp {
+    pb_pub.ErrCode result = 1;           //错误码
+    Judge_State state = 2;
+}
+
+//将aimuser存入srcuser的黑名单中
+message SaveBlackListReq {
+    int64 src_userid = 1;      //操作者id
+    int64 aim_userid = 2;      //被拉黑者id
+}
+
+message SaveBlackListRsp{
+    pb_pub.ErrCode result = 1; //错误码
+    int64 aim_userid = 2;      //被拉黑者id
+}
+
+//将aimuser从srcuser的黑名单中删除
+message DeleteBlackListReq {
+    int64 src_userid = 1;     //操作者id
+    int64 aim_userid = 2;     //被取消拉黑者id
+}
+
+message DeleteBlackListRsp{
+    pb_pub.ErrCode result = 1; //错误码
+    int64 aim_userid = 2;      //被移除者id
+}
+
+enum Judge_State{
+    NOT_EXIST = 0;    //不存在
+    EXIST = 1;        //存在
+}

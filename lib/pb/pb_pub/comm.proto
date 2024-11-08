@@ -1,0 +1,425 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_pub";
+package pb_pub;
+import "google/protobuf/struct.proto";
+import "google/rpc/status.proto";
+import "pb_pub/error_code.proto";
+import "pb_pub/service.proto";
+
+// 一些通用数据，每个消息都会携带，在整个服务系统中透传
+message PBCommData{
+    bool needReadReceipt = 1; //是否需要回执
+    int64 msgSn = 2; // 消息序列号
+    int64 srcId = 3; // 发起者id
+    int64 aimId = 4; // 目标id
+    int64 time = 5; // 消息发送时间 gate 上赋值
+    map<string, string> exp = 6; // 扩展参数
+
+    // v2.7.3
+    bool needPushMsg = 7; // 是否需要推送
+    Service serviceType = 8; // 服务类型
+
+    // im_as_plat 新增
+    int64 appId = 9;
+    string appUserId = 10;
+
+    // tracing 新增
+    string traceId = 11;
+
+    // 客户端类型
+    CLIENT_TYPE srcClientType = 12; // 发送端类型
+    CLIENT_TYPE aimClientType = 13; // 接收端类型
+
+    int64 groupId = 14; // 群ID
+    repeated int64 atList = 15; // @列表
+
+    bool syncToSrc = 16; // 是否同步给src的其他端
+
+    // 业务id,椰果需求新增, 范围比appId大: 各业务自行约定
+    int32 businessId = 17;
+
+    // 日志输出序列，每输出一次加一
+    int64 serial = 18;
+
+    // 派生树，值=值+serial
+    string deriveTree = 19;
+    int32 userSourceVersion = 20; //'用户资源版本号'
+    int64 groupMsgSn = 21;// 群消息自增长序列号，每个群唯一，服务端生成
+    int64 periodOfValidity = 22; // 有效期
+}
+
+// 客户端运行环境类型
+enum CLIENT_RUN_ENV_TYPE{
+    ANDROID = 0;
+    IOS = 1;
+    MAKOS = 2;
+    WINDOWS = 3;
+    LINUX = 4;
+    LINUX_DEB = 5;
+    PREV6 = 6;
+    PREV7 = 7;
+    PREV8 = 8;
+}
+
+enum PCD_EXP_KEY{
+    PCD_EXP_KEY_BEGIN = 0;
+    GROUP_MSG_STATUS = 1000;
+}
+
+enum CLIENT_TYPE {
+    NONE = 0;
+    PHONE = 1;
+    H5 = 2;
+    PC = 3;
+    SERVER = 100; // 服务端发的
+    ALL = 1000;
+}
+
+// 非rpc调用的消息传递使用此消息头封装
+message PBMessage {
+    uint32 version = 1; // 消息版本号
+    uint32 checkCode = 2; // 校验码 unsigned byte类型表示的具体消息数据无符号字节累加值
+    uint32 errCode = 3; // 错误码
+    string service = 4; // 需要发往那个service :gate uc lc ...
+    string hashKey = 5; // 转发到其他服务上去的hashkey, 可以是用户id，组id等
+    PBCommData pbCommData = 6;
+    map<string, string> opts = 7; // 控制参数
+
+    // 具体消息内容
+    string pbName = 8; // pb消息名称
+    bytes pbData = 9; // 消息数据
+
+    string errDesc = 10; // 错误描述信息
+}
+
+//定义
+// key: action
+// value:sendto_user 单发到用户;  [key:uid, value:uid_value]
+// value:sendto_all:广播到所有在线用户;
+// value:sendto_service:发送到特定服务 [key:service_name;value:name][key:room, value:roomid]
+// action = "sendto_group" 发送到在使用特定服务的用户 service="servicename" group=roomid,可以代表房间id
+// key:data value:data
+message CommCallReq {
+    map<string,string> params = 1;
+    string pbName = 2;
+    bytes pbData = 3;
+}
+
+message CommCallRsp {
+    int32 errCode = 1;
+    map<string,string> params = 2;
+    string pbName = 3;
+    bytes pbData = 4;
+    string errDesc = 5;
+    google.rpc.Status status = 6; // 执行状态, 逐步替换 errCode 和 errDesc
+}
+
+//message CommNsqMsg {
+//    map<string,string> params = 1;
+//    string pbName = 2;
+//    bytes pbData = 3;
+//}
+
+message CommNatsMsg {
+    PBCommData pbCommData = 1;
+    int64 groupMsgSn = 2;
+    string pbName = 3;
+    bytes pbData = 4;
+}
+
+// 对客户端的消息头
+// 不需保存的消息不需要sn
+//message CHead{
+//    int64 src_user_id = 1;
+//    int64 sn = 2; // 发送者自主编号，保证自己唯一即可
+//    int64 time = 3;
+//}
+
+//推送消息客户端的活动类型
+enum PushMsgClientActionType{
+    CLIENT_ACTION_UNKNOWN       = 0;   //未知
+    CLIENT_ACTION_LIVE_START    = 1;   //主播开播推送消息
+    CLIENT_ACTION_PRIVATE_CHAT  = 2;   //私聊推送消息
+    CLIENT_ACTION_KE_FU         = 3;   //客服消息
+}
+
+enum TextChatType{
+    TEXT = 0;          // 文字
+    PIC = 1;           // 图片
+    VIDEO = 2;         // 视频
+    AUDIO = 3;         // 音频
+    GIFT = 4;          // 礼物
+    PACT = 5;          // 猫咖合同
+    VIDEO_INVITE = 6;  // 视频邀请
+    CUSTOMIZE = 7;     // 自定义消息
+    FILE = 8; // 文件
+    RECALL = 9; // 消息撤回
+    RED_PACKET = 10; // 红包
+}
+// 状态只能增长，不能后退
+enum MSG_STATE{
+    INIT = 0;   // 初始状态  消息刚创建好，存入db
+    FAULT = 1; //发送失败， 经过一定时间还是在Init状态的话则为失败，展示红点
+    SEND = 2;   // 发送到服务器后，服务器端会返回一个msgreceipt回执，这个回执里面带的状态是send，用这个状态更改本地消息
+    RECEIVED = 3; // 对方收到消息后回复一个receipt，状态为已接收，收到这个消息后更改本地状态
+    READ = 4; // 对方消息在界面展示则为已读，发送一个receipt，状态为已读
+    END = 5; // 发送方收到receipt消息后会发送一个end状态的receipt，用户删除服务端的存储消息，对与必须让对方收到的消息，对方确认收到了消息也会发送状态为end的receipt回执
+    IN_BLACK_LIST = 6;//被对方加了黑名单，无法送达时，服务端会发送一个这个状态的receipt消息
+    LIMITED = 7; // 鉴权失败,被限制// 鉴权不通过服务端会发这个状态的回执
+}
+
+enum MODEL_TYPE{
+    NIL = 0;
+    OPPO = 1;
+    HUAWEI = 2;
+    XIAOMI = 3;
+    MEIZU = 4;
+    APPSTORE = 5; // 苹果
+    VIVO = 6;
+    JIGUANG = 7; // 极光推送
+    FCM = 8; // 谷歌
+    RONGYAO = 9; //荣耀
+}
+
+//当一次删除多条时，输入最后一条的time，将time之前所有的消息全部删除
+//当只进行单条删除，time设为0，通过sn进行单条消息的删除
+// 消息状态反馈
+message MsgReceipt{
+    bool isAtMe = 1; // 消息是否@自己，回复的时候设置
+    MSG_STATE state = 2;
+    int64 time = 3;
+}
+
+// 默认返回消息
+message CommRsp {
+    ErrCode result = 1; // 0 successed, other error， 统一到status里面，逐步替换
+    google.rpc.Status status = 2; // 执行状态
+}
+
+message UserInfo{
+    int64 user_id = 1;
+    string nick_name = 2;
+}
+
+enum HEART_BEAT_TYPE{
+    COMM = 0; //普通保活心跳
+    LIVE_ROOM = 1; // 直播间
+    CALL_SCENE = 2; // 通话场景
+    MULTI_ANCHOR_HALL = 3;
+    TTK_GAME = 4;
+    LIVE_ROOM_VISITOR = 5; // 直播间游客心跳
+    GAME_SCENE = 6;
+}
+
+enum HEART_BEAT_MSG_STATE{
+    PING = 0;
+    PANG = 1;
+}
+
+// 心跳消息
+message HeartBeat{
+    //int64 user_id = 1;
+    HEART_BEAT_TYPE type = 2;
+    HEART_BEAT_MSG_STATE state = 3;
+    string gateAddr = 4;
+}
+
+// 用户状态定义
+enum USER_STATE_TYPE{
+    USER_STATE_INIT = 0;
+    USER_STATE_AUTHING = 1;
+    USER_STATE_AUTHED = 2;
+    USER_STATE_OFFLINE = 3;
+}
+
+//============进入房间通用协议，任何类型的房间都可以使用此协议======================
+//进入房间请求
+message EnterRoomReq {
+    enum UserType {
+        UNKNOWN = 0; // 默认为正常用户
+        REGULAR = 1; // 正常
+        VISITOR = 2; // 游客
+    }
+    UserType userType = 1;
+}
+
+// 观众进入房间应答 返回加入结果
+message EnterRoomRsp {
+}
+
+//退出房间请求
+message ExitRoomReq {
+}
+//退出房间应答
+message ExitRoomRsp {
+}
+
+// 客户端前后台切换请求,消息发送时服务类型设置为 user_center
+message ClientBFSwitchReq{
+    // true:切换到后台， false 切换到前台
+    // 切换前台需要等返回，如果没有成功或超时则继续切换
+    bool switchToBack = 1;
+}
+
+// 切换回复，返回当前状态
+message ClientBFSwitchRsp{
+    bool switchToBack = 1; // true:目前后台， false 目前前台
+}
+
+//用户进出直播间
+message userOperationRoom{
+    int64 userId = 1;
+    int64 roomId = 2;
+    int64 time = 3;
+    OPERATION operation = 4;
+    int64 timeLen = 5;
+}
+
+enum OPERATION{
+    UNKNOWN = 0;
+    ENTER = 1;       //进入直播间
+    EXIT = 2;        //离开直播间
+}
+
+
+// 礼物消息 消息的AimId即为为房间ID
+message Gift{
+    int64 userId = 1; // 发送的用户ID
+    int64 giftId = 2; // 礼物ID
+    int64 actorId = 3; // 收礼物的主播ID
+    int64 giftNumber = 4; // 送礼数量
+    // int32 luckyGift = 5; // 礼物类型 int 【普通礼物，夺宝礼物，福袋】 是否为幸运礼物
+    string senderName = 6; // 发送的用户名
+    string targetName = 7; // 发送的房间名字即主播名字
+    string headImg = 8; // 发送的用户头像
+    int32 level = 9; // 等级
+    int32 batteryType = 10; //单词连击的个数
+    repeated int64 batteryTypeList = 11; //每次连击的个数数组
+    bool levelPrivilegeOpen = 12; //是否神秘人
+    int64 giftConfLastUpdateTime = 13; // 缓存时间
+    map<string, string> exp =14; // 扩展字段
+    int32 giftType = 15; // 礼物类型 0：普通礼物 1：幸运礼物 2：福袋 3：钓鱼 4：幸运补偿
+}
+
+// 登录成功通知到nsq
+message LogonSuccessNotifyNsq{
+    int64 MsgSn = 1;
+    int64 UserId = 2;
+    int64 Time = 3;
+}
+
+// 场景需要恢复，通知到前端
+message NeedSceneRecoverNotify{
+    Service ServiceType = 1;
+    map<string,string> Exp = 2;
+}
+
+enum SCENE_TYPE {
+    SCENE_TYPE_UNKNOWN = 0;
+    SCENE_TYPE_CALL_SCENE = 1;
+    SCENE_TYPE_JOIN_LIVE = 2;
+}
+
+// 用户场景
+message UserScene {
+    int64 UserId = 1;
+    int64 SceneId = 2;
+    SCENE_TYPE SceneType = 3;
+}
+
+// interapi 消息封包
+
+// HTTP API 调用的消息使用此消息头封装
+message JSONMessage {
+    string hashKey = 1; // 转发到其他服务上去的hashkey, 可以是用户id，组id等
+    string secret = 2; // app secret
+    PBCommData pbCommData = 3;
+    string messageName = 4; // pb消息名称
+    string messageData = 5; // 请求数据
+    SendType sendType = 6;  // 发送类型
+}
+
+enum SendType {
+    TO_SERVICE = 0;
+    TO_AIM_USER = 1;
+    TO_ALL_USER = 2;
+    TO_AIM_GROUP = 3;
+    TO_ALL_GROUP = 4;
+}
+
+message JSONCallReq {
+    string messageName = 3; // pb消息名称
+    bytes messageData = 4; // 请求数据
+}
+
+message JSONCallRsp {
+    ErrCode errCode = 1; // 错误码
+    string errDesc = 2; // 错误描述信息
+    bytes messageData = 3; // 响应数据
+}
+
+
+// 服务端触发
+message ServerNotify {
+    enum From {
+        IM = 0;
+        JAVA = 1;
+    }
+    From from = 1; // 通知来源
+    Service service = 2; // 服务类型,标记来自im哪个服务
+    ErrCode errCode = 3; // 错误码
+    string errDesc = 4; // 错误描述信息
+    map<string,string> Exp = 5;
+}
+
+// 撤回消息
+message MsgRecallReq{
+    int64 msgSn = 1; // 消息id
+    int64 msgOwnerId = 2; // 撤回消息的主人
+}
+
+message MsgRecallRsp{
+    int64 msgSn = 1; // 消息id
+    int64 msgOwnerId = 2; // 撤回消息的主人
+    ErrCode result = 3;
+}
+
+// 更改消息
+message MsgChangeReq{
+    int64 msgSn = 1;// 消息id
+    map<string,string> changeData = 2; // 更改内容,字段名：新数据；字段名为json命名格式小写开头驼峰格式
+}
+
+// 更改消息
+message MsgChangeRsp{
+    int64 msgSn = 1;// 消息id
+    map<string,string> changeData = 2; // 更改内容,字段名：新数据
+    ErrCode result = 3;
+}
+
+// 客户端触发的截屏通知，私聊截屏发送到私聊，群聊截屏发送到当前群
+message TakeScreenShotNotify {
+    // 不需要任何内容，客户端展示 xx在聊天中截屏了
+}
+
+message AppClientInfo {
+    MODEL_TYPE modelType   = 1;   // 推送厂商类型
+    string packageName            = 2;   // 包名
+    string systemVersion          = 3;   // 手机操作系统版本号    12.2
+    string phoneModels            = 4;   // 手机型号             iPhone 7
+    string appVersion             = 5;   // app应用版本号           2.2.5/debug2.5.6(build256)
+    string systemName             = 6;   // android/iOS
+    string identifier             = 7;   // 手机设备号
+    string xChannel               = 8;   // 渠道号               default_1....
+    string pushPlatformAppId = 9;        // 应用id，厂商开发者平台获取，每个包唯一
+    string odid = 10;            // 开放设备标识符，开发者级别的非永久性设备标志符，同一设备上同一开发者的多个应用ODID取值相同，可用作设备唯一标识符
+    string aaid = 11;            // 应用的匿名设备标识，标识运行在移动智能终端设备上的应用实例，同一开发者相同设备不同应用不同，用作实例唯一标识
+    string token = 12;           // 推送token，每个实例都不同, 有些平台叫  Registration ID
+    int64 expired = 13;       // token失效时间，token失效必须重新获取，一般卸载重装或系统清理数据时失效
+}
+
+message AppLogData{
+    PBCommData pcd = 1; // 基础信息
+    AppClientInfo appClientInfo = 2; // 客户端数据
+    map<string,google.protobuf.Value> kvValues = 3; // 日志数据
+}

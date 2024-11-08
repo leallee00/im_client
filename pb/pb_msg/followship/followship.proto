@@ -1,0 +1,33 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/followship";
+package pb_msg_followship;
+
+// 关注
+message FollowReq{} // src=自己id, aimId=想关注的人的id
+message FollowRsp{}
+
+// 取消关注
+message UnfollowReq{} // srcId=自己id, aimId=想取消关注的人的id
+message UnfollowRsp{}
+
+// 关注我的人
+message Follower {
+	int64  userId   = 1;
+	string username = 2;
+	string avatar   = 3;
+}
+message FollowersReq{} // srcId=用户id
+message FollowersRsp{
+	repeated Follower followers = 1;
+}
+
+// 我关注的人
+message Followee {
+	int64  userId   = 1;
+	string username = 2;
+	string avatar   = 3;
+}
+message FolloweesReq{} // srcId=用户id
+message FolloweesRsp{
+	repeated Followee followees = 1;
+}

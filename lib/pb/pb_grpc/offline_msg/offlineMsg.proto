@@ -1,0 +1,68 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_grpc/offline_msg";
+package pb_grpc_offlineMsg;
+
+import "pb_pub/error_code.proto";
+//import "pb_pub/comm.proto";
+import "pb_msg/offline_msg/offlineMsg.proto";
+
+service OfflineMsg {
+	rpc SaveOfflineMsg(pb_msg_offlineMsg.SaveOfflineMsgReq) returns (pb_msg_offlineMsg.SaveOfflineMsgRsp) {}
+//	rpc ReadOfflineMsg(pb_msg_offlineMsg.ReadOfflineMsgReq) returns (pb_msg_offlineMsg.ReadOfflineMsgRsp) {}
+//  rpc DeleteOfflineMsg(DeleteOfflineMsgReq) returns (DeleteOfflineMsgRsp) {}
+
+  ///////////////////////////////////////////
+  //
+//    PrivateHistoryMsgReq,PrivateHistoryMsgRsp
+  rpc FetchHistoryMsg(pb_msg_offlineMsg.FetchHistoryMsgReq) returns (pb_msg_offlineMsg.FetchHistoryMsgRsp) {}
+
+  // 获取未读取消息
+  rpc FetchNewHistoryMsg(pb_msg_offlineMsg.FetchNewHistoryMsgReq) returns (pb_msg_offlineMsg.FetchNewHistoryMsgRsp) {}
+
+//  OnePrivateHistoryMsgReq,OneHistoryHistoryMsgRsp
+  rpc FetchOneHistoryMsg(pb_msg_offlineMsg.FetchOneHistoryMsgReq) returns (pb_msg_offlineMsg.FetchOneHistoryMsgRsp) {}
+
+//  DelPrivateHistoryMsgReq,DelGroupHistoryMsgRsp
+  rpc DelHistoryMsg(pb_msg_offlineMsg.DelHistoryMsgReq) returns (pb_msg_offlineMsg.DelHistoryMsgRsp) {}
+  //
+  ///////////////////////////////////////////
+
+  // 准备好接收用户离线消息，在客户端拉去完离线消息后发送，对以前获取的消息状态进行更新
+  rpc ReadyForSyncOfflineMsgStatus(pb_msg_offlineMsg.ReadyForSyncOfflineMsgStatusReq) returns (pb_msg_offlineMsg.ReadyForSyncOfflineMsgStatusRsp) {}
+
+  // 准备好接收用户离线消息，在客户端拉去完离线消息后发送，对以前获取的消息状态进行更新
+  rpc OfflineMsgStatueChangeNotifyReceived(pb_msg_offlineMsg.OfflineMsgStatueChangeNotifyReceived) returns (pb_msg_offlineMsg.OfflineMsgStatueChangeNotifyReceived) {}
+
+  /////////////////////////////////////////////////////
+  // session 方式开始
+
+  // 分页获取会话列表，排序规则：优先有新消息排列，其次更新时间倒序排列
+  rpc FetchChatSessions(pb_msg_offlineMsg.FetchChatSessionsReq)returns (pb_msg_offlineMsg.FetchChatSessionsRsp){}
+
+  // 分页获取指定会话的消息列表
+  rpc FetchChatHisMsgListOfSession(pb_msg_offlineMsg.FetchChatHisMsgListOfSessionReq)returns (pb_msg_offlineMsg.FetchChatHisMsgListOfSessionRsp){}
+
+  // 删除会话, 解除好友关系时调用
+  rpc DelChatSessions(pb_msg_offlineMsg.DelChatSessionsReq)returns (pb_msg_offlineMsg.DelChatSessionsRsp){}
+
+  // 清除消息 客户端从聊天列表删除一项聊天会话时调用，这时对方可能是好友，也可能不是
+  rpc ClearMsgOfSession(pb_msg_offlineMsg.ClearMsgOfSessionReq)returns (pb_msg_offlineMsg.ClearMsgOfSessionRsp){}
+
+  // 分页获取系统通知消息，获取后直接删除
+  rpc FetchSysNotifyMsgList(pb_msg_offlineMsg.FetchSysNotifyMsgListReq)returns (pb_msg_offlineMsg.FetchSysNotifyMsgListRsp){}
+
+  // session 方式结束
+  /////////////////////////////////////////////////////
+}
+
+//当一次删除多条时，输入最后一条的time，将time之前所有的消息全部删除
+//当只进行单条删除，time设为0，通过sn进行单条消息的删除
+message DeleteOfflineMsgReq{
+  int64 userid = 1;
+  int64 sn = 2;
+  int64 time = 3;
+}
+
+message DeleteOfflineMsgRsp{
+  pb_pub.ErrCode result = 1; //错误码
+}

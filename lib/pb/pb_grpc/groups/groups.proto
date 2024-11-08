@@ -1,0 +1,23 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_grpc/groups";
+
+// import "google/protobuf/any.proto";
+// import "pb_pub/comm.proto";
+import "pb_msg/groups/groups.proto";
+// import "pb_msg/gate/gate.proto";
+// import "pb_grpc/live_room/live_room.proto";
+
+package pb_grpc_groups;
+
+service Groups {
+    rpc CreateGroup (pb_msg_groups.CreateGroupReq) returns (pb_msg_groups.CreateGroupRsp);
+    rpc DeleteGroup (pb_msg_groups.DeleteGroupReq) returns (pb_msg_groups.DeleteGroupRsp);
+    rpc AddMember (pb_msg_groups.AddMemberReq) returns (pb_msg_groups.AddMemberRsp);
+    rpc RemoveMember (pb_msg_groups.RemoveMemberReq) returns (pb_msg_groups.RemoveMemberRsp);
+    rpc GroupMembers (pb_msg_groups.GroupMembersReq) returns (pb_msg_groups.GroupMembersRsp);
+    rpc MemberGroups (pb_msg_groups.MemberGroupsReq) returns (pb_msg_groups.MemberGroupsRsp);
+    rpc GroupMessage (pb_msg_groups.GroupMessageReq) returns (pb_msg_groups.GroupMessageRsp);
+    rpc FastMessage (pb_msg_groups.GroupMessageReq) returns (pb_msg_groups.GroupMessageRsp);
+    rpc UpdateMember (pb_msg_groups.UpdateMemberReq) returns (pb_msg_groups.UpdateMemberRsp);
+    rpc UpdateUser (pb_msg_groups.UpdateUserReq) returns (pb_msg_groups.UpdateUserRsp);
+}

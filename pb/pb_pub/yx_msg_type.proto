@@ -1,0 +1,80 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_pub";
+package pb_pub;
+
+enum MessageType {
+    MessageTypeUnknown = 0;
+    MessageTypeUser = 1;// 普通消息
+    MessageTypeAt = 2;// @消息
+    MessageTypeRoomBarrage = 3;// 房间弹幕
+    MessageTypeAllBarrage = 4;// 全站弹幕 java逻辑
+    MessageTypeGift = 5;// 送礼物
+    MessageTypeUserGetIn=6;// 进场欢迎语
+    MessageTypeForbidSpeaking=7;// 禁言 java逻辑 带时间
+    MessageTypeUnForbidSpeaking=8;// 解除禁言 java逻辑
+    MessageTypeKictOut=9;// 踢出房间 java10分钟不让进
+    MessageTypeRobitInRoom = 10;// 机器人进入房间消息 java发送
+    MessageTypeRobitMessage=11;// 机器人发送房间消息 java发送
+    MessageTypeLiveMessage=12;// 房间系统消息 java发送
+    MessageTypeNewJoinLiveApply=13;//新的连麦申请 java转发
+    MessageTypeCancelJoinLiveApply=14;// 连麦申请取消 java转发
+    MessageTypeForbidPublish = 15; // 主播在直播过程中被禁播 后台禁播触发
+    MessageTypeSuperManagerKickout=16;// 主播被超管踢出 客户端触发
+    MessageTypeRoomManagerChanged=17;// 房管变更 主播设置，java接口踢人
+    MessageTypeJoinLiveBalanceNotEnoughTip=18;// 您的椰币余额不足提示 java触发
+    MessageTypeJoinLiveBalanceNotEnoughEndLive=19; // 您的椰币余额不足，即将断开连麦 java触发
+    MessageTypeAnchorToAnchorJoinLiveInvite = 20;// 主播与主播连麦：另一个主播邀请我连麦 java转发
+    MessageTypeAnchorToAnchorJoinLiveAcceptOrReject=21;// 主播与主播连麦:3.另一个主播同意了我的连麦请求 或者 拒绝了我的连麦请求 java转发
+    MessageTypeAnchorInviteJoinLiveCancel=22;// 主播邀请别人连麦等待中取消了邀请 java转发
+    MessageTypeAnchorToAnchorJoinLiveEnd=23; //主播与主播连麦:4.另一个主播结束了连麦 java转发
+    MessageTypeUserActionTip=24; //用户行为提示消息
+    MessageTypeNetworkErrorKickout=25;// 主播网络波动被踢出 心跳超时java
+    MessageTypeTotalStationInform=26;// 送豪华礼物的全站通知 java调用
+    MessageTypeAnchorToAnchorJoinLiveTempLeave = 27; // 主播与主播连麦：暂离
+    MessageTypeRedPocket = 28;    // 红包通知 java推
+    MessageTypeUserLottery = 29;  // 抽奖通知 java推送全站
+    MessageTypeAudicenceList = 30; // 观众列表刷新 15秒刷一次
+    MessageTypeAnnouncement = 31; // 直播公告
+    MessageTypeEndJoinLive = 32; // 结束连麦 java转发
+    MessageTypeWeekStarGift = 33; // 周星礼物排行 java房间内通知
+    MessageTypePKInvite = 34;// PK:2.另一个主播邀请我PK
+    MessageTypePKAcceptOrReject = 35;// PK:3.另一个主播同意了我的pk请求或者拒绝了我的PK请求
+    MessageTypePKEnd = 36; //PK:4.另一个主播结束了PK
+    MessageTypePKStart = 37; //PK:4.邀请方主播切换模式成功，通知对方主播UpdateExtroInfo
+    MessageTypePKChangeModeSuccess = 38; // 匹配PK时切换模式成功
+    MessageTypePKMatchingSuccess = 39; // 匹配成功 java推送
+    MessageTypePKTimeCorrect = 40; // pk时间校准
+    MessageTypePKFirstGiftMsg = 41;// 首送消息 java触发
+    MessageTypePKSendTargetPkValue = 43; // 主播发送对方主播的pk值到本房间
+    MessageTypeLiveEndH5 = 44; //告诉h5结束直播了
+    MessageTypePK5MinuteEnd = 45; // 通知房间用户进入惩罚时间 java推送
+    MessageTypeJoinFans = 46;     // 加入粉丝团 java推送
+    MessageTypeJoinGuard = 47;     // 加入守护 java推送
+    MessageTypeSwimsuitActivityProcess = 52;    // 泳装趴活动进度消息
+    MessageTypeSwimsuitActivityRobBoxOver = 53; // 泳装趴抢宝箱结束消息
+    MessageTypeActivityBoxProcess = 54; // 泳装趴抢宝箱结束消息
+    MessageTypeRedPacketNew = 55; // 直播间新红包 java推送
+    MessageTypeRedPacketOver = 56; // 直播间抢红包结束 java推送
+    MessageTypeSendRocket = 66;     // 其他房间送火箭的全站消息（提示） java推送
+    MessageTypeTreasureMap = 67;     //藏宝图开奖通知 java推送，全站
+    MessageTypeRankPromotionScoreChanged = 68;    //段位赛积分变化
+    MessageTypeRandomMatchCancel = 69;   //随机匹配五分钟取消
+    MessageTypeUpdateWishMenu = 70; //更新心愿单
+    MessageTypeWishPoolDetail = 71; //许愿池详情通知
+    MessageTypeWishPoolLuckyMan = 72; //许愿池中奖信息
+    MessageTypeUpdatePkSeatInfo = 73;//更新pk 坐席view
+    MessageTypeChristmasTreeLightUp = 75;//圣诞树状态变化
+    MessageTypeNewYearLightUp = 76; //元旦图标状态变化
+
+    MessageTypeChatText = 80;  // 私信消息
+
+    // 记录直播间历史消息时直播间礼物消息的消息类型
+    MessageTypeLiveRoomGift = 100; // 直播间礼物消息，历史消息中填充msgType字段用，暂时可以忽略
+
+    // 服务端交互专用
+    MessageTypeSendPersonalGift = 1000; // 发送私信礼物
+
+    //
+    MessageTypeServiceNotify = 2000; // 后台发送的系统通知
+}
+

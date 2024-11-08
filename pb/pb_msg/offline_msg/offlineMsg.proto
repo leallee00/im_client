@@ -1,0 +1,321 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/offline_msg";
+package pb_msg_offlineMsg;
+
+import "pb_pub/comm.proto";
+import "pb_pub/service.proto";
+import "pb_pub/error_code.proto";
+
+
+message SaveOfflineMsgReq{
+	int64 src_userid = 1;        //发送用户id
+	int64 aim_userid = 2;        //接收用户id
+	int64 sn = 3;
+	string pb_name = 4;       //pb名称
+	bytes pb_data = 5;        //消息内容
+	int64 time = 6;
+	pb_pub.PBCommData pbCommData = 7;
+	repeated int64 relationUserIds = 8;
+}
+
+message SaveOfflineMsgRsp {
+	pb_pub.ErrCode result = 1; //错误码
+}
+
+////当一次删除多条时，输入最后一条的time，将time之前所有的消息全部删除
+////当只进行单条删除，time设为0，通过sn进行单条消息的删除
+//message DeleteOfflineMsgReq{
+//	int64 userid = 1;
+//	int64 sn = 2;
+//	int64 time = 3;
+//}
+//
+//message DeleteOfflineMsgRsp{
+//	pb_pub.ErrCode result = 1; //错误码
+//}
+
+message ReadOfflineMsgReq {
+	int64 userid = 1;     //用户id
+	int64 num = 2;        //请求的消息数
+    int64 time = 3;       //从time开始的num条消息
+
+}
+//返回总消息数量及消息内容，可以通过请求num为0来获取离线消息数，
+//当用户返回已送达时，删除离线消息
+message ReadOfflineMsgRsp {
+    pb_pub.ErrCode result = 1;  //错误码
+	int64 msg_num = 2;          //总消息数量
+
+//	repeated bytes pb_data = 3;
+	repeated MsgList msg_list = 3;
+	message MsgList {
+		string pb_name = 1;      //pb名称
+        bytes pb_data = 2;       //消息内容
+		int64 time = 3;
+		int64 sn = 4;
+		int64 src_userid = 5;
+		int64 aim_userid = 6;
+		pb_pub.PBCommData pbCommData = 7;
+	}
+}
+
+// 历史消息读取
+message HistoryMsg{
+	int64 id = 1;
+	pb_pub.Service service = 2;
+	int64 groupId = 3;
+	int64 msgSn = 4;
+	int64 srcId = 5;
+	int64 aimId = 6;
+	string pbName = 7;
+	bytes pbData = 8;
+	pb_pub.MSG_STATE msgStatus = 9; // 本消息的状态
+	repeated ReadStatusOfDiffClients readStatus = 10;	 // 各端的读取状态
+	int64 createdAt = 11;
+	int64 updateAt = 12;
+	bytes pbCommData = 13;
+
+	int64 groupMsgSn = 14; // 群消息sn，每个群自增
+	int64 Session = 15;
+	int64 SessionCurSn = 16;
+}
+
+message ReadStatusOfDiffClients{
+	pb_pub.CLIENT_TYPE clientType = 1;
+	pb_pub.MSG_STATE readStatus = 2;
+	int64  upDateAt = 3;
+}
+
+// 获取历史消息
+message FetchHistoryMsgReq{
+	int64 page = 1; // 页码，默认第一页
+	int64 pageSize = 2;// 每页条数
+	int64 totalCount = 3; // 为0时服务端查，不为零是是从客户端转过来的，就不要重新查个数了
+	bool 	filterNew = 4;// 是否只拉取新消息，用户离线消息读取，多端同步
+	bool 	orderDesc = 5; // 是否倒序，true:即时间从今到古，false:时间从古到今
+	int64 startCreatedAt = 6;// 开始时间
+	int64 endCreatedAt = 7; // 结束时间
+	int64 startUpdatedAt = 8; // 更新开始时间
+	int64 endUpdatedAt = 9; // 更新结束时间
+	int64 id = 10; // 历史消息存储id
+	int64 msgSn = 11; // 根据msgsn精确查找
+	int64 groupId = 12; // 根据群id查找
+	int64 srcId = 13; // 根据发送者查找
+	int64 aimId = 14; // 根据接收者查找
+	string pbName = 15; // 根据消息名称查找
+	int32 msgStatus = 16; // 根据消息状态查找
+	string sort = 17; // 排序字段
+	string order = 18; // 排序规则
+}
+
+message FetchHistoryMsgRsp{
+	int64 page = 1; // 页码，默认第一页
+	int64 pageSize = 2;// 每页条数
+	int64 totalCount = 3; // 还有多少条 收到后再下次查询的时候可以带上来
+
+	// 消息
+	repeated HistoryMsg pbHisMsg = 4;
+}
+
+// 获取历史消息，包括私聊和群聊
+message FetchNewHistoryMsgReq{
+	int64 beginId = 1; // 开始的id，从头开始则填0
+	int64 pageSize = 2;// 获取条数
+	bool 	orderDesc = 3; // 是否倒序，true:即时间从今到古，false:时间从古到今
+}
+
+message FetchNewHistoryMsgRsp{
+	int64 pageSize = 1;// 每页条数
+	int64 totalCount = 2; // 一共多少条 收到后再下次查询的时候可以带上来
+
+	// 消息
+	repeated HistoryMsg pbHisMsg = 3;
+}
+
+// 读取单个消息
+// 至少填一个
+message FetchOneHistoryMsgReq{
+	int64 msgSn = 2;
+}
+
+message FetchOneHistoryMsgRsp{
+	HistoryMsg privateHistoryMsg = 1;
+}
+
+// 删除单个消息
+message DelHistoryMsgReq{
+	repeated int64 msgSn = 2;
+}
+
+message DelHistoryMsgRsp{
+}
+
+//// 获取用户相关所有群新消息信息
+//message UserGroupsNewMsgInfo{
+//	int64 groupId = 1;//相关群id
+//	int32 newMsgCount = 2;// 相关群未读消息数
+//	GroupHistoryMsg lastHisMsg = 3; // 最后一条消息
+//}
+//
+//// 准备好接收群新消息信息，无返回，发送成功即可
+//message ReadyForGroupsNewMsgInfoReq{
+//}
+//message ReadyForGroupsNewMsgInfoRsp{
+//}
+
+//// ReadyForGroupsNewMsgInfoReq 消息到服务端后会触发下面的notify
+//message GroupsNewMsgInfoNotify{
+//	repeated UserGroupsNewMsgInfo infoItem = 4;
+//}
+
+// 获取历史消息，包括私聊和群聊
+//message FetchGroupHistoryMsgReq{
+//	int64 beginId = 1; // 开始的id，从头开始则填0
+//	int64 pageSize = 2;// 获取条数
+//	bool 	orderDesc = 3; // 是否倒序，true:即时间从今到古，false:时间从古到今
+//}
+
+//message FetchGroupHistoryMsgRsp{
+//	int64 pageSize = 1;// 每页条数
+//	// 消息
+//	repeated GroupHistoryMsg pbHisMsg = 3;
+//}
+
+//message UserReadStatus{
+//	int64 userId = 1;
+//	pb_pub.MSG_STATE readStatus = 2;
+////	int64  upDateAt = 3;
+//}
+//message GroupHistoryMsg{
+//	int64 groupId = 1;
+//	int64 groupMsgSn = 2; // 群消息sn，每个群自增
+//	int64 msgSn = 3;
+//	int64 srcId = 4;
+//	string pbName = 5;
+//	bytes pbData = 6;
+//	pb_pub.MSG_STATE msgStatus = 7; // 本消息的状态
+//	repeated UserReadStatus atUserReadStatus = 8;	 // 被at到的用户的读写状态
+//	int64 createdAt = 9;
+//	int64 updateAt = 10;
+//	bytes pbCommData = 11;
+//}
+
+// 准备好接收用户离线消息
+//		rpc ReadyForSyncOfflineMsgStatus(pb_msg_offlineMsg.ReadyForSyncOfflineMsgStatusReq) returns (pb_msg_offlineMsg.ReadyForSyncOfflineMsgStatusRsp) {}
+//
+message ReadyForSyncOfflineMsgStatusReq{
+}
+
+message ReadyForSyncOfflineMsgStatusRsp{
+}
+
+message StatusChangeItem{
+	int64 msgSn = 1;
+	pb_pub.MSG_STATE msgCurStatus = 2; // 离线消息最终状态
+}
+
+// 服务端发送给客户端
+message OfflineMsgStatueChangeNotify{
+	int64 session = 1; // 客户端发送确认收到消息时把此数据原样返回
+	repeated StatusChangeItem StatusChangeItems = 2;
+}
+
+// 客户端发回给服务端，确认已经收到
+message OfflineMsgStatueChangeNotifyReceived{
+	int64 session = 1; // 此数据取自OfflineMsgStatueChangeNotify 消息的session字段
+}
+
+////////////////////////////////////////////////////
+// session 方式历史消息 开始
+
+////////////////
+// 基础结果
+
+enum CHAT_SESSION_TYPE{
+	CHAT_SESSION_TYPE_GROUP_CHAT = 0;
+	CHAT_SESSION_TYPE_PRIVATE_CHAT = 100;
+}
+
+message UserSessionStatus {
+	int64 userId = 1; // 用户id
+	string beginMsgRecordId = 2; // 初始消息id，从这个id往后的消息才可以拉取，一般删除消息，创建用户的时候设置
+	int64 newMsgCount = 3; // 新消息条数 用户点进此会话后清零,后面的重新计数
+}
+
+// chat session 用于展示会话列表
+message ChatSession{
+	int64 session = 1; // 会话id, 自己和不同好友或群组成不同session，相同好友或群组成相同session，
+	int64 SessionCurSubSn = 2; // 当前session的最新序列号，序列号每一个session从1开始连续递增，客户端用于判断消息是否需要拉取
+	pb_pub.MSG_STATE LastMsgStatus = 3; // 最后一条消息的状态, 客户端展示列表使用
+	CHAT_SESSION_TYPE sessionType = 4; // session 类型，客户端展示列表使用， 是私聊还是群聊，还是其他
+	int64 SrcId = 5;
+	string PbName = 6;
+	bytes PbData = 7;
+	int64 CreatedAt = 9;
+	int64 UpdatedAt = 10;
+	bytes PbCommData = 11;
+	int64 newMsgCount = 12; // 新消息条数 用户点进此会话后清零,后面的重新计数
+}
+
+enum FETCH_SESSION_RANGE{
+	ALL = 0;
+	PRIVATE_CHAT = 1;
+	GROUP_CHAT = 2;
+}
+
+// 基础结果结束
+///////////////////////////////////////////
+
+// 分页获取srcid的全部聊过天的会话
+message FetchChatSessionsReq {
+	int64 page = 1; // 用于分页查询 从1开始 默认1
+	int64 pageSize = 2; // 每页数量，默认10
+	int64 time = 3; // 从哪个时间点开始，只获取这个时间点之后的
+	FETCH_SESSION_RANGE  range = 4; // 获取范围
+}
+
+message FetchChatSessionsRsp {
+	int64 page = 1; // 用于分页查询 从1开始 默认1
+	int64 pageSize = 2; // 每页数量，默认100， 最多100
+	int64 time = 3; // 从哪个时间点开始，只获取这个时间点之后的
+	FETCH_SESSION_RANGE  range = 4; // 获取范围
+	repeated ChatSession chatSessions = 5;
+	int64 totalCount = 6;
+}
+
+// ChatHisMsgReq 获取历史聊天消息
+message FetchChatHisMsgListOfSessionReq {
+	int64 page = 1; // 用于分页查询 从1开始 默认1
+	int64 pageSize = 2; // 每页数量，默认10
+	int64 time = 3; // 从哪个时间点开始，只获取这个时间点之后的
+	int64 session = 4; // 会话id, 自己和不同好友或群组成不同session，相同好友或群组成相同session，
+}
+
+message FetchChatHisMsgListOfSessionRsp {
+	int64 page = 1; // 用于分页查询 从1开始 默认1
+	int64 pageSize = 2; // 每页数量，默认10
+	int64 time = 3; // 从哪个时间点开始，只获取这个时间点之后的
+	int64 session = 4; // 会话id, 自己和不同好友或群组成不同session，相同好友或群组成相同session，
+	repeated HistoryMsg chatHisMsgs = 5;
+	int64 totalCount = 6; // 消息总个数
+}
+
+// 删除会话, 解除好友关系时调用
+message DelChatSessionsReq {
+	int64 session = 1; // 会话id, 自己和不同好友或群组成不同session，相同好友或群组成相同session，
+}
+
+message DelChatSessionsRsp {
+	int64 session = 1; // 会话id, 自己和不同好友或群组成不同session，相同好友或群组成相同session，
+}
+
+// 清除消息 客户端从聊天列表删除一项聊天会话时调用，这时对方可能是好友，也可能不是
+message ClearMsgOfSessionReq {
+	int64 session = 1; // 会话id, 自己和不同好友或群组成不同session，相同好友或群组成相同session，
+}
+
+message ClearMsgOfSessionRsp {
+	int64 session = 1; // 会话id, 自己和不同好友或群组成不同session，相同好友或群组成相同session，
+}
+// session 方式历史消息 结束
+/////////////////////////////////////////////////////

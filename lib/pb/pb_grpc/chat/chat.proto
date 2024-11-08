@@ -1,0 +1,12 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_grpc/chat";
+package pb_grpc_chat;
+
+import "pb_msg/gate/gate.proto";
+import "pb_pub/comm.proto";
+
+service Chat {
+	// 私聊逻辑判断
+	rpc Chat(pb_msg_gate.ChatText) returns (pb_pub.CommRsp) {}
+}
+

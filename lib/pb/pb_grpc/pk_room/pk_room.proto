@@ -1,0 +1,97 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_grpc/pk_room";
+
+// import "google/protobuf/any.proto";
+import "pb_pub/comm.proto";
+import "pb_msg/pk_room/pk_room.proto";
+// import "pb_grpc/live_room/live_room.proto";
+
+package pb_grpc_pk_room;
+
+service PKRoom {
+
+    rpc HeartBeat(pb_pub.HeartBeat) returns (pb_pub.HeartBeat) {}   // hashkey=pkroomid
+
+    // rpc CreatePKRoom(CreatePKRoomReq) returns (CreatePKRoomRsp) {} // hashkey=pkroomid
+
+    rpc PKEnqueue (pb_msg_pk_room.PKEnqueueReq) returns (pb_msg_pk_room.PKEnqueueRsp) {} // hashkey=srcid
+
+    rpc PKDequeue (pb_msg_pk_room.PKDequeueReq) returns (pb_msg_pk_room.PKDequeueRsp) {} // hashkey=srcid
+
+    rpc PKEscape (pb_msg_pk_room.PKEscapeReq) returns (pb_msg_pk_room.PKEscapeRsp) {} // hashkey=pkroomid
+
+    rpc PKAnswer (pb_msg_pk_room.PKAnswerReq) returns (pb_msg_pk_room.PKAnswerRsp) {} // hashkey=pkroomid
+
+    rpc PKInvite (pb_msg_pk_room.PKInviteReq) returns (pb_msg_pk_room.PKInviteRsp) {} // hashkey=pkroomid
+
+    rpc PKInviteStop (pb_msg_pk_room.PKInviteStopReq) returns (pb_msg_pk_room.PKInviteStopRsp) {}  // hashkey=pkroomid
+
+    // rpc EnterRoom (pb_pub.EnterRoomReq) returns (pb_pub.EnterRoomRsp) {}
+
+    rpc CreateRandRoom (CreateRandRoomReq) returns (CreateRandRoomRsp);
+    rpc ManualMatch (ManualMatchReq) returns (ManualMatchRsp);
+
+    // rpc CreateRankRoom (CreateRankRoomReq) returns (CreateRankRoomRsp);
+
+    // rpc CreateInviteRoom (CreateInviteRoomReq) returns (CreateInviteRoomRsp);
+
+    // rpc Notice (pb_grpc_liveRoom.Notice) returns (pb_pub.CommRsp);
+
+    rpc PKSwitchPassive (pb_msg_pk_room.PKSwitchPassiveReq) returns (pb_pub.CommRsp);
+
+}
+
+/////////////////////////////////////////////////////////////////////
+
+message FieldsPKOver {
+    int64 rank         = 4; // 段位
+    int64 victoryTimes = 5; // 连胜次数
+}
+
+// // For CreatePKRoomReq Any
+// message Candidate
+// {
+//     double score  = 1;
+//     // string member = 2;
+// }
+
+// message CreatePKRoomReq
+// {
+//     pb_msg_pk_room.PK_TYPE  pkType  = 1;
+//     string                  pkTopic = 2;
+//     google.protobuf.Any     a       = 3;
+//     google.protobuf.Any     b       = 4;
+// }
+
+// message CreatePKRoomRsp
+// {}
+
+message CreateRandRoomReq {
+    pb_msg_pk_room.PK_TYPE pkType = 1;
+    string pkTopic                = 2;
+}
+message CreateRandRoomRsp {}
+
+message CreateRankRoomReq {
+    string pkTopic = 1;
+    int64 aid = 2;
+    double ascore = 3;
+    int64 bid = 4;
+    double bscore = 5;
+}
+message CreateRankRoomRsp {}
+
+message CreateInviteRoomReq {
+    string pkTopic = 1;
+}
+message CreateInviteRoomRsp {}
+
+message Attach {
+    int64 roomID = 1;
+}
+
+message ManualMatchReq {
+    int64 anchorA = 1;
+    int64 anchorB = 2;
+}
+message ManualMatchRsp {}

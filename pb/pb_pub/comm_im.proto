@@ -1,0 +1,25 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_pub";
+package pb_pub;
+
+import "pb_pub/comm.proto";
+
+// // 发送单聊文字
+// message Text{
+// 	TextChatType chatType = 1;	// 聊天类型
+// 	string text = 2;	// 聊天文字
+// 	map<string, string> exp = 3; // 扩展参数
+// }
+
+message NSQMessage {
+	PBCommData pbCommData = 1;
+	CODEC codec = 2;
+	string name = 3;
+	bytes data = 4;
+}
+
+enum CODEC {
+	PROTOBUF = 0;
+	JSON = 1;
+}
+

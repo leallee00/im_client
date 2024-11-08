@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+option go_package = "github.com/leallee00/pb/pb_msg/community";
+package pb_msg_community;
+
+
+message TestMessage{
+    string content = 1;
+}

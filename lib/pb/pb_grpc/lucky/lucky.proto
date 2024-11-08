@@ -1,0 +1,10 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_grpc/lucky";
+package pb_grpc_lucky;
+
+import "pb_msg/lucky/lucky.proto";
+
+service Lucky {
+    // 抽奖
+    rpc DoLucky(pb_msg_lucky.LuckyReq) returns (pb_msg_lucky.LuckyRsp) {}
+}

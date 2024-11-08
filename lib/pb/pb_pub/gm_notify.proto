@@ -1,0 +1,45 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_pub";
+package pb_pub;
+
+enum IM_TYPE{
+    IM_TYPE_YZIM = 0;
+    IM_TYPE_YXIM = 1;
+}
+
+// 频道查看
+//https://imnsq.yzapi.top/
+
+// gm全站通知频道
+//topic:"t_gm_notify", channel: "c_gate_%ip_%port"
+// 每个gate一个channel，接收全量消息 如: c_gate_120.27.213.73_8101,
+// 后台发送 {"imType":1,"optUser":10002,"optTime":22222222,"resion":"test"} 到nsq
+//curl -d '{"imType":1,"optUser":10002,"optTime":22222222,"resion":"test"}' http://127.0.0.1:4151/pub?topic=t_gm_notify
+// IM系统切换通知
+message GMChangeIMNotify{
+    IM_TYPE imType = 1;  // 要切换的im类型
+    int64 optUser = 2; // 操作者
+    int64 optTime = 3; // 操作时间
+    string resion = 4;  // 操作原因
+}
+
+//topic:"t_sys_to_aim_user", channel: "c_sys_to_aim_user"
+// 通知客户端上传日志,本消息需要回执，存离线
+// 后台发送 {"optUser":10002,"optTime":22222222,"resion":"test"} 到nsq
+//curl -d '{"aimUser":12219035,"optUser":10002,"optTime":22222222,"resion":"test"}' http://127.0.0.1:4151/pub?topic=t_sys_to_aim_user
+message GMPPullLogNotify{
+    int64 aimUser = 1;  // 对方用户id
+    int64 optUser = 2;  // 操作者
+    int64 optTime = 3;  // 操作时间
+    string reason = 4;  // 操作原因
+    string startTime = 5; // 开始时间
+    string endTime = 6;   // 结束时间
+    int32 source = 7;       // 1 是客户端日志   2 是IM日志  3是即构
+}
+
+// 客户端日志上传结果回执给服务器，msgsn沿用GMPPullLogNotify携带的sn
+message UserPushLogResult{
+    int32 result = 1;  // 操作结果 0：成功 ，其他失败
+    string resultReason = 2;  // 失败原因
+    string logPath = 3; // 日志存放全路径
+}

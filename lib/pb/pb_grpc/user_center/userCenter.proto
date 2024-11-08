@@ -1,0 +1,166 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_grpc/user_center";
+package pb_grpc_userCenter;
+
+import "pb_msg/gate/gate.proto";
+import "pb_pub/comm.proto";
+import "pb_msg/user_center/userCenter.proto";
+import  "pb_pub/error_code.proto";
+
+service UserCenter {
+	// 登录认证，产生的token也放在这里验证
+	rpc UserLogon(pb_msg_gate.LoginReq) returns (pb_msg_gate.LoginRsp) {}
+
+	// 用户状态变更通知
+	rpc UserStateChange(UserStateChangeReq) returns (pb_pub.CommRsp){}
+
+	// 心跳通知
+	rpc HeartBeat(pb_pub.HeartBeat) returns (pb_pub.HeartBeat){}
+
+	// 获取用户状态
+	rpc GetUserState(UserStateReq)returns (UserStateRsp){}
+
+	// 获取用户第三方信息
+	rpc GetUserThirdInfo(UserThirdInfoReq) returns (UserThirdInfoRsp){}
+
+	// 获取朋友用户信息
+	rpc GetFriendsInfo(pb_msg_userCenter.FriendInfoReq) returns (pb_msg_userCenter.FriendInfoRsp){}
+
+	// 批量获取用户信息
+	rpc GetUserInfo(pb_msg_userCenter.UsersInfoReq) returns (pb_msg_userCenter.UsersInfoRsp){}
+
+	// // ALPHA 主播状态同步
+	// rpc ClientBFSwitch(pb_pub.ClientBFSwitchReq) returns (pb_pub.ClientBFSwitchRsp){}
+
+	// // 获取用户客户端状态
+	// rpc GetUserClientStates(UserClientStatesReq)returns (UserClientStatesRsp){}
+
+	// 微信小程序登陆
+	// rpc WxLogin(UserLoginReq) returns (UserLoginRsp){}
+
+	// 微信小程序设置用户信息
+//	rpc WxSetProfile(SetProfileReq) returns (SetProfileRsp){}
+
+	// appId换imid
+	rpc AppUidToImId (pb_msg_userCenter.AppUidToImIdReq) returns (pb_msg_userCenter.AppUidToImIdRsp);
+
+	/////////////////////////////
+	// 发红包
+	// 发红包
+	rpc RedPacketHandOut(pb_msg_userCenter.RedPacketHandOutReq) returns (pb_msg_userCenter.RedPacketHandOutRsp);
+
+	// 领红包
+	rpc RedPacketReceive(pb_msg_userCenter.RedPacketReceiveReq) returns (pb_msg_userCenter.RedPacketReceiveRsp);
+
+	// 红包信息获取
+	rpc RedPacketInfo(pb_msg_userCenter.RedPacketInfoReq) returns (pb_msg_userCenter.RedPacketInfoRsp);
+
+	// 红包信息下的领取列表
+	rpc RedPacketCurFlow(pb_msg_userCenter.RedPacketCurFlowReq) returns (pb_msg_userCenter.RedPacketCurFlowRsp);
+
+	// 红包领取列表
+	rpc RedPacketMyReceivedList(pb_msg_userCenter.RedPacketMyReceivedListReq) returns (pb_msg_userCenter.RedPacketMyReceivedListRsp);
+
+	// 发送的红包列表
+	rpc RedPacketMyHandedOutList(pb_msg_userCenter.RedPacketMyHandedOutListReq) returns (pb_msg_userCenter.RedPacketMyHandedOutListRsp);
+	// 发红包 end
+	/////////////////////////////
+
+}
+
+message UserThirdInfoReq {
+	int64 UserId = 1;
+}
+
+message UserThirdInfoRsp {
+	int64 UserId = 1;
+	int64 ThirdUserIdOld = 2;  // 第三方的userid
+	int64 ThirdAppId = 3;  // 第三方的appid
+	pb_pub.USER_STATE_TYPE State = 4;
+	string ThirdUserId = 5;  // 第三方的userid
+}
+
+message UserStateReq{
+	int64 UserId = 1;
+	pb_pub.CLIENT_TYPE clientType = 2;
+}
+
+message UserStateRsp{
+	int64 UserId = 1;
+	string GateAddr = 2;  // 当前所在的gate位置
+	pb_pub.USER_STATE_TYPE State = 3;
+	bool SwitchToBack = 4; // 前端是否切换到后台
+	repeated Client clients = 5; // 用户客户端列表
+}
+
+message Client {
+	string GateAddr = 1;  // 当前所在的gate位置
+	pb_pub.USER_STATE_TYPE State = 2;
+	bool SwitchToBack = 3; // 前端是否切换到后台
+	pb_pub.CLIENT_TYPE clientType = 4; // 客户端类型
+}
+
+//message UserListStateReq{
+//	repeated int64 UserList = 1;
+//}
+//
+//message UserListStateRsp{
+//	repeated Userstate userStateList = 1;
+//}
+
+message Userstate{
+	int64 UserId = 1;
+	string GateAddr = 2;  // 当前所在的gate位置
+	pb_pub.USER_STATE_TYPE State = 3;
+	bool SwitchToBack = 4; // 前端是否切换到后台
+}
+
+message UserStateChangeReq{
+	int64 UserId = 1;
+	pb_pub.USER_STATE_TYPE State = 2;
+	string GateAddr = 3;	// 把所在gate的addr带上
+}
+
+message UserLoginReq{
+	int64 AppId = 1;
+	string Secret = 2;
+	string UnionId = 3;
+}
+
+message UserLoginRsp{
+	pb_pub.ErrCode result = 1; // 0 成功，其他为错误号
+	int64 UserID = 2;
+	string Token = 3;
+	string TokenVersion =4;
+}
+
+message SetProfileReq {
+	int64 UserID = 1; // appUID
+	string NickName = 2;
+	int64 Gender      =3;
+	string Language   =4;
+	string City       =5;
+	string Province   =6;
+	string Country    =7;
+	string AvatarUrl  =8;
+}
+
+
+message SetProfileRsp {
+	pb_pub.ErrCode result = 1; // 0 成功，其他为错误号
+	int64 UserID = 2;
+}
+
+// message UserClientStatesReq {
+// 	int64 userId = 1; // 用户ID
+// }
+
+// message UserClientStatesRsp {
+// 	repeated ClientState clientStates = 1; // 用户ID
+// }
+
+// message ClientState {
+// 	string GateAddr = 1;  // 当前所在的gate位置
+// 	pb_pub.USER_STATE_TYPE State = 2;
+// 	bool SwitchToBack = 3; // 前端是否切换到后台
+// }

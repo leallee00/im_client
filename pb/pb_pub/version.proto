@@ -1,0 +1,9 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_pub";
+package pb_pub;
+
+// Version im版本
+enum Version {
+    UnknownVersion = 0; // 位置版本
+    V210121 = 210121; // 椰趣接1v1通话版本
+}

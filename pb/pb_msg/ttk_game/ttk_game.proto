@@ -1,0 +1,185 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/ttk_game";
+package pb_msg_ttk_game;
+
+// 模型定义 ////////////////////////////////////////////////////////////////////
+
+// PATTERN 牌型枚举
+enum PATTERN {
+    GENERAL_0 = 0; // 无将
+    GENERAL_1 = 1; // 将1
+    GENERAL_2 = 2; // 将2
+    GENERAL_3 = 3; // 将3
+    GENERAL_4 = 4; // 将4
+    GENERAL_5 = 5; // 将5
+    GENERAL_6 = 6; // 将6
+    GENERAL_7 = 7; // 将7
+    GENERAL_8 = 8; // 将8
+    GENERAL_9 = 9; // 将9
+    GENERAL_10 = 10; // 双将
+    SILVER_GENERAL = 11; // 银将
+    BOMB = 12;  // 炸弹
+    TIGER = 13; // 五虎将
+    SMALL = 14; // 五小将
+}
+
+// 牌的颜色枚举
+enum SUIT {
+    DIAMOND = 0; // 方块
+    CLUB = 1;    // 梅花
+    HEART = 2;   // 红桃
+    SPADE = 3;   // 黑桃
+}
+
+// 桌位区域枚举
+enum KINGDOM {
+    WEI = 0; // 魏
+    SHU = 1; // 蜀
+    WU  = 2; // 吴
+    QUN = 3; // 群
+}
+
+// 一张牌
+message Card {
+    int32 number = 1; // 1-13
+    SUIT suit = 2;
+    int32 value = 3; // 1-10  JQK->10
+}
+
+// 一手牌
+message Hand {
+    PATTERN pattern = 1; // 牌型
+    repeated Card cards = 2; // 牌面
+}
+
+// 一个桌位
+message Side {
+    Hand hand = 1; // 武将牌
+    bool win = 2;  // 胜负 true 胜 false 负
+    int32 odds = 3; // 赔率
+    int64 amount = 4; // 注金总额
+    bool hasIncognito = 5; // 是否有神秘人下注
+    int64 publicAmouut = 6; // 普通用户的下注总额
+}
+
+
+// 游戏模型,进房单推
+message TTKGameInfo {
+    int64 no = 1; // 牌局编号
+    int32 state = 2; // 当前状态 1 下注中 2 开牌结算中
+    int64 endTime = 3; // 状态截止时间
+    Hand hand = 4; // 天子牌
+    repeated Side sides = 5; // 桌位信息
+}
+// 玩家模型,开牌单推
+message TTKPlayerInfo {
+    int64 userId = 1;
+    string username = 2;
+    repeated int64 bets = 3;
+    int64 coinBalance = 4; // 用户椰币余额
+    int64 cocoBalance = 5; // 用户椰豆余额
+    int64 winLose = 6; // 战功
+    bool incognito = 7; // 是否开启神秘投注模式
+    int32 incognitoTimes = 8; // 今日剩余神秘投注的次数
+}
+// 战功榜(前10条),开牌群推,进房单推
+message TTKWinnerBoard {
+    repeated TTKPlayerInfo winners = 2; // 战功榜
+}
+
+// 我的战功
+// message TTKPlayerWinLose {
+//     int64 winLose = 1; // 战功
+// }
+
+// 消息定义 ///////////////////////////////////////////////////////////////////
+
+// 开始下注通知
+message BetStartNotify {
+    int64 no = 1; // 牌局编号
+    int64 endTime = 2; // 状态截止时间
+}
+
+// 桌位注金变化通知
+message SideChangeNotify {
+    repeated Side sides = 1;
+}
+
+// 下注请求
+message BetReq {
+    int64 no = 1; // 牌局编号
+    string username = 2; // 玩家名字
+    KINGDOM kingdom = 3; // 下注区域
+    int64 amount = 4; // 下注金额
+    bool incognito = 5; // 是否开启神秘投注模式
+}
+// 下注响应
+message BetRsp {
+    repeated Side sides = 1; // 最新桌位下注金额
+    TTKPlayerInfo playerInfo = 2; // 用户信息
+    int64 no = 3; // 牌局编号
+}
+
+// 重复上局下注
+message RepeatBetReq {
+    int64 no = 1; // 牌局编号
+    string username = 2; // 玩家名字
+    repeated int64 bets = 3; // [桌位编号]下注金额
+    bool incognito = 4; // 是否开启神秘投注模式
+}
+message RepeatBetRsp {
+    repeated Side sides = 1; // 最新桌位下注金额
+    TTKPlayerInfo playerInfo = 2; // 用户信息
+    int64 no = 3; // 牌局编号
+}
+
+// 获取本局战功榜数据
+message WinnersReq {
+    int64 no = 1; // 牌局编号
+    int64 offset = 2; // 起始偏移
+    int64 count = 3; // 数量
+}
+message WinnersRsp {
+    repeated TTKPlayerInfo winners = 1;
+}
+
+// 开牌通知
+message DealStartNotify {
+    TTKGameInfo game = 1;
+}
+
+////////////////////////////////////////////////////////////
+// java 通过 nsq 发过来的消息, H5无需关心
+
+// 更新游戏配置
+message UpdateGameConfig {}
+
+// 设置奖池大小
+message SetGamePool {
+    int64 amount = 1; // 奖池大小
+}
+
+// 设置桌位权重
+message SetKingdomWeight {
+    repeated int32 weights = 1; // [桌位] 权重 0 1 2
+}
+
+///////////////////////////////////////////////////////////
+// java 通过http请求的接口
+
+// GET /ttk/game-state?appId=XXX&secrect=XXX
+message TTKGameStateReq {}
+message TTKGameStateRsp {
+    int32 state = 1; // 当前状态 1 下注中 2 开牌结算中
+    int64 countdown = 2; // 倒计时
+    repeated TTKKingdom kingdoms = 3;
+}
+message TTKKingdom {
+    message Player {
+        int64 userId = 1; // 用户id
+        int64 bet = 2; // 下注金额
+        int32 userGameType = 3; // 用户类型
+    }
+    repeated Player players = 1; // 当前桌位玩家列表
+    int64 total = 2; // 当前桌位总额
+}

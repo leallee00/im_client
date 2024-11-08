@@ -1,0 +1,464 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:2644016744761677130",
+      "lastPropertyId": "19:7024178048851163765",
+      "name": "ConversationModel",
+      "properties": [
+        {
+          "id": "1:3186887931902879872",
+          "name": "id",
+          "type": 6,
+          "flags": 129
+        },
+        {
+          "id": "3:464506414335905605",
+          "name": "lastMsgState",
+          "type": 6
+        },
+        {
+          "id": "4:4254913614690855771",
+          "name": "msgSn",
+          "type": 6
+        },
+        {
+          "id": "5:894450733669715726",
+          "name": "groupId",
+          "type": 6
+        },
+        {
+          "id": "6:2992895854386620655",
+          "name": "groupMsgSn",
+          "type": 6
+        },
+        {
+          "id": "7:7417438008530487397",
+          "name": "pbName",
+          "type": 9
+        },
+        {
+          "id": "8:2227899548231880159",
+          "name": "pbData",
+          "type": 23
+        },
+        {
+          "id": "9:444074780648395750",
+          "name": "pbCommData",
+          "type": 23
+        },
+        {
+          "id": "10:5728432200745646306",
+          "name": "createdAt",
+          "type": 6
+        },
+        {
+          "id": "11:3663284626053663703",
+          "name": "updatedAt",
+          "type": 6
+        },
+        {
+          "id": "12:7831462642967632106",
+          "name": "newMsgCount",
+          "type": 6
+        },
+        {
+          "id": "15:4628908384878715410",
+          "name": "sessionType",
+          "type": 6
+        },
+        {
+          "id": "16:750161903097678248",
+          "name": "srcId",
+          "type": 6
+        },
+        {
+          "id": "18:3239393812413946727",
+          "name": "userId",
+          "type": 6
+        },
+        {
+          "id": "19:7024178048851163765",
+          "name": "top",
+          "type": 6
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "2:6985379824611990168",
+      "lastPropertyId": "14:1913464924183239998",
+      "name": "UserModel",
+      "properties": [
+        {
+          "id": "1:7761333964377348942",
+          "name": "id",
+          "type": 6,
+          "flags": 129
+        },
+        {
+          "id": "2:3895261183863361582",
+          "name": "appId",
+          "type": 6
+        },
+        {
+          "id": "3:7257959668631191343",
+          "name": "appUid",
+          "type": 9
+        },
+        {
+          "id": "4:6812799171745311079",
+          "name": "nickName",
+          "type": 9
+        },
+        {
+          "id": "5:5837403397424403513",
+          "name": "avatar",
+          "type": 9
+        },
+        {
+          "id": "6:3946226168876984672",
+          "name": "level",
+          "type": 6
+        },
+        {
+          "id": "7:5593552018773510090",
+          "name": "signName",
+          "type": 9
+        },
+        {
+          "id": "9:5557832791989812824",
+          "name": "sourceVersion",
+          "type": 6
+        },
+        {
+          "id": "10:5481042207621055922",
+          "name": "appUserId",
+          "type": 9
+        },
+        {
+          "id": "11:7394832211723758745",
+          "name": "role",
+          "type": 6
+        },
+        {
+          "id": "12:4736731212344259418",
+          "name": "gender",
+          "type": 6
+        },
+        {
+          "id": "13:4232244197810250934",
+          "name": "banned",
+          "type": 1
+        },
+        {
+          "id": "14:1913464924183239998",
+          "name": "sign",
+          "type": 9
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "3:2630896730349722055",
+      "lastPropertyId": "23:6188113686647627609",
+      "name": "GroupModel",
+      "properties": [
+        {
+          "id": "1:5279167629014491761",
+          "name": "id",
+          "type": 6,
+          "flags": 129
+        },
+        {
+          "id": "2:2339165285626043197",
+          "name": "ownerId",
+          "type": 6
+        },
+        {
+          "id": "3:561123973928834459",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "4:8220841831581071037",
+          "name": "top",
+          "type": 1
+        },
+        {
+          "id": "5:1935602098587349586",
+          "name": "inviteRoleLimit",
+          "type": 6
+        },
+        {
+          "id": "6:8258395343134785435",
+          "name": "memberCountLimit",
+          "type": 6
+        },
+        {
+          "id": "7:8330841447693010663",
+          "name": "notice",
+          "type": 9
+        },
+        {
+          "id": "8:4371241921704658770",
+          "name": "avatar",
+          "type": 9
+        },
+        {
+          "id": "9:3902287821997926568",
+          "name": "disbanded",
+          "type": 1
+        },
+        {
+          "id": "10:7532589375875232573",
+          "name": "remark",
+          "type": 9
+        },
+        {
+          "id": "11:7213882897636420209",
+          "name": "memberChatBannedStatus",
+          "type": 6
+        },
+        {
+          "id": "12:1752013993317365052",
+          "name": "newMemberRemindClosed",
+          "type": 6
+        },
+        {
+          "id": "13:5619177206831151937",
+          "name": "scanCodeJoinGroupSwitchStatus",
+          "type": 6
+        },
+        {
+          "id": "14:7669488215757093412",
+          "name": "scanCodeJoinGroupParam",
+          "type": 9
+        },
+        {
+          "id": "15:6249888050394308025",
+          "name": "banned",
+          "type": 1
+        },
+        {
+          "id": "16:569066934154129069",
+          "name": "memberCount",
+          "type": 6
+        },
+        {
+          "id": "17:5152476120197891184",
+          "name": "noticeVersion",
+          "type": 6
+        },
+        {
+          "id": "18:8788442068483902090",
+          "name": "freeJoin",
+          "type": 1
+        },
+        {
+          "id": "19:1512359777983357286",
+          "name": "groupType",
+          "type": 6
+        },
+        {
+          "id": "20:8232551338813902788",
+          "name": "backPic",
+          "type": 9
+        },
+        {
+          "id": "21:5958628714639887299",
+          "name": "freeJoinStatus",
+          "type": 6
+        },
+        {
+          "id": "22:2720988400549224032",
+          "name": "forbiddenAddFriends",
+          "type": 6
+        },
+        {
+          "id": "23:6188113686647627609",
+          "name": "noDisturb",
+          "type": 6
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "5:8543185602428974020",
+      "lastPropertyId": "11:7922658146098183659",
+      "name": "PrivateMsgModel",
+      "properties": [
+        {
+          "id": "1:73627898881425519",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:8238531657732370236",
+          "name": "userId",
+          "type": 6,
+          "flags": 8,
+          "indexId": "3:7264112656437498046"
+        },
+        {
+          "id": "3:2967582693194550335",
+          "name": "pbData",
+          "type": 23
+        },
+        {
+          "id": "4:8686420074459739649",
+          "name": "pbCommData",
+          "type": 23
+        },
+        {
+          "id": "5:5114872858425355232",
+          "name": "msgState",
+          "type": 6
+        },
+        {
+          "id": "6:783532494647758430",
+          "name": "createdAt",
+          "type": 6
+        },
+        {
+          "id": "7:1138293800794134806",
+          "name": "updatedAt",
+          "type": 6
+        },
+        {
+          "id": "8:2865937722322006352",
+          "name": "msgSn",
+          "type": 6,
+          "flags": 8,
+          "indexId": "2:360375205270064065"
+        },
+        {
+          "id": "9:3857453620345335765",
+          "name": "pbName",
+          "type": 9
+        },
+        {
+          "id": "10:1737478543207266203",
+          "name": "recallUid",
+          "type": 6
+        },
+        {
+          "id": "11:7922658146098183659",
+          "name": "srcId",
+          "type": 6
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "6:8528186532186973279",
+      "lastPropertyId": "13:80215469905011931",
+      "name": "GroupMsgModel",
+      "properties": [
+        {
+          "id": "1:3512430516184943877",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:4339176280384078698",
+          "name": "groupId",
+          "type": 6,
+          "flags": 8,
+          "indexId": "4:6423443115482747096"
+        },
+        {
+          "id": "3:8502637317838454518",
+          "name": "userId",
+          "type": 6
+        },
+        {
+          "id": "4:8454406879431447342",
+          "name": "pbData",
+          "type": 23
+        },
+        {
+          "id": "5:222467531209603994",
+          "name": "pbCommData",
+          "type": 23
+        },
+        {
+          "id": "6:7326896761166605883",
+          "name": "msgState",
+          "type": 6
+        },
+        {
+          "id": "7:6800425878737886668",
+          "name": "createdAt",
+          "type": 6
+        },
+        {
+          "id": "8:4674736260834111041",
+          "name": "updatedAt",
+          "type": 6
+        },
+        {
+          "id": "9:4872411187477092399",
+          "name": "msgSn",
+          "type": 6
+        },
+        {
+          "id": "10:8819050080387037148",
+          "name": "groupMsgSn",
+          "type": 6
+        },
+        {
+          "id": "11:3928116355260531759",
+          "name": "pbName",
+          "type": 9
+        },
+        {
+          "id": "12:4263371246979100412",
+          "name": "recallUid",
+          "type": 6
+        },
+        {
+          "id": "13:80215469905011931",
+          "name": "srcId",
+          "type": 6
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "6:8528186532186973279",
+  "lastIndexId": "4:6423443115482747096",
+  "lastRelationId": "0:0",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [
+    2415870110730081565
+  ],
+  "retiredIndexUids": [
+    2342696760867410422
+  ],
+  "retiredPropertyUids": [
+    7804465090109120135,
+    1730289077766302880,
+    815513132141896722,
+    5696908434907912014,
+    3463337453984363506,
+    7569681043270222476,
+    2710325214763456025,
+    5464231486763207664,
+    4966880287562781000,
+    6934238353207842431,
+    7727535342583579806,
+    408795556469242754,
+    4952909420340049911,
+    6354096686649866996,
+    7863116134622552382
+  ],
+  "retiredRelationUids": [],
+  "version": 1
+}

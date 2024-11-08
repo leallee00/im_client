@@ -1,0 +1,931 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/commim_uaa";
+package pb_msg_commim_uaa;
+import "pb_pub/comm.proto";
+//import "pb_pub/error_code.proto";
+import "google/rpc/status.proto";
+
+// 检查账号是否存在
+message CheckAccountExistReq {
+    string account = 1; //账号
+}
+message CheckAccountExistRsp {
+    string account = 1; //账号
+    bool Exist = 2; //是否存在
+}
+
+
+// // 用户注册
+// // 用户可以 username 或 phone 或 email 注册, 注册时只需填写一个, 填使用第一个非空值
+message SignupReq {
+    string username = 1; // key 用户名，可作为登录账号
+    string phone = 2; // key  手机号码，可作为登录账号
+    string email = 3; // key 邮箱可作为登录账号
+    string password = 4;// 密码
+    int32  code = 5;        // 验证码，通过手机或邮箱发送
+    string nickname = 6; // 昵称
+    string sysInviteCode = 7; // 系统给的邀请码，服务的会通过邀请码执行特定任务，可在后台配置
+    string avatar = 8; // 头像，选填
+}
+
+message SignupRsp {
+    UserInfo info = 1;
+    string token = 2; // app token
+    string imToken = 3; // im token
+}
+
+// 注销账号
+message UnregisterReq {
+    string account  = 1;
+    string phone = 2;	// 手机号码 手机邮箱有一个
+    string email = 3; // 邮箱  手机邮箱有一个
+    string password = 4; // 密码
+    int32 code = 5; // 验证码
+}
+
+// 发送手机验证码
+message SendPhoneCodeReq{
+    string PhoneNo = 1;
+    string Code = 2; // 随机验证码
+}
+
+// 发送邮件验证码
+message SendEmailCodeReq{
+    string EmailAddr = 1;
+    string Code = 2; // 随机验证码
+}
+
+// 用户登录
+message LoginReq {
+    string username = 1; // 用户账号
+    string phone = 2;	// 手机号码
+    string email = 3; // 邮箱
+    string password = 4; // 密码
+	int32 code = 5; // 验证码
+}
+
+message LoginRsp {
+    UserInfo info = 1;
+    string token = 2; // app token
+    string imToken = 3; // im token
+}
+
+message UserInfo {
+	string userId   = 1;
+  string username = 2;
+	int64  imId     = 3;
+	string phone    = 4;
+	string email    = 5;
+	string nickname = 6;
+	int32  role     = 7;
+	string avatar   = 8;
+	bool   banned   = 9;
+	int32  gender   = 10;
+	string sign 	= 11; // 用户签名
+	int32  level    = 12; // 用户等级
+  int32  userSourceVersion = 13; // 用户资源版本
+    string passWord = 14;
+    string code = 15; // 修改手机号码或邮箱时用这个字段
+    bool freeAddMeFriend = 16; // 加自己为好友不需确认
+}
+
+// 获取用心信息
+message UserInfoReq {}
+message UserInfoRsp {
+	UserInfo info = 1;
+}
+
+// 查找用户，给imid，账号，手机号，邮箱其中的一个，都进行精确匹配
+message FindUserInfoIntellReq{
+    string param = 1;
+}
+// 返回 UserInfoRsp
+
+// 更新用户信息
+message UpdateUserInfoReq { // appUserId = 操作者id
+	string userId = 1; // 被更新用户ID
+	UserInfo info = 2;
+	repeated string keys = 3; // 更新的字段
+}
+message UpdateUserInfoRsp {
+    int32  userSourceNewVersion = 1; // 用户资源版本
+}
+
+// // 更新用户角色
+// message UpdateUserRoleReq {}
+// message UpdateUserRoleRsp {}
+
+// // 封禁用户
+// message BanUserReq {}
+// message BanUserRsp {}
+
+// 后台通知im，通过后台封禁了用户
+message BannedUserNotify{
+    string optUaaUserId = 1;
+    string aimUaaUserId = 2;
+    string reason = 3;
+    bool banned = 4; // true 封禁用户 false 解禁用户
+}
+
+// // 编辑签名
+// message EditSignReq {}
+// message EditSignRsp {}
+
+//    int32 complaintType = 1; // 0:投诉用户 1:投诉群
+//    int64 associationId = 2; // 相关Id
+//    string associationInfo = 3; // 相关联的其他信息
+//    string content = 4; // 具体内容
+
+message Suggest{
+    int64 id = 1; // 编号
+    string suggest = 2; // 建议内容
+    int32 type = 3; // 类型 0：投诉， 1：建议
+    int32 kind = 4; // [0:投诉平台 1:投诉用户 2：投诉群]
+    int32 emergentLevel = 5;// 紧急程度 0,1,2...
+
+    // 其他属性
+    int32 replyCount = 6; // 回复次数
+    int32 state = 7; // 当前状态 未处理，已解决，未解决
+    int64 userId = 8;//提出人
+    int64 replyUserId = 9; // 处理人
+    int64 closeUserId = 10; // 关闭人
+    int64 createdAt = 11; // 产生时间
+    int64 updatedAt = 12; // 更新时间
+    string results = 13;// 处理结果
+    int64 relationSuggestId = 14; // 关联建议
+
+    //
+    int64 ProblemTime = 15; // 问题出现时间
+    string Pics = 16;    // 图片连接列表
+    string PhoneNo = 17;   // 手机号码联系方式
+
+    int64 associationId = 18; // 相关Id
+    string associationInfo = 19; // 相关联的其他信息，建议用json结构,自定义
+}
+
+message SuggestReply {
+    int64 id = 1;
+    int64 suggestId = 2;
+    int64 relationReplyId = 3; // 关联的回复id @
+    string reply = 4;
+
+    int64 createdAt = 5; // 产生时间
+    int64 updatedAt = 6; // 更新时间
+    int64 replyUserId = 7; // 发布人
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// 投诉建议
+//rpc AddSuggest (pb_msg_commim_uaa.AddSuggestReq) returns (pb_msg_commim_uaa.AddSuggestRsp); // 新建
+message AddSuggestReq{
+
+    ///////////////////////////
+    // 这个放弃 放到结构体里
+    int32 type = 1; // 类型 0：投诉， 1：建议
+    int32 kind = 2; // 类型 相关问题类型，自定义
+    string suggest = 3; // 建议内容
+    int32 emergentLevel = 4;
+    int64 relationSuggestId = 5;// 关联的suggest id，
+    // 放弃，放到结构体
+    /////////////////////////////////
+
+    Suggest suggestData = 6; // 建议的数据,
+}
+message AddSuggestRsp{
+    Suggest suggest = 1;
+}
+
+//rpc GetSuggestList (pb_msg_commim_uaa.GetSuggestListReq) returns (pb_msg_commim_uaa.GetSuggestListRsp); // 获取列表，只能获取自己的
+message GetSuggestListReq{
+    int32 page = 1;
+    int32 pageSize = 2;
+    int32 totalCount = 3; // 总条数， 0：需要服务端给， n：客户端知道总数为n，不需再取总数
+
+    Suggest suggestCondition = 4; //查询参数，不为0的字段为过滤条件
+}
+message GetSuggestListRsp{
+    int32 page = 1;
+    int32 pageSize = 2;
+    int32 totalCount = 3; // 总条数
+    repeated Suggest suggestList = 4;
+}
+
+//rpc AddSuggestReply (pb_msg_commim_uaa.AddSuggestReplyReq) returns (pb_msg_commim_uaa.AddSuggestReplyRsp); // 获取列表，只能获取自己的
+message AddSuggestReplyReq{
+    int64 suggestId = 1;
+    int64 relationReplyId = 2; // 关联的回复id @
+    string reply = 3;
+}
+message AddSuggestReplyRsp{
+    SuggestReply suggestReply = 1;
+}
+
+//rpc GetSuggestDetail (pb_msg_commim_uaa.GetSuggestDetailReq) returns (pb_msg_commim_uaa.GetSuggestDetailRsp); // 获取详情，只能获取自己的
+message GetSuggestDetailReq{
+    int64 SuggestId = 1;
+}
+message GetSuggestDetailRsp{
+    Suggest suggest = 1;
+}
+
+//rpc GetSuggestReplyList (pb_msg_commim_uaa.GetSuggestReplyListReq) returns (pb_msg_commim_uaa.GetSuggestReplyListRsp); // 获取列表，只能获取自己的
+message GetSuggestReplyListReq{
+    int32 page = 1;
+    int32 pageSize = 2;
+    int32 totalCount = 3; // 总条数， 0：需要服务端给， n：客户端知道总数为n，不需再取总数
+    int64 SuggestId = 4;
+}
+message GetSuggestReplyListRsp{
+    int32 page = 1;
+    int32 pageSize = 2;
+    int32 totalCount = 3; // 总条数
+    int64 SuggestId = 4;
+    repeated SuggestReply suggestReplyList = 5;
+}
+
+//rpc SetSuggestStatus (pb_msg_commim_uaa.SetSuggestStatusReq) returns (pb_msg_commim_uaa.SetSuggestReplyStatusRsp); // 设置处理结果状态 满意，不满意，未解决等
+message SetSuggestStatusReq{
+    int64 suggestId = 1;
+    int32 status = 2;
+}
+message SetSuggestReplyStatusRsp{
+    int64 suggestId = 1;
+    int32 status = 2;
+}
+// 投诉建议
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// version 版本管理，自动升级
+message CheckVersionReq{
+    int64 version = 1; // 客户端当前版本
+    pb_pub.CLIENT_RUN_ENV_TYPE clientRunEnv = 2; // 客户端运行环境
+}
+
+message CheckVersionRsp {
+    int64 LatestVersion = 1; // 最新版本号
+    bool needForcedUpdate = 2; // 是否需要强制更新
+    string url = 3; // 下载链接
+    string versionDesc = 4; //版本说明
+    pb_pub.CLIENT_RUN_ENV_TYPE clientRunEnv = 5; // 客户端运行环境
+    bool needCleanCatchData = 6; // 是否需要清理缓存数据
+}
+// version 版本管理，自动升级
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+message ImEndPoint{
+    string cfgAllocatorUrl = 1;
+    string urlUploadFile = 2;
+    string cfgImInterApiUrl = 3;// 对内api地址，服务端使用，放在客户端只有测试才用
+    string cfgImOutApiUrl = 4;// api_http im对外api地址，第三方和客户端使用
+    string cfgAppGateApiHost = 5; // 通用IM后端提供的接口，用户信息和历史信息列表等非实时业务使用
+    string cfgGrpcUrl = 6;
+    int32 appId = 7;
+    int32 score = 8; // 默认分数为0
+    int32 delay = 9; // 默认时延1000s
+    string name = 10; // 说明
+}
+
+message FetchEndPointReq{
+}
+
+message FetchEndPointRsp {
+    repeated ImEndPoint endPoints = 1;
+}
+
+// 检测延迟
+message CheckDelayReq{
+
+}
+message CheckDelayRsp{
+
+}
+
+// 检查系统限制
+message GetSysCfgReq{
+    int64 appId = 1; // 每个app设置不一样
+}
+
+message GetSysCfgRsp{
+    map<string, string> sysCfg = 1; // 扩展参数
+}
+
+// IM检查账号正确性
+message ImLoginConfirmReq{
+    int64 imUserId = 1;
+    string token = 2;
+}
+
+message ImLoginConfirmRsp{
+    bool pass = 1; // 是否通过
+    string reason = 2; // 原因
+}
+
+message ResetPasswordReq{
+    string phone = 1; // 手机号码，与邮箱二选一
+    string email = 2; // 邮箱，与手机号码二选一
+    string password = 3;// 密码，必填
+    int32  code = 4;        // 验证码，通过手机或邮箱发送
+}
+message ResetPasswordRsp{
+    google.rpc.Status status = 2; // 执行状态
+}
+
+message UserAddress {
+    int64 id = 1; //编号
+    string contacts = 2; //联系人
+    string phoneCode = 3; // 手机号
+    string area = 4; // 地区
+    string detailAddress = 5; // 详细地址
+    string postCode = 6; //邮政编码
+    bool isDefault = 7; // 是否默认地址
+}
+
+// 添加地址
+message AddAddressReq {
+    UserAddress address = 1;
+}
+
+//返回带id的数据
+message AddAddressRsp {
+    UserAddress address = 1;
+}
+
+// 删除地址
+message DelAddressReq {
+    int64 id = 1; //编号
+}
+
+// 修改地址
+message EditAddressReq {
+    UserAddress address = 1;
+}
+
+// 查
+message FetchAddressReq{
+    int64 id = 1; //编号
+}
+message FetchAddressRsp{
+    UserAddress address = 1;
+}
+
+// 查默认地址
+message FetchDefaultAddressReq{
+}
+message FetchDefaultAddressRsp{
+    UserAddress address = 1;
+}
+
+message FetchAddressListReq{
+    int32 page = 1; //页码
+    int32 pageSize = 2; // 每页条数
+}
+message FetchAddressListRsp{
+    int32 page = 1; //页码
+    int32 pageSize = 2; // 每页条数
+    int64 total = 3; // 总条数
+    repeated UserAddress addressList = 4;
+}
+
+// 分类标签维护
+// 分类标签
+message CategorizeTag{
+    int64 id = 1;
+    string tag = 2;
+    int64 memberCount = 3;
+}
+
+// 分类标签成员
+message CategorizeTagMember{
+    int64 tagId = 1;
+    int64 memberId = 2;
+}
+
+//    rpc AddCategorizeTag(pb_msg_commim_uaa.AddCategorizeTagReq)returns(pb_msg_commim_uaa.AddCategorizeTagRsp);
+message AddCategorizeTagReq{
+    string tag = 1; // 标签名
+    repeated CategorizeTagMember member = 2; // 初始成员，可以为空
+}
+
+message AddCategorizeTagRsp{
+    CategorizeTag tag = 1;
+    repeated CategorizeTagMember member = 2; // 初始成员，可以为空
+}
+
+//    rpc DelCategorizeTag(pb_msg_commim_uaa.DelCategorizeTagReq)returns(pb_msg_commim_uaa.DelCategorizeTagRsp);
+message DelCategorizeTagReq{
+    int64 tagId = 1;
+}
+
+//    rpc EditCategorizeTag(pb_msg_commim_uaa.EditCategorizeTagReq)returns(pb_msg_commim_uaa.EditCategorizeTagRsp);
+message EditCategorizeTagReq{
+    CategorizeTag tag = 1;
+}
+
+//    rpc FetchCategorizeTagList(pb_msg_commim_uaa.FetchCategorizeTagListReq)returns(pb_msg_commim_uaa.FetchCategorizeTagListRsp);
+message FetchCategorizeTagListReq{
+    int32 page = 1; //页码
+    int32 pageSize = 2; // 每页条数
+}
+message FetchCategorizeTagListRsp{
+    int32 page = 1; //页码
+    int32 pageSize = 2; // 每页条数
+    int64 total = 3; // 总条数
+    repeated CategorizeTag tagList = 4;
+}
+
+// 分组标签成员操作
+//    rpc AddCategorizeTagMember(pb_msg_commim_uaa.AddCategorizeTagMemberReq)returns(pb_msg_commim_uaa.AddCategorizeTagMemberRsp);
+message AddCategorizeTagMemberReq{
+    CategorizeTagMember member = 1;
+}
+message AddCategorizeTagMemberRsp{
+    CategorizeTagMember member = 1;
+    int64  tagMemberTotalCount = 2; // 本标签下面成员总数
+}
+
+//    rpc DelCategorizeTagMember(pb_msg_commim_uaa.DelCategorizeTagMemberReq)returns(pb_msg_commim_uaa.DelCategorizeTagMemberRsp);
+message DelCategorizeTagMemberReq{
+    CategorizeTagMember member = 1;
+}
+message DelCategorizeTagMemberRsp{
+    int64  tagMemberTotalCount = 1; // 本标签下面成员总数
+}
+//
+////    rpc EditCategorizeTagMember(pb_msg_commim_uaa.EditCategorizeTagMemberReq)returns(pb_msg_commim_uaa.EditCategorizeTagMemberRsp);
+//message EditCategorizeTagMemberReq{
+//    CategorizeTagMember member = 1;
+//}
+
+//    rpc FetchCategorizeTagMemberList(pb_msg_commim_uaa.FetchCategorizeTagMemberListReq)returns(pb_msg_commim_uaa.FetchCategorizeTagMemberListRsp);
+message FetchCategorizeTagMemberListReq{
+    int32 page = 1; //页码
+    int32 pageSize = 2; // 每页条数
+    int64 tagId = 3; // 分类标签id
+}
+message FetchCategorizeTagMemberListRsp{
+    int32 page = 1; //页码
+    int32 pageSize = 2; // 每页条数
+    int64 total = 3; // 总条数
+    repeated CategorizeTagMember memberList = 4;
+}
+
+//message ComplaintReq{
+//    int32 complaintType = 1; // 0:投诉用户 1:投诉群
+//    int64 associationId = 2; // 相关Id
+//    string associationInfo = 3; // 相关联的其他信息
+//    string content = 4; // 具体内容
+//}
+
+
+////////////////////////////////
+// 背景图片操作开始
+enum ENBackgroundImageModelType {
+    ENBackgroundImageModelChat = 0;
+    ENBackgroundImageModelAudio = 1;
+    ENBackgroundImageModelGroup = 2;
+}
+
+message BackgroundImageInfo{
+    int64 id = 1;
+    int64 createdAt = 2;
+    int64 userId = 3;
+    ENBackgroundImageModelType modelType = 4;
+    int64 modelRelationId = 5;
+    string imageUrl = 6;
+}
+
+message AddBackgroundReq{
+    BackgroundImageInfo imageInfo =1;
+}
+message AddBackgroundRsp{
+    BackgroundImageInfo imageInfo =1;
+}
+
+// 删除的时候imageInfo里面设置的属性为过滤条件，没有设置的忽略
+message DelBackgroundPicReq{
+    BackgroundImageInfo imageInfo =1;
+}
+message DelBackgroundRsp{
+    BackgroundImageInfo imageInfo =1;
+}
+
+// 查询列表，imageInfo 设置的属性为查询条件，空值忽略
+message FetchBackgroundPicListReq{
+    BackgroundImageInfo imageInfo =1;
+}
+message FetchBackgroundPicListRsp{
+    repeated BackgroundImageInfo imageInfoList =1;
+}
+// 背景图片操作结束
+/////////////////////////////////////
+
+///////////////////////////
+// 钱包
+
+message Wallet{
+    int64 id = 1; // 钱包id
+    int32 walletType = 2; // 钱包类型：自定义，比如rmb，积分等
+    int64 value = 3; // 最小单位，客户端展示需要计算，比如最小单位为分，客户端展示元需要除以100
+}
+
+// 获取钱包信息
+message WalletGetInfoReq{
+    int64 userId = 1; // 被增加的用户id，非系统管理员只能改自己的，后台管理员可以改别人的
+    int32 walletType = 2; // 钱包类型，暂时不用
+}
+
+message WalletGetInfoRsp{
+    repeated Wallet wallet = 1;
+    bool hasePassWorld = 2; // 是否已经设置了密码
+}
+
+// 加钱，只能服务器触发
+message WalletAddValueReq{
+    int64 userId = 1; // 被增加的用户id，非系统管理员只能改自己的，后台管理员可以改别人的
+    int32 walletType = 2; // 钱包类型，暂时不用
+    int64 addValue = 3; // 增加的数量
+    int64 optUserId = 4; //操作者id
+    string description = 5; // 变化原因
+}
+
+// 加钱结果
+message WalletAddValueRsp{
+    int64 userId = 1; // 被增加的用户id，非系统管理员只能改自己的，后台管理员可以改别人的
+    int32 walletType = 2; // 钱包类型，暂时不用
+    int64 addValue = 3; // 增加的数量
+    int64 optUserId = 4; //操作者id
+    int64 latestValue = 5;// 扣除后数量
+}
+
+// 减钱,只有系统才可操作
+message WalletReduceValueReq{
+    int64 userId = 1; // 被增加的用户id，非系统管理员只能改自己的，后台管理员可以改别人的
+    int32 walletType = 2; // 钱包类型，暂时不用
+    int64 reduceValue = 3; // 扣除的数量
+    int64 optUserId = 4; //操作者id
+    string description = 5; // 变化原因
+    string passwd = 6; // 扣款密码
+}
+
+message WalletReduceValueRsp{
+    int64 userId = 1; // 被增加的用户id，非系统管理员只能改自己的，后台管理员可以改别人的
+    int32 walletType = 2; // 钱包类型，暂时不用
+    int64 reduceValue = 3; // 减少的数量
+    int64 optUserId = 4; //操作者id
+    int64 latestValue = 5;// 扣除后数量
+}
+
+// 钱包变化通知
+message WalletChangeNotify{
+    int32 walletType = 2; // 钱包类型，暂时不用
+    int64 changeValue = 3; // 减少的数量
+    int64 optUserId = 4; //操作者id
+    int64 latestValue = 5;// 变化后数量
+    string description = 6; // 变化原因
+}
+
+// 钱包变化流水
+message WalletChangeFlowItem{
+    int64 id = 1; //id
+    int64 createdAt = 2; // 创建时间
+    int64 updatedAt = 3; // 更新时间
+    int64 userId = 4; // 被增加的用户id，非系统管理员只能改自己的，后台管理员可以改别人的
+    int32 walletType = 5; // 钱包类型，暂时不用
+    int64 changeValue = 6; // 变化的数量
+    int64 optUserId = 7; //操作者id
+    int64 latestValue = 8;// 扣除后数量
+    string description = 9; // 变化原因
+    int32 Status = 10; // 当前状态
+    string StatusDesc = 11; // 状态描述
+    int32 ChannelId = 12; // 相关渠道
+    string ChannelName = 13; // 渠道名称
+}
+
+// 请求流水
+message WalletGetChangeFlowReq{
+    int32 page = 1; // 页码，从1开始
+    int32 pageSize = 2; // 每页条数
+    int32 SortingRules = 3; // 倒序 0； 正序 1； 默认倒序
+    int64 beginTime = 4; // 开始时间 单位秒
+    int64 endTime = 5; // 结束时间 单位秒
+}
+// 流水返回
+message WalletGetChangeFlowRsp{
+    int32 page = 1; // 页码，从1开始
+    int32 pageSize = 2; // 每页条数
+    int32 SortingRules = 3; // 倒序 0； 正序 1； 默认倒序
+    int64 beginTime = 4; // 开始时间 单位秒
+    int64 endTime = 5; // 结束时间 单位秒
+    int64 totalCount = 6; // 总条数
+    repeated WalletChangeFlowItem items = 7; // 流水数据
+}
+
+// 设置密码
+message WalletSetPasswordReq{
+    int64 userId = 1; // 被修改的用户id，非系统管理员只能改自己的，后台管理员可以改别人的
+    int32 walletType = 2; // 钱包类型，暂时不用
+    string phoneCode = 3; // 忘记密码使用手机验证码重置，有手机验证码时OldPassword不需提供
+    string oldPassword = 4; // 老密码
+    string newPassword = 5; // 新密码
+    string changeReason = 6;// 改变原因
+    int64 optUserId = 7; //操作者id
+}
+// CommRsp
+// 钱包 end
+/////////////////////////////
+
+///////////////////////////////////////
+//// 红包
+///////////////////////////////
+//// 发红包
+//
+//enum GrantScene {
+//    PrivateChat = 0; // 私聊
+//    GroupChat = 1; // 群聊
+//}
+//
+//enum GroupRedEnvelopeType {
+//    Lucky = 0; // 拼手气
+//    Average = 1; // 平均分配
+//}
+//
+//// 发红包
+//message RedEnvelopeHandOutReq{
+//    int64 grantUserId = 1; // 校验是否本人使用
+//    int32 walletType = 2; // 钱包类型,积分还是什么
+//    GrantScene grantScene  = 3; // 发送场景
+//    GroupRedEnvelopeType groupRedEnvelopeType = 4; // 群红包分配类型
+//    int64 aimId = 5; // 目标id
+//    string groupAimIds = 6; //群发时带的目标用户id列表,逗号分隔
+//    string description = 7; // 描述
+//    int32 createCount = 8; // 生成个数
+//    int32 createValue = 9; // 金额
+//}
+//
+//message RedEnvelopeHandOutRsp{
+//    int64 redEnvelopeId = 1; // 红包id
+//    pb_pub.ErrCode errCode = 2; // 返回码
+//    string reason = 3; // 原因
+//}
+//
+//
+//enum RedEnvelopeStatus{
+//    Edit = 0; // 编辑
+//    Going = 1; // 发放中
+//    Completed = 2; // 领完了
+//    Overtime = 3; // 超时未领完,待退款
+//    Refunded = 4; // 已退还
+//}
+//
+//// 红包信息
+//message RedEnvelopeInfo{
+//    int64 redEnvelopeId = 1; // 红包id
+//    int64 grantUserId = 2; // 发放者id
+//    GrantScene           grantScene = 3; // 发放场景
+//    GroupRedEnvelopeType groupRedEnvelopeType = 4; // 红包分发方式
+//    int64 aimId = 5; // 发放目标，用户或群id等
+//    string groupAimIds = 6; // 群发时带的目标用户id列表,逗号分隔
+//    string description = 7; // 描述
+//    int32 createCount = 8; // 生成个数
+//    int32 createValue = 9; // 金额
+//    int32 remainCount = 10; // 剩余个数, 自己发的红包这两个才有效
+//    int32 remainValue = 11; // 剩余金额，自己发的红包这两个才有效
+//    RedEnvelopeStatus status = 12; // 红包状态
+//}
+//
+//// 生成红包后通知到目标用户
+//message RedEnvelopeNotify{
+//    int64 redEnvelopeId = 1; // 红包id
+//    RedEnvelopeInfo info = 2; // 数据信息
+//}
+//
+////  结果  pb_pub.CommRsp
+//// 领红包
+//message RedEnvelopeReceiveReq{
+//    int64 redEnvelopeId = 1; // 红包id
+//}
+//message RedEnvelopeReceiveRsp{
+//    int64 redEnvelopeId = 1; // 红包id
+//    int32 walletType = 2; // 钱包类型,积分还是什么
+//    int64 value = 3;
+//    pb_pub.ErrCode errCode = 4; // 返回码
+//    string reason = 5; // 原因
+//}
+//
+//// 领取红包后的通知，一般只通知给发放者，界面展示 xx领取了您的红包
+//message RedEnvelopeReceivedNotify{
+//    int64 redEnvelopeId = 1; // 红包id
+//    int64 receiveUserId = 2;// 领取者id
+//    int64 grantUserId = 3; // 发放者id
+//    int64 aimId = 4; // 发放目标，用户或群id等
+//    RedEnvelopeStatus status = 5; // 红包状态
+//}
+//
+//// 获取单个红包信息
+//message RedEnvelopeInfoReq{
+//    int64 redEnvelopeId = 1; // 红包id
+//}
+//message RedEnvelopeInfoRsp{
+//    RedEnvelopeInfo data = 1;
+//}
+//
+//// 红包领取列表数据
+//message RedEnvelopeReceivedItem{
+//    int64 redEnvelopeId = 1; // 红包id
+//    int64 grantUserId = 2; // 发放者id
+//    GrantScene           grantScene = 3; // 发放场景
+//    GroupRedEnvelopeType groupRedEnvelopeType = 4; // 红包分发方式
+//    int64 aimId = 5; // 发放目标，用户或群id等
+//    string groupAimIds = 6; // 群发时带的目标用户id列表,逗号分隔
+//    string description = 7; // 描述
+//    int64 recipientUserId = 8;
+//    int32 receivedValue = 9;
+//}
+//
+//// 自己领取的
+//message RedEnvelopeMyReceivedListReq{
+//    int32 page = 1;
+//    int32 pageSize = 2;
+//}
+//message RedEnvelopeMyReceivedListRsp{
+//    int32 page = 1;
+//    int32 pageSize = 2;
+//    int32 totalCount = 3;
+//    repeated RedEnvelopeReceivedItem items = 4;
+//}
+//
+//// 自己发出去的红包列表
+//message RedEnvelopeMyHandedOutListReq{
+//    int32 page = 1;
+//    int32 pageSize = 2;
+//}
+//
+//message RedEnvelopeMyHandedOutListRsp{
+//    int32 page = 1;
+//    int32 pageSize = 2;
+//    int32 totalCount = 3;
+//    repeated RedEnvelopeReceivedItem items = 4;
+//}
+//
+//message RedEnvelopeFlowItem{
+//    int64 id = 1;
+//    int64 redEnvelopeId = 2;
+//    int64 userId = 3;
+//    int64 value = 4;
+//}
+//
+//// 获取当前红包领取列表，打开红包后下面的领取列表
+//message RedEnvelopeCurFlowReq{
+//    int32 page = 1;
+//    int32 pageSize = 2;
+//    int64 redEnvelopeId = 3; // 红包id
+//}
+//
+//message RedEnvelopeCurFlowRsp{
+//    int32 page = 1;
+//    int32 pageSize = 2;
+//    int32 totalCount = 3;
+//    repeated RedEnvelopeFlowItem items = 4;
+//}
+//// 红包结束
+///////////////////////////////////////
+
+
+/////////////////////////////
+// 签到
+
+message Card {
+    int64 id = 1;
+    string icon = 2;
+    string name = 3;
+    string code = 4;
+    string awardsUrl = 5;
+    int64 createTime = 6;// 秒
+    int64 expireTime = 7; // 有效期 秒
+}
+
+// 获取卡包列表，时间默认倒序
+message GetCardPackageItemsReq{
+    int32 page = 1;
+    int32 pageSize = 2;
+}
+
+message GetCardPackageItemsRsp{
+    int32 page = 1;
+    int32 pageSize = 2;
+    int32 totalCount = 3;
+    repeated Card cardItems = 4; // 卡数据
+}
+
+// 签到
+message TaskSignUpReq{
+}
+
+message TaskSignUpRsp{
+    int32 continuTimes = 1; // 连续签到天数
+    repeated AwardsInstance awards = 2; // 奖励
+}
+
+// 本轮签到日志
+message SignUpLog {
+    int64 createdAt = 1; // 签到日期
+    int32 continueTimes = 2; // 连续签到次数
+}
+
+// 获取本轮签到最新状态，连续签到的天数
+message TaskSignUpStatusReq{
+
+}
+message TaskSignUpStatusRsp{
+    int64 periodBeginTime = 1; // 本轮周期开始时间
+    int64 createdTime = 2; //签到时间
+    int32 continuTimes = 3; // 连续签到天数,为0的话说明还没有签到，可以签到，大于0则已经签到，不可再签
+
+    repeated SignUpLog signUpLog = 4; // 本轮签到日志
+}
+
+// 获取本次签到信息
+message TaskSignUpInfoReq{
+}
+
+// 任务循环类型
+enum TaskLoopType{
+    TaskLoopOnce = 0; // 一次性
+    TaskLoopPeriodicity = 1; // 周期性
+}
+
+// 奖励
+message Awards{
+    int64 awardsId = 1; //
+    string name = 3;
+    string icon = 4;
+    string description = 5;
+    string data = 6;
+}
+
+// 奖励
+message AwardsInstance{
+    Awards awardsTemplate = 1; // 奖励模版
+    map<string, string> awardsInstanceData = 2; // 实际奖励的数据
+    string awardsInstanceJson = 3; // 实际奖励json格式
+}
+
+//enum TaskLoopType{
+//    Once         = 0; // 一次性
+//    Periodicity  = 1; // 周期性
+//}
+
+// 周期个数，对应子任务个数,PeriodCounts*Period=此任务一个大轮回
+// 0:天，1：周 周期，任务冷却时间，每隔这个周期都可以重复做一次任务，每隔周期对应一个子任务
+enum TaskPeriod {
+    Day = 0;
+    Week = 1;
+}
+
+enum TaskStatus{
+    Edit = 0; // 编辑中
+    OnLine = 1; // 上线
+    OffLine = 2;    // 下线
+}
+
+// 任务进行状态
+enum TaskGoingStatus{
+    Default = 0;// 未接
+    Receipted = 1;// 已接受未进行
+    Going = 2;// 进行中
+    Completed = 3;// 已完成，待领取奖励
+    Rewarded = 4; // 已奖励，任务结束
+}
+
+message Task{
+    int64 id = 1;
+    string name = 2;
+
+    TaskLoopType loopType = 3; // 任务类型->0:一次性任务， 1:循环任务
+    TaskPeriod period = 4; // 0:天，1：周 周期，任务冷却时间，每隔这个周期都可以重复做一次任务，每隔周期对应一个子任务
+    int32  periodCounts = 5; // 周期个数，对应子任务个数,PeriodCounts*Period=此任务一个大轮回
+    string description = 6; // '描述'                                               // 任务描述
+    TaskStatus status = 7; // 任务状态
+    repeated SubTask subTask = 8; // 子任务
+    repeated Awards awards = 9;// 奖励
+}
+
+// 子任务
+message SubTask{
+    int64 subTaskId = 1;
+    string name = 2;
+    string description = 3;
+    int32 orderId = 4;
+    TaskStatus status = 5; // 状态
+    string completionConditions = 6; // 任务完成条件
+    repeated Awards awardsList = 7;
+    TaskGoingStatus taskGoingStatus = 8; // 任务进行状态
+}
+
+// 签到任务信息
+message TaskSignUpInfoRsp{
+    Task task = 1;
+}
+// 签到 end
+//////////////////////////////

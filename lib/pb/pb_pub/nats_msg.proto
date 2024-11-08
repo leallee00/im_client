@@ -1,0 +1,57 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_pub";
+package pb_pub;
+
+import "pb_pub/comm.proto";
+
+enum NatsPBMsgChannel {
+    PBMsg_SysConfigChange = 0; // 系统配置变化时发这个消息
+    PBMsg_EventBus = 1; // 消息总线，服务间传递消息使用
+    PBMsg_ServiceErrStatusConfigChange = 2;//服务错误描述变更通知，一般是后台通知过来
+    PBMsg_ToGateProcessByGroup = 3; // 普通业务消息，发往gate,以群组方式接收，有一个服务端处理就可以了
+    PBMsg_EventBusForServiceGroup = 4; // 消息总线，每种服务只处理一次,
+}
+
+// 使用nats发送protobuf消息
+message NatsMsgReq {
+    PBCommData pbCommData = 1;
+    string pbName = 2;
+    bytes pbData = 3;
+}
+
+message NatsMsgRsp {
+    PBCommData pbCommData = 1;
+    string pbName = 2;
+    bytes pbData = 3;
+    int64 code = 4; // 0:成功 , 其他失败
+    string result = 5; // 结果描述数据
+}
+
+
+// 系统配置更改通知,admin 服务发上来
+message SysCfgChangeNotify{
+    string key = 1;
+    string value = 2;
+    string desc = 3;
+}
+
+// 系统配置更改通知,im 接收到SysCfgChangeNotify后，会把数据存到db，db存储成功后发送这个消息
+// 通知所有相关服务去更新配置，监听的sub还是一样的
+message SysCfgChangeCanLoadFromNotify{
+    string key = 1;
+    string value = 2;
+    string desc = 3;
+}
+
+// 错误描述状态信息变更通知
+message ErrStatusChangeNotify {
+    int32 appId = 1;
+    string language = 2;
+    int32 code = 3;
+    string desc = 4;
+}
+
+// 批量创建机器人
+message BatchCreateRobot {
+    int32 count = 1; // 生成数量
+}

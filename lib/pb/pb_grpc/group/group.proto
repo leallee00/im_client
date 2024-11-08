@@ -1,0 +1,146 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_grpc/group";
+
+// import "google/protobuf/any.proto";
+ import "pb_pub/comm.proto";
+import "pb_msg/group/group.proto";
+// import "pb_msg/gate/gate.proto";
+// import "pb_grpc/live_room/live_room.proto";
+
+package pb_grpc_group;
+
+service Group {
+    // 创建群聊
+    rpc CreateGroup (pb_msg_group.CreateGroupReq) returns (pb_msg_group.CreateGroupRsp);
+    // 邀请入群
+    rpc Invite (pb_msg_group.InviteReq) returns (pb_msg_group.InviteRsp);
+    // 应答入群邀请
+    rpc InviteAnswer (pb_msg_group.InviteAnswerReq) returns (pb_msg_group.InviteAnswerRsp);
+    // 申请入群
+    rpc Apply (pb_msg_group.ApplyReq) returns (pb_msg_group.ApplyRsp);
+    // 应答入群申请
+    rpc ApplyAnswer (pb_msg_group.ApplyAnswerReq) returns (pb_msg_group.ApplyAnswerRsp);
+    // 获取全部群
+    rpc Groups (pb_msg_group.GroupsReq) returns (pb_msg_group.GroupsRsp);
+    // @experiment 获取全部群ID
+    rpc GroupIds (pb_msg_group.GroupIdsReq) returns (pb_msg_group.GroupIdsRsp);
+    // 群详情
+    rpc GroupDetail (pb_msg_group.GroupDetailReq) returns (pb_msg_group.GroupDetailRsp);
+    // 获取群成员
+    rpc Members (pb_msg_group.MembersReq) returns (pb_msg_group.MembersRsp);
+
+    // 为@ 提供搜索服务，为群成员列表提供搜索功能
+    rpc FindMembers(pb_msg_group.FindMembersReq) returns (pb_msg_group.FindMembersRsp);
+
+    // 成员详情
+    rpc MemberDetail (pb_msg_group.MemberDetailReq) returns (pb_msg_group.MemberDetailRsp);
+    // 获取全部申请,我申请的,我审批的
+    rpc Applications (pb_msg_group.ApplicationsReq) returns (pb_msg_group.ApplicationsRsp);
+    // 获取全部邀请,我邀请的,我应答的
+    rpc Invitations (pb_msg_group.InvitationsReq) returns (pb_msg_group.InvitationsRsp);
+    // 修改群名
+    rpc EditName (pb_msg_group.EditNameReq) returns (pb_msg_group.EditNameRsp);
+    // 修改头像
+    rpc EditAvatar (pb_msg_group.EditAvatarReq) returns (pb_msg_group.EditAvatarRsp);
+    // 编辑公告
+    rpc EditNotice (pb_msg_group.EditNoticeReq) returns (pb_msg_group.EditNoticeRsp);
+    // 编辑群备注 改自己的
+    rpc EditRemark (pb_msg_group.EditRemarkReq) returns (pb_msg_group.EditRemarkRsp);
+
+    // 编辑群背景图
+    rpc EditBGPic (pb_msg_group.EditBGPicReq) returns (pb_msg_group.EditBGPicRsp);
+
+//    // 是否需要展示阅读状态，展示阅读状态的群最大支持100人
+//    rpc EditNeedReceipt (pb_msg_group.EditNeedReceiptReq) returns (pb_msg_group.EditNeedReceiptRsp);
+//
+//    // 最大成员数量限制,0为无限制
+//    rpc EditMemberCountLimit (pb_msg_group.EditMemberCountLimitReq) returns (pb_msg_group.EditMemberCountLimitRsp);
+
+    // 设置群邀请限制，管理员才能设置
+    rpc EditInviteRoleLimit (pb_msg_group.EditInviteRoleLimitReq) returns (pb_msg_group.EditInviteRoleLimitRsp);
+
+    // 添加管理员
+    rpc AddAdmins (pb_msg_group.AddAdminsReq) returns (pb_msg_group.AddAdminsRsp);
+    // 移除管理员
+    rpc RemoveAdmins (pb_msg_group.RemoveAdminsReq) returns (pb_msg_group.RemoveAdminsRsp);
+    // 群主转让
+    rpc GroupTransfer (pb_msg_group.GroupTransferReq) returns (pb_msg_group.GroupTransferRsp);
+    // 封禁群
+    rpc BanGroups (pb_msg_group.BanGroupsReq) returns (pb_msg_group.BanGroupsRsp);
+    // 解禁群
+    rpc UnbanGroups (pb_msg_group.UnbanGroupsReq) returns (pb_msg_group.UnbanGroupsRsp);
+    // 解散群
+    rpc DisbandGroups (pb_msg_group.DisbandGroupsReq) returns (pb_msg_group.DisbandGroupsRsp);
+    // 退出群
+    rpc Quit (pb_msg_group.QuitReq) returns (pb_msg_group.QuitRsp);
+    // 封禁成员
+    rpc BanMember (pb_msg_group.BanMemberReq) returns (pb_msg_group.BanMemberRsp);
+    // 解禁成员
+    rpc UnbanMember (pb_msg_group.UnbanMemberReq) returns (pb_msg_group.UnbanMemberRsp);
+    // 踢出成员
+    rpc Kickout (pb_msg_group.KickoutReq) returns (pb_msg_group.KickoutRsp);
+
+    // 读取单个消息
+    rpc GetOneGroupHistoryMsg(pb_msg_group.OneGroupHistoryMsgReq) returns (pb_msg_group.OneGroupHistoryMsgRsp);
+
+    // 删除单个消息
+    rpc DelGroupHistoryMsg(pb_msg_group.DelGroupHistoryMsgReq) returns (pb_msg_group.DelGroupHistoryMsgRsp);
+
+    // 历史消息读取
+//    rpc GetGroupHistoryMsg(pb_msg_group.GroupHistoryMsgReq) returns (pb_msg_group.GroupHistoryMsgRsp);
+
+    // 已读用户列表
+    rpc GetGroupMsgReadList(pb_msg_group.GroupMsgReadListReq) returns (pb_msg_group.GroupMsgReadListRsp);
+
+    // 以下是内部接口
+    // 刷新缓存
+//    rpc RefreshMemory(RefreshMemoryReq) returns (RefreshMemoryRsp) ;
+
+    // 撤回消息
+    rpc MsgRecall(pb_pub.MsgRecallReq) returns (pb_pub.MsgRecallRsp);
+    // 更改消息
+    rpc MsgChange(pb_pub.MsgChangeReq)returns(pb_pub.MsgChangeRsp);
+
+    // 准备好接收用户相关所有群新消息信息
+    rpc ReadyForGroupsNewMsgInfo(pb_msg_group.ReadyForGroupsNewMsgInfoReq) returns (pb_msg_group.ReadyForGroupsNewMsgInfoRsp) {}
+    //
+
+    // 历史消息读取
+    rpc FetchGroupHistoryMsg(pb_msg_group.FetchGroupHistoryMsgReq) returns (pb_msg_group.FetchGroupHistoryMsgRsp);
+
+    // 历史消息读取
+    rpc FetchGroupHistoryMsgFromGroupMsgSn(pb_msg_group.FetchGroupHistoryMsgFromGroupMsgSnReq) returns (pb_msg_group.FetchGroupHistoryMsgFromGroupMsgSnRsp);
+
+    // 群置顶设置,所有人都可设置，只影响自己的显示
+    rpc GroupTopSet(pb_msg_group.GroupTopSetReq) returns (pb_msg_group.GroupTopSetRsp);
+
+    // 编辑群备注,所有人都可设置，只影响自己的显示
+    rpc EditGroupRemark(pb_msg_group.EditGroupRemarkReq) returns (pb_msg_group.EditGroupRemarkRsp);
+
+    // 编辑群成员备注,所有人都可设置，只影响自己的显示
+    rpc EditMemberRemark(pb_msg_group.EditMemberRemarkReq) returns (pb_msg_group.EditMemberRemarkRsp);
+
+    // 用户是否群成员
+    rpc IsGroupMember(pb_msg_group.IsGroupMemberReq) returns (pb_msg_group.IsGroupMemberRsp);
+
+    // 群用户禁言状态，只有管理员才可发言
+    rpc SetMemberChatBannedStatus(pb_msg_group.SetMemberChatBannedStatusReq)returns (pb_msg_group.SetMemberChatBannedStatusRsp);
+
+    // 设置新成员提醒开关
+    rpc SetNewMemberRemind(pb_msg_group.SetNewMemberRemindReq)returns (pb_msg_group.SetNewMemberRemindRsp);
+
+    // 设置是否允许扫描二维码入群
+    rpc SetScanCodeJoinGroupSwitch(pb_msg_group.SetScanCodeJoinGroupSwitchReq)returns (pb_msg_group.SetScanCodeJoinGroupSwitchRsp);
+
+    // 清理历史消息
+    rpc ClearHisMsg(pb_msg_group.ClearHisMsgReq)returns (pb_msg_group.ClearHisMsgRsp);
+
+    // 设置是否可以自由加入
+    rpc SetFreeJoinStatus(pb_msg_group.SetFreeJoinStatusReq)returns (pb_msg_group.SetFreeJoinStatusRsp);
+
+    // 属性设置统一接口，一个个的写太麻烦了
+    rpc SetGroupProperty(pb_msg_group.SetGroupPropReq)returns(pb_pub.CommRsp);
+}
+
+message RefreshMemoryReq {}
+message RefreshMemoryRsp {}

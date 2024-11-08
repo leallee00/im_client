@@ -1,0 +1,10 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_grpc/admin";
+
+package pb_grpc_admin;
+
+service Admin {
+    
+}
+
+

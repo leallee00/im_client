@@ -1,0 +1,128 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/friend";
+package pb_msg_friend;
+
+message ApplyReq {
+	string msg = 1; // 申请携带的打招呼内容
+}
+message ApplyRsp {}
+
+message ApplyAnswerReq {
+	bool agree = 1;
+}
+message ApplyAnswerRsp {
+	bool agree = 1;
+}
+
+enum FRIEND_APPLY_STATE {
+		Init = 0; // 初始状态
+		Request = 1; //发起成功,等待验证,
+		Agree = 2; // 同意,
+		Reject = 3; // 拒绝,
+		OverTime = 4; // 超时,
+}
+
+message Application {
+	int64 applicantId = 1; // 申请者id
+	int64 respondentId = 2; // 应答者id
+	int32 status = 3;
+	string msg = 4; // 申请携带的打招呼内容
+	int64 createAt = 5; //创建时间
+}
+
+// 时间倒序
+message ApplicationsReq {
+	int64 page = 1;
+	int64 pageSize = 2;
+}
+message ApplicationsRsp {
+	repeated Application applications = 1;
+	int64 page = 2;
+	int64 pageSize = 3;
+	int64 totalCount = 4;
+}
+
+message Friend {
+	int64 userId = 1; 		  // 好友ID
+	string username = 2; 	  // 好友用户名
+	string avatar = 3; 		  // 好友头像
+	string name = 4;          // 好友昵称
+	string remark = 5;        // 好友备注
+	string mobile = 6;        // 好友电话
+	string description = 7;   // 好友描述
+	string card = 8;          // 好友名片 图片地址
+	string sign = 9;          // 个性签名
+	string tags = 10;         // 好友标签 简单处理, 数组元素逗号分隔, 逻辑交给客户端处理
+	bool blocked = 11;        // 是否拉黑
+	bool stared = 12;         // 是否加星
+	bool deleted = 13;        // 是否删除
+	string background = 14;   // 聊天背景
+	int32 source = 15;        // 来源方式
+	bool top = 16; // 是否置顶
+}
+
+message FriendsReq {}
+message FriendsRsp {
+	repeated Friend friends = 1;
+}
+
+message FriendDetailReq {}
+message FriendDetailRsp {
+	Friend friend = 1;
+}
+
+message DeleteFriendReq {}
+message DeleteFriendRsp {}
+
+// 更新用户信息
+message UpdateFriendReq { // srcid=操作者id aimid=被操作者id
+	Friend friend = 1;
+	repeated string keys = 2; // 更新的字段
+}
+message UpdateFriendRsp {}
+
+message	GmMakeFriendRelationReq{
+	int64 userId1 = 1;	// 用户1
+	int64 userId2 = 2;	// 用户2
+}
+
+message	GmMakeFriendRelationRsp{
+	int64 userId1 = 1;	// 用户1
+	int64 userId2 = 2;	// 用户2
+}
+
+message IsFriendReq{
+	int64 userId1 = 1;	// 用户1
+	int64 userId2 = 2;	// 用户2
+}
+
+// 再黑名单的状态
+enum EnIsInBlackListStatus {
+	NotInBlackList = 0;
+	InMyBlackList = 1;
+	InFriendBlackList = 2;
+}
+
+message IsFriendRsp{
+	bool IsFriend = 1;
+	bool IsBlocked = 2; // 是否拉黑
+	EnIsInBlackListStatus isInBlackListStatus = 3;
+}
+
+//读取黑名单列表,查询这从 commData 的srcId获取
+message ReadBlackListReq {
+}
+
+message ReadBlackListRsp {
+	repeated int64 blackUserId = 1;      //黑名单
+}
+
+/////////////////////////////////////////////
+// 是否在黑名单中, commData 中获取双方id
+message IsInBlackListReq {
+}
+
+message IsInBlackListRsp {
+	EnIsInBlackListStatus isInBlackListStatus = 2;
+}
+//////////////////////////////////////

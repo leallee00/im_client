@@ -1,0 +1,131 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/gate";
+package pb_msg_gate;
+
+//import "google/protobuf/any.proto";
+import "pb_pub/comm.proto";
+//import "pb_pub/error_code.proto";
+
+enum LOGIN_TOCKEN_TYPE{
+	LOGIN_TOCKEN_TYPE_JAVA = 0;	// java下发的token
+	LOGIN_TOCKEN_TYPE_IM = 1;	// im下发的token 重新登录用
+	LOGIN_TOCKEN_TYPE_UNI_USER = 2; //一致性认证
+}
+
+// 客户端登录请求
+message LoginReq {
+	//pb_pub.CHead msg_head = 1;
+	string token                  = 2;
+	LOGIN_TOCKEN_TYPE token_type  = 3;
+	string gate_addr_new          = 4;	 // 新的gateaddr
+	ClientInfo clientInfo         = 6;   // 客户端信息
+	int32 version = 7;   // 客户端当前支持的IM版本 版本号枚举见 pb_pub/version.proto
+
+	string deviceToken = 8; // 设备Id,im通过loginRsp下发的, 客户端登录时携带
+	bool forceLogin = 9; // 是否强制登录(账号密码登录时填true, 静默登录时填false)
+}
+
+// 第三方app登录
+message ThirdLoginReq{
+	// 多app登录，如果这两项设置了则使用统一登录认证
+	string AppId = 1;		// IM为app下发的app唯一标识
+	string AppSecret = 2;	// IM下发的app标识对应的秘钥
+	int64  AppUserId = 3;	// app对应的用户id，登录成功的话 AppId+AppUserId 兑换 IMUserId
+	string token     = 4;	// 认证使用的token
+	LOGIN_TOCKEN_TYPE token_type  = 5;   // token 类型
+	string gate_addr_new          = 6;	 // 新的gateaddr 客户端忽略
+	int32 IMSdkVersion	= 7;	// 客户端sdk版本，根据版本判断新功能是否支持，一般使用日期可是即可 如: 20200116
+	ClientInfo clientInfo         = 8;   // 客户端信息
+}
+
+message ClientInfo {
+	pb_pub.MODEL_TYPE modelType   = 1;   // 推送厂商类型
+	string packageName            = 2;   // 包名
+	string systemVersion          = 3;   // 手机操作系统版本号    12.2
+	string phoneModels            = 4;   // 手机型号             iPhone 7
+	string appVersion             = 5;   // 来往app应用版本号           2.2.5/debug2.5.6(build256)
+	string systemName             = 6;   // android/iOS
+	string identifier             = 7;   // 手机设备号
+	string xChannel               = 8;   // 渠道号               default_1....
+	string pushPlatformAppId = 9;        // 应用id，厂商开发者平台获取，每个包唯一
+	string odid = 10;            // 开放设备标识符，开发者级别的非永久性设备标志符，同一设备上同一开发者的多个应用ODID取值相同，可用作设备唯一标识符
+	string aaid = 11;            // 应用的匿名设备标识，标识运行在移动智能终端设备上的应用实例，同一开发者相同设备不同应用不同，用作实例唯一标识
+	string token = 12;           // 推送token，每个实例都不同, 有些平台叫  Registration ID
+	int64 expired = 13;       // token失效时间，token失效必须重新获取，一般卸载重装或系统清理数据时失效
+}
+
+
+// // 连接类型
+// enum CONN_TYPE {
+// 	TcpYZ   = 0; // ios
+// 	TcpMars = 1; // android
+// 	WS      = 2; // h5 or web
+// }
+
+// message DeviceInfo {
+// 	int64 appId = 1;
+// 	int64 appUserId = 2;
+// 	int64 userId = 3; // imid
+// 	pb_pub.CLIENT_TYPE clientType = 4;
+// 	CONN_TYPE connType = 5; // 连接类型
+// 	string deviceToken = 6;
+// }
+
+// 登录结果返回
+message LoginRsp {
+	//pb_pub.CHead msg_head = 1;
+	int32 result = 2; // 错误号 //pb_pub.ErrCode result = 2; // 0 成功，其他为错误号
+	string reconnectToken = 3;
+	string gate_addr_old = 4;	// 旧的addr
+    int64 msg_sn = 5;
+	int64 app_user_id_old = 6;  // 原app_user_id
+	int64 app_id = 7;
+	string app_user_id = 8;     // app_user_id改为string类型
+	string deviceToken = 9; // im分配的设备id, 如果loginReq.deviceToken = 0, im生成一个并返回, 否则 loginRsp.deviceToken = loginReq.deviceToken
+	ClientInfo otherClientInfo = 10;   // 登录异常为(21,22时有效)
+	string reason = 11; //原因
+}
+
+// 发送单聊文字
+message ChatText{
+	//pb_pub.CHead msg_head = 1;
+	int64 aim_user_id = 2;	// 对方id
+	pb_pub.TextChatType chat_type = 3;	// 聊天类型
+	string data = 4;	// 携带数据，如：图片地址，视频地址，礼物地址，id等
+	string text = 5;	// 聊天文字
+	map<string, string> exp = 6; // 扩展参数
+	int64 aimUserAppId = 7;
+	string aimUserAppUserId = 8;
+}
+
+// 新的私信类型,更通用
+message ChatMessage {
+	BUSINESS_TYPE businessType = 1; // 业务类型
+	ChatText text = 2;
+}
+enum BUSINESS_TYPE {
+	UNKNOWN = 0;
+	SECRET_ROOM = 1;
+}
+
+// 消息回执在comm中定义
+// MsgReceipt
+
+// 消息原样发送到对端
+
+//  保活heartbeat消息，在comm中定义
+
+message KickOffUser{
+	int64 optUId = 1; 	// 操作者id，可能是客服，把客服号记录下来
+	int64 aimUId = 2;	// 踢出的目标用户
+	int32 reason = 3;	// 踢出原因
+	string desc = 4;	// 原因描述
+	ClientInfo otherClientInfo = 10; // 
+}
+
+// 通知gate该用户不在群中，gate从群中剔除该用户的转发
+// 只能从服务端发送，客户端来的不处理
+message RemoveUserFromGateRoomReq{
+	int64 userId = 1;
+	int64 groupId = 2;
+}

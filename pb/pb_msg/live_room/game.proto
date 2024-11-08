@@ -1,0 +1,71 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/live_room";
+package pb_msg_live_room;
+
+// import "pb_pub/yx_msg.proto";
+// import "pb_pub/yx_msg_type.proto";
+// import "pb_pub/comm.proto";
+// import "pb_pub/error_code.proto";
+
+//////////////////////////////////////////////////////////////////////////////////
+// 卧底游戏(Undercover Game)结构定义
+//////////////////////////////////////////////////////////////////////////////////
+
+message UCGameInfo {
+    UCGamePlayer judge = 1;
+    UCGameSide undercoverSide = 2;
+    UCGameSide populaceSide = 3;
+}
+
+message UCGameSide {
+    string word = 1;
+    repeated UCGamePlayer players = 2;
+}
+
+message UCGamePlayer {
+    int64 userId = 1;       // 玩家ID
+    string username = 2;    // 玩家名称
+    string headImage = 3;   // 玩家头像
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+// 卧底游戏消息定义
+//////////////////////////////////////////////////////////////////////////////////
+
+// 开始游戏请求响应
+// srcid:创建者(需在主持位) aimid:房间id
+message UCGameStartReq {
+    // int32 mode = 1; // 游戏模式 !=1:随机出题  ==1:自己出题
+    string undercoverWord = 1; // 卧底词
+    string populaceWord = 2; // 平民词
+    int32 undercoverCount = 3; // 卧底个数
+}
+message UCGameStartRsp {
+    UCGameInfo gameInfo = 1; // 游戏信息
+}
+
+// 游戏创建完成IM单发给玩家
+// 玩家场景恢复会发(进场)
+message UCGamePlayerInfo {
+    string word = 1;
+}
+
+// 游戏创建完成IM广播到全房间
+message UCGameStartNotify
+{
+    int32 undercoverCount = 1;
+    int32 populaceCount = 2;
+}
+
+// 客户端发IM转发给全房间, 客户端可不填gameInfo字段
+// srcid:操作者 (在主持位,是法官) aimid:房间id
+message UCGameOverNotify
+{
+    UCGameInfo gameInfo = 1; // 游戏信息
+    int32 winner = 2; // ==0:平局 ==1:平民胜利 ==2卧底胜利
+}
+
+// 普通观众进场收到的消息
+message UCGamePlayers {
+    repeated int64 players = 1; // 正在游戏的用户列表
+}

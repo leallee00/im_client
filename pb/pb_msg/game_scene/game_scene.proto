@@ -1,0 +1,95 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/game_scene";
+package pb_msg_game_scene;
+
+// import "pb_pub/comm.proto";
+
+/*
+注意:
+    1. PBCommData中的Service=game_scene
+    2. PBMessage中hashKey=inviteeId
+    3. Heartbeat消息中type=GAME_SCENE, aimId=inviteeId srcId=为当前用户id
+*/
+
+enum GAME_STATE {
+    IDLING = 0; // 空闲状态: 1.邀请超时 2.游戏结束 3.被邀请方拒绝
+    WAITING = 1; // 等待被邀请方应答: 1.邀请已发出
+    GAMING = 2; // 游戏中: 1.被邀请方已同意
+}
+
+message GamePlayer {
+    int64 userId = 1; // imId
+}
+// 游戏房间结构,游戏开始时消息携带,场景恢复单推
+message GameInfo {
+    GAME_STATE state = 1;
+    GamePlayer inviter = 2;
+    GamePlayer invitee = 3;
+    int32 gameType = 4; // 游戏类型
+    int64 inviteAt = 5; // 邀请时间点
+    int64 answerAt = 6; // 应答时间点,如果同意等于开始的时间点,如果拒绝等于结束的时间点
+    map<string,string> exps = 7; // 客户端自定义数据  
+}
+
+// 游戏邀请
+message GameInviteReq { // 同步给被邀请方   srcId=inviterId aimId=inviteeId
+    int64 inviterId = 1;
+    int64 inviteeId = 2;
+    int32 gameType = 3; // 游戏类型
+    map<string,string> exps = 4; // 用于透传客户端自定义数据
+}
+message GameInviteRsp {}
+
+// 取消游戏邀请
+message GameDisinviteReq { // 同步给被邀请方 srcId=inviterId aimId=inviteeId
+    int64 inviterId = 1;
+    int64 inviteeId = 2;
+}
+message GameDisinviteRsp {}
+
+
+// 游戏应答
+enum GAME_ANSWER_TYPE {
+    REFUSE = 0; // 拒绝
+    BUZY = 1; // 忙碌
+    AGREE = 2; // 同意
+    NOT_SUPPORT = 3; // 客户端不支持此游戏类型
+}
+message GameAnswerReq { // 同步给邀请方 srcId=inviteeId aimId=inviterId
+    int64 inviterId = 1;
+    int64 inviteeId = 2;
+    GAME_ANSWER_TYPE answer = 3; // 忙碌, 拒绝, 同意
+}
+message GameAnswerRsp {}
+
+// 游戏开始
+message GameStartNotify {
+    GameInfo gameInfo = 1;
+}
+
+enum GAME_OVER_REASON {
+    // 邀请方原因
+    INVITER_CLOSED = 0;// 邀请方主动结束
+    INVITER_DISINVITED = 1;// 邀请方取消邀请
+    INVITER_HEARTBEAT_TIMEOUT = 2;// 邀请方心跳超时
+    // 被邀请方原因
+    INVITEE_CLOSED = 10;// 被邀请方主动结束
+    INVITEE_BUZY = 11;// 被邀请方忙碌
+    INVITEE_REFUSED = 12;// 被邀请方拒绝
+    INVITEE_NOT_ANSWER = 13;// 等待被邀请方应答超时
+    INVITEE_HEARTBEAT_TIMEOUT = 14;// 被邀请方心跳超时
+    INVITEE_CLIENT_NOT_SUPPORT = 15; // 被邀请方客户端不支持该游戏类型
+    // 其他原因
+    CHARGE_FAILURE = 20; // 扣费失败
+}
+// 游戏结束
+message GameOverNotify {
+    GAME_OVER_REASON reason = 1;
+}
+
+// 结束游戏
+message GameOverReq {
+    int64 inviterId = 1;
+    int64 inviteeId = 2;
+}
+message GameOverRsp {}

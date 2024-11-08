@@ -1,0 +1,39 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_pub";
+package pb_pub;
+
+//service 服务号.
+enum Service {
+    gate = 0; // gate
+    user_center = 1; // 用户中心
+    msg_sender = 2; // 消息发送器
+    chat = 3;
+    allocater = 4;
+    black_list = 5;
+    live_room = 6;
+    offline_msg = 7;
+    pk_room = 8;
+    visitors_gate = 9;
+    oss = 10;
+    service_monitor = 11;
+    msg_pusher = 12;
+    call_scene = 13;
+    admin = 14; // 后台管理服务
+    multi_anchor_hall = 15; // 多人房大厅
+    ttk_game = 16; // 三国游戏服务
+    wish_hall = 17; // 心愿大厅
+    msg_analyze = 18; // 消息分析
+    comm_room = 19; // 通用房间，没有实体
+    api_http = 20;
+	luxury = 21; // 奢侈品小程序
+	friend = 22; // 好友关系
+	game_scene = 23; // 游戏房间
+	group = 24; // 群组
+	commim_uaa = 25; // 通用IM用户账号有授权服务
+	commim_gate = 26; // 通用IM反向代理与网关服务
+    call = 28; // 通话服务
+	followship = 30; // 关注关系服务
+	community = 31; // 帖子服务
+    groups = 32; // 群持久化
+    customer_service = 33; // 客户服务
+}

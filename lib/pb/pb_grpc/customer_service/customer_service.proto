@@ -1,0 +1,54 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_grpc/customer_service";
+
+// import "google/protobuf/any.proto";
+import "pb_pub/comm.proto";
+import "pb_msg/customer_service/customer_service.proto";
+// import "pb_grpc/live_room/live_room.proto";
+
+package pb_grpc_customer_service;
+
+service CustomerService {
+    // 聊天
+    rpc Chat (pb_msg_customer_service.KefuMessage) returns (pb_msg_customer_service.KefuReceipt);
+    // 回执
+    rpc Receipt (pb_msg_customer_service.KefuReceipt) returns (pb_pub.CommRsp);
+    // 客服接入客户
+    rpc Answer (pb_msg_customer_service.AnswerReq) returns (pb_msg_customer_service.AnswerRsp);
+    // 获取待接入列表
+    rpc FetchWaitList (pb_msg_customer_service.FetchWaitCustomers) returns (pb_msg_customer_service.WaitCustomers);
+    // 获取历史消息
+    rpc Histories (pb_msg_customer_service.HistoriesReq) returns (pb_msg_customer_service.HistoriesRsp);
+    // 获取会话列表
+    rpc Sessions (pb_msg_customer_service.SessionsReq) returns (pb_msg_customer_service.SessionsRsp);
+    // 客服删除一个会话
+    rpc DeleteSession (pb_msg_customer_service.DeleteSessionReq) returns (pb_msg_customer_service.DeleteSessionRsp);
+
+    // 客服管理
+
+    // 添加一个客服
+    rpc AddKefu (pb_msg_customer_service.AddKefuReq) returns (pb_msg_customer_service.AddKefuRsp);
+    //  更新一个客服
+    rpc UpdateKefu (pb_msg_customer_service.UpdateKefuReq) returns (pb_msg_customer_service.UpdateKefuRsp);
+    // 删除一个客服
+    rpc DeleteKefu (pb_msg_customer_service.DeleteKefuReq) returns (pb_msg_customer_service.DeleteKefuRsp);
+    // 获取一个客服
+    rpc GetKefu (pb_msg_customer_service.GetKefuReq) returns (pb_msg_customer_service.GetKefuRsp);
+    // 获取指定客服群的全部客服
+    rpc GetKefus (pb_msg_customer_service.GetKefusReq) returns (pb_msg_customer_service.GetKefusRsp);
+    // 获取一个用户的全部客服身份
+    rpc GetKefuRoles (pb_msg_customer_service.GetKefuRolesReq) returns (pb_msg_customer_service.GetKefuRolesRsp);
+
+    // 客服群管理
+
+    // 添加一个客服群
+    rpc AddKefuGroup (pb_msg_customer_service.AddKefuGroupReq) returns (pb_msg_customer_service.AddKefuGroupRsp);
+    // 更新一个客服群
+    rpc UpdateKefuGroup (pb_msg_customer_service.UpdateKefuGroupReq) returns (pb_msg_customer_service.UpdateKefuGroupRsp);
+    // 删除一个客服群
+    rpc DeleteKefuGroup (pb_msg_customer_service.DeleteKefuGroupReq) returns (pb_msg_customer_service.DeleteKefuGroupRsp);
+    // 获取一个客服群
+    rpc GetKefuGroup (pb_msg_customer_service.GetKefuGroupReq) returns (pb_msg_customer_service.GetKefuGroupRsp);
+    // 获取app的全部客服
+    rpc GetKefuGroups (pb_msg_customer_service.GetKefuGroupsReq) returns (pb_msg_customer_service.GetKefuGroupsRsp);
+}

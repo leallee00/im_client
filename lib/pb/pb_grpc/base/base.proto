@@ -1,0 +1,11 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_grpc/base";
+import "pb_pub/comm.proto";
+
+package pb_grpc_base;
+
+service Base {
+    rpc CommCall(pb_pub.CommCallReq) returns (pb_pub.CommCallRsp) {}    //透传调用接口
+}
+
+

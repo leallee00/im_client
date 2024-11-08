@@ -1,0 +1,10 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/chat";
+package pb_msg_chart;
+
+import "pb_pub/comm.proto";
+
+// 私人礼物
+message PersonalGift{
+    pb_pub.Gift gift = 1; // 礼物消息体
+}

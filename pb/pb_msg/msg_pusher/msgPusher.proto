@@ -1,0 +1,117 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/msg_pusher";
+package pb_msg_msgPusher;
+import "pb_pub/comm.proto";
+//import "pb_pub/error_code.proto";
+
+////推送到指定用户
+//message PushMsgToAimUserReq{
+////    int64 aimUser = 1;  // 目标用户id
+////    int32 messageType = 2;
+////    map<string, string> exp = 3; // 扩展参数
+////    string messageBody = 4;
+//
+//    string appName = 1;             //固定分配的客户端标识
+//    string title = 2;               //标题
+//    string msg = 3;                 //内容
+//    repeated int64 userList = 4;    //需要推送的用户id列表
+//    Params params = 5;              //推送业务参数，json格式
+//    Params iosParams = 6;
+//}
+//
+//message PushMsgToAimUserRsp{
+//    pb_pub.ErrCode result = 1; // 0 成功，其他为错误号
+//}
+//
+////推送到全体用户
+//message PushMsgToAllUserReq{
+////    int32 messageType = 1;
+////    map<string, string> exp = 2; // 扩展参数
+////    string messageBody = 3;
+//
+//    string appName = 1;           //固定分配的客户端标识
+//    string title = 2;             //标题
+//    string msg = 3;               //内容
+//    Params params = 4;            //推送业务参数，json格式
+//    Params iosParams = 5;
+//}
+//
+//message PushMsgToAllUserRsp{
+//    pb_pub.ErrCode result = 1; // 0 成功，其他为错误号
+//
+//}
+
+
+//topic:"t_msg_push_to_aim_user", channel: "c_msg_push_to_aim_user"
+// 推送消息到特定用户
+// jsStr={"srcUser":10001,"appList":[{"appName":"YEQU","aimUsers":[10295,16331]},{"appName":"YESE","aimUsers":[16123,15656]}],
+//    "params":{"type":1,"roomId":10001,"nickname":"aaa","bigImageOriginal":"bbb"},
+//    "title":"title","msg":"msg","exp":{"nkey1":"value1","nkey2":"value2"}}
+//curl -d jsStr http://127.0.0.1:4151/pub?topic=t_msg_to_aim_user
+message MsgPushToAimUser{
+    int64 srcUser = 1;           //发送方id
+    repeated AppData appList = 2;
+    Params params = 3;           //推送业务参数，json格式
+    string title = 4;            //标题
+    string msg = 5;              //内容
+    map<string, string> exp = 6; // 扩展参数
+    int64 time = 7;              //时间
+}
+
+message AppData {
+    string appName = 1;                   // 固定分配的客户端标识
+    repeated int64 userList =2;           // 目标用户id列表
+}
+
+message Params{
+    int32 type = 1;                //ios开播类型
+    int64 roomId = 2;              //开播房间id
+    string nickname = 3;           //开播房间名称
+    string bigImageOriginal = 4;
+    string url = 5;
+    map<string, string> exp = 6; // 扩展参数
+    int64 GroupId = 7;           // 客服新增
+}
+
+//topic:"t_msg_push_to_all_user", channel: "c_msg_push_to_all_user"
+// 推送消息到特定用户
+// jsStr={"srcUser":10001,"params":{"type":1,"roomId":10001,"nickname":"aaa","bigImageOriginal":"bbb"},
+//    "appName":"YEQUO","title":"title","msg":"msg","exp":{"nkey1":"value1","nkey2":"value2"}}
+//curl -d jsStr http://127.0.0.1:4151/pub?topic=t_msg_to_all_user
+message MsgPushToAllUser{
+    int64 srcUser = 1;           //发送方id
+    Params params = 2;           //推送业务参数，json格式
+    string appName = 3;          //	固定分配的客户端标识
+    string title = 4;            //标题
+    string msg = 5;              //内容
+    map<string, string> exp = 6; // 扩展参数
+}
+
+// 推送回执
+message PushReceiptReq {
+    int64  pushId = 1;          // 推送id
+    string system = 2;          // 系统
+    int32  isReceive = 3;       // 是否收到 0=否，1=是
+    int32  isOpen = 4;          // 是否打开 0=否，1=是
+}
+
+// 客户端推送token上报
+message PushTokenSyncReq {
+    pb_pub.MODEL_TYPE DeviceCompany = 1;   // 设备厂商
+    string PushPlatformAppId = 2;           // 应用id，厂商开发者平台获取，每个包唯一
+    string Odid = 3;            // 开放设备标识符，开发者级别的非永久性设备标志符，同一设备上同一开发者的多个应用ODID取值相同，可用作设备唯一标识符
+    string Aaid = 4;            // 应用的匿名设备标识，标识运行在移动智能终端设备上的应用实例，同一开发者相同设备不同应用不同，用作实例唯一标识
+    string Token = 5;           // 推送token，每个实例都不同
+    int64 ExpiredAt = 6;       // token失效时间，token失效必须重新获取，一般卸载重装或系统清理数据时失效
+}
+
+//    type PushToken struct {
+//models.Base   `xorm:"extends"`
+//    UserId        int64
+//DeviceCompany string    `json:"deviceCompany"` // 设备厂商
+//    AppId         string    // 应用id，厂商开发者平台获取，每个包唯一
+//    Odid          string    // 开放设备标识符，开发者级别的非永久性设备标志符，同一设备上同一开发者的多个应用ODID取值相同，可用作设备唯一标识符
+//    Aaid          string    // 应用的匿名设备标识，标识运行在移动智能终端设备上的应用实例，同一开发者相同设备不同应用不同，用作实例唯一标识
+//    Token         string    // 推送token，每个实例都不同
+//    ExpiredAt     time.Time // token失效时间，token失效必须重新获取，一般卸载重装或系统清理数据时失效
+//    }

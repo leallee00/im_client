@@ -1,0 +1,12 @@
+syntax = "proto3";
+package pb_grpc_call;
+option go_package = "github.com/leallee00/pb/pb_grpc/call";
+import "pb_msg/call/call.proto";
+
+service Call {
+    rpc MakeCall (pb_msg_call.CallReq) returns (pb_msg_call.CallRsp);
+    rpc Accept (pb_msg_call.AcceptReq) returns (pb_msg_call.AcceptRsp);
+    rpc Decline (pb_msg_call.DeclineReq) returns (pb_msg_call.DeclineRsp);
+    rpc ZegoRecordOver (pb_msg_call.ZegoRecordOverReq) returns (pb_msg_call.ZegoRecordOverRsp);
+}
+

@@ -1,0 +1,377 @@
+name: quliao
+description: A new Flutter project.
+
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.5.2+1
+
+environment:
+  sdk: '>=2.18.0 <4.0.0'
+  flutter: '>=3.10.0'
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  flutter:
+    sdk: flutter
+
+  yaml: ^3.1.2
+
+  flutter_localizations:
+    sdk: flutter
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  #  firebase_ui_auth: any #//^1.1.17
+  #  flutter_adaptive_ui: ^0.8.0+1 大小屏幕适配
+  #  flutter_amplify_auth_ui: ^0.1.6 # 登录页面
+  cupertino_icons: ^1.0.5
+
+  ###############################
+  # best flutter ui
+  font_awesome_flutter: ^10.1.0
+  flutter_rating_bar: ^4.0.1
+  #  intl: ^0.18.0
+  animations: ^2.0.3
+  ###########################
+
+  ###########################
+  # flyer chat ui
+  flutter_chat_types: ^3.6.0
+  visibility_detector: ^0.4.0+2
+  diffutil_dart: ^3.0.0
+  equatable: ^2.0.5
+  flutter_link_previewer: ^3.2.0
+  flutter_parsed_text: ^2.2.1
+  meta: ^1.8.0
+  scroll_to_index: ^3.0.1
+  url_launcher: ^6.1.6
+  ##^5.2.6
+  file_picker: ^5.0.0
+  mime: ^1.0.4
+  open_filex: ^4.3.2
+  ###########################
+
+  # orm: ^3.2.6
+  orm: any
+  dio: ^5.1.1
+  fixnum: ^1.0.1
+  protobuf: ^3.1.0
+  basic_utils: ^5.4.2
+  #  aes_crypt: ^0.1.1
+  aes_crypt_null_safe: ^2.0.2
+  #  connectivity: any
+  connectivity_plus: ^4.0.1
+  event_bus: any
+  shared_preferences: any
+
+  sqflite: any
+  sqflite_common_ffi: any
+  #  sqflite_common: ^2.4.4
+
+  date_format: any
+  time_machine: any
+  flustars: any
+  cherry_toast: any
+  image_picker: ^0.8.9
+  multi_image_picker: any
+  #  fish_redux: any
+  # zego_express_engine: any
+  grpc: ^3.1.0
+  #  zego_permission: any
+  flutter_chat_bubble: any
+  flutter_sound: any
+#  pull_to_refresh: any
+
+  qr_flutter: any
+  #  qrscan: any //编译不过，先去掉
+  #  twitter_qr_scanner: any # 换这个试试 ，依赖的版本太新了
+  flutter_qr_bar_scanner: ^3.0.2
+  search_page: any
+  badges: any
+#  flutter_image_compress: any
+  flutter_html: any
+  photo_view: any
+
+  # 命令: flutter pub run flutter_native_splash:create 参考:https://pub.dev/packages/flutter_native_splash
+  flutter_native_splash: ^2.2.16
+  #  flutter_amplify_auth_ui: ^0.1.6
+
+  # 生成图标命令: flutter pub run flutter_launcher_icons
+  flutter_launcher_icons: ^0.13.0
+  package_info_plus: any
+
+  #window
+  desktop_multi_window: any
+  window_manager: any
+  file_selector: any
+  dart_vlc: any
+  local_notifier: any
+  contextual_menu: any
+  flutter_app_badger: ^1.5.0
+  #  fluent_ui: any
+  searchfield: ^0.8.0
+  upgrader: any
+  permission_handler: ^10.2.0
+  path_provider: ^2.0.15
+  install_plugin_v2: ^1.0.0
+  r_upgrade: ^0.4.2
+  jpush_flutter: ^2.4.9
+  extended_text_field: ^12.0.1
+  device_info_plus: ^9.0.0
+  social_media_recorder:
+    git:
+      url: https://github.com/rehua0220/social_media_recorder.git
+#  voice_message_package: ^1.0.41
+  extended_image: ^8.0.2
+  # https://pub.dev/packages/flutter_screenutil
+  flutter_screenutil: ^5.7.0
+  # https://pub.dev/packages/flutter_slidable
+  flutter_slidable: ^3.0.0
+  # https://pub.dev/packages/flutter_easyloading
+  flutter_easyloading: ^3.0.5
+  # https://pub.dev/packages/vibration
+  vibration: ^1.7.5
+  # https://pub.dev/packages/flutter_portal
+  flutter_portal: ^1.1.4
+  get: ^4.6.5
+  # https://pub.dev/packages/flutter_oss_aliyun
+  flutter_oss_aliyun: ^6.4.1
+  tuple: ^2.0.1
+  # https://pub.dev/packages/video_thumbnail
+  video_thumbnail: ^0.5.3
+  # https://pub.dev/packages/path
+  path: ^1.8.2
+  # https://pub.dev/packages/flutter_video_info
+  flutter_video_info: ^1.3.1
+  # https://pub.dev/packages/chewie
+  chewie: any
+  video_player: any
+  uuid: ^3.0.7
+  # https://pub.dev/packages/desktop_drop
+  desktop_drop: ^0.4.1
+  # https://pub.dev/packages/dotted_border
+  dotted_border: ^2.0.0+3
+  audioplayers: ^5.2.1
+  flutter_plugin_record_plus: ^0.0.15
+  pasteboard: ^0.2.0
+  custom_pop_up_menu: ^1.2.4
+  cached_network_image: ^3.2.3
+  # refactor
+  # https://pub.dev/packages/bloc
+  bloc: ^8.1.1
+  # https://pub.dev/packages/flutter_bloc
+  flutter_bloc: ^8.1.2
+  # https://pub.dev/packages/logger
+  logger: ^1.3.0
+  # https://pub.dev/packages/oktoast
+  oktoast: ^3.3.1
+  # https://pub:dev/packages/flutter_image_compress
+#  flutter_image_compress: ^2.0.4
+  # https://pub:dev/packages/video_compress
+  # video_compress: ^3.1.0
+  # https://pub.dev/packages/encrypt
+  encrypt: any
+  # https://pub.dev/packages/extended_image_library
+  extended_image_library: ^3.5.3
+  just_audio: ^0.9.35
+  wechat_camera_picker: ^4.0.2
+  screenshot_callback: ^3.0.1
+#  sentry_flutter: ^7.9.0
+
+  media_kit: 1.1.10+1
+  media_kit_video: ^1.2.4
+  media_kit_libs_video: ^1.0.3
+  qr_code_scanner: ^1.0.1
+
+  # https://pub.dev/packages/image_gallery_saver
+  image_gallery_saver: ^2.0.3
+  # https://pub.dev/packages/flutter_smart_dialog
+  flutter_smart_dialog: ^4.9.3+2
+  pull_to_refresh_flutter3: ^2.0.2
+  synchronized: ^3.1.0
+  image: any
+#  image_editor: any
+  wechat_assets_picker: any
+#  image_painter: ^0.6.1
+  image_painter:
+    git:
+      url: https://github.com/leallee00/yellowQ-Flutter-Image-Painter.git
+
+  card_swiper: ^3.0.1
+  lpinyin: ^2.0.3
+  easy_refresh: ^3.3.2+4
+  flutter_inappwebview: ^5.8.0
+  flutter_switch: ^0.3.2
+  flutter_picker: ^2.1.0
+  modal_bottom_sheet: ^3.0.0-pre
+  city_pickers: ^1.3.0
+  azlistview_plus: ^3.0.0
+  easy_rich_text: 2.0.0
+  crypto: ^3.0.0
+
+  objectbox: ^4.0.2
+  objectbox_flutter_libs: ^4.0.2
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "images/logo.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  web:
+    generate: true
+    image_path: "images/logo.png"
+    background_color: "#hexcode"
+    theme_color: "#hexcode"
+  windows:
+    generate: true
+    image_path: "images/logo.png"
+    icon_size: 48 # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "images/logo.png"
+
+
+dev_dependencies:
+
+  # The "flutter_lints" package below contains a set of recommended lints to
+  # encourage good coding practices. The lint set provided by the package is
+  # activated in the `analysis_options.yaml` file located at the root of your
+  # package. See that file for information about deactivating specific lint
+  # rules and activating additional ones.
+  flutter_lints: ^2.0.0
+
+  build_runner: ^2.0.0
+  objectbox_generator: any
+
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+  assets:
+    - assets/config.yaml
+    #   - images/a_dot_burr.jpeg
+    #   - images/a_dot_ham.jpeg
+    - images/
+    - images/2.0x/
+    - images/3.0x/
+    - keys/
+    - expression/
+    - assets/images/
+    - assets/images/chat_background/
+    - assets/design_course/
+    - assets/fitness_app/
+    - assets/hotel/
+    - assets/introduction_animation/
+    - assets/icon-arrow.png
+    - assets/icon-attachment.png
+    - assets/icon-delivered.png
+    - assets/icon-document.png
+    - assets/icon-error.png
+    - assets/icon-seen.png
+    - assets/icon-send.png
+    - assets/2.0x/icon-arrow.png
+    - assets/2.0x/icon-attachment.png
+    - assets/2.0x/icon-delivered.png
+    - assets/2.0x/icon-document.png
+    - assets/2.0x/icon-error.png
+    - assets/2.0x/icon-seen.png
+    - assets/2.0x/icon-send.png
+    - assets/3.0x/icon-arrow.png
+    - assets/3.0x/icon-attachment.png
+    - assets/3.0x/icon-delivered.png
+    - assets/3.0x/icon-document.png
+    - assets/3.0x/icon-error.png
+    - assets/3.0x/icon-seen.png
+    - assets/3.0x/icon-send.png
+    - assets/messages.json
+    - assets/effect_sound/
+    - assets/empty.png
+    - assets/icon_msg_selected.png
+    - assets/icon_msg_unselected.png
+    - assets/icon_contact_selected.png
+    - assets/icon_contact_unselected.png
+    - assets/icon_mine_selected.png
+    - assets/icon_mine_unselected.png
+  ##
+  ######################################################
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/assets-and-images/#resolution-aware
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/assets-and-images/#from-packages
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/custom-fonts/#from-packages
+  fonts:
+    - family: AaJieMoDun
+      fonts:
+        - asset: fonts/AaJieMoDun.ttf
+    - family: WorkSans
+      fonts:
+        - asset: assets/fonts/WorkSans-Regular.ttf
+        - asset: assets/fonts/WorkSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/WorkSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/WorkSans-Bold.ttf
+          weight: 700
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Bold.ttf
+        - asset: assets/fonts/Roboto-Regular.ttf
+        - asset: assets/fonts/Roboto-Medium.ttf
+          weight: 400
+
+objectbox:
+  # Writes objectbox-model.json and objectbox.g.dart to lib/custom (and test/custom).
+  output_dir: db/obox
+  # Or optionally specify the lib and test output folder separately.
+  # output_dir:
+  #   lib: custom
+  #   test: other

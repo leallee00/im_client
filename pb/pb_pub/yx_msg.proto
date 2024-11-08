@@ -1,0 +1,26 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_pub";
+package pb_pub;
+
+import "pb_pub/yx_msg_type.proto";
+import "pb_pub/comm.proto";
+
+// 兼容云信通用消息
+message YXCommMsg {
+    MessageType MessageType = 1;
+    string MessageBody = 2;
+    int64 IsImMessage = 3;
+}
+
+//云信通用消息应答
+message YXCommMsgRsp {
+
+}
+
+message YXCommMsgNSQ {
+    PBCommData pbCommData = 1;
+    int64 groupId = 2;
+    MessageType messageType = 3;
+    string messageBody = 4;
+    map<string, string> exp =5;
+}

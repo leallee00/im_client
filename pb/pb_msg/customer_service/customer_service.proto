@@ -1,0 +1,264 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/customer_service";
+package pb_msg_customer_service;
+
+import "pb_pub/comm.proto";
+
+/*
+service="customer_service"
+hashKey=1
+*/
+
+enum MESSAGE_TYPE {
+    TEXT = 0; // 文本消息
+    IMAGE = 1; // 图片消息
+    AUDIO = 2; // 音频消息
+    VIDEO = 3; // 视频消息
+    PACT = 4; // 猫咖合同
+    GET_RED_PACKET = 5; // 领红包消息
+    RED_PACKET = 6; // 红包消息
+    RED_PACKET_OPENED = 7; // 红包已领取
+    CAT_CARD = 8; // 猫咪卡片
+    PRODUCT_CARD = 9; // 商品卡片
+    PHONE_CALL = 10; // 猫舍客服不在线时自动回复电话咨询消息
+    GREETING = 11; // 接入成功问候消息
+}
+
+enum USER_TYPE {
+    KEHU = 0; // 客户
+    KEFU = 1; // 客服
+}
+
+message KefuMessage{
+    USER_TYPE userType = 1; // 谁发的
+    int64 groupId = 2; // 客服群id
+    int32 messageType = 3;
+    string text = 4;
+    map<string,string> exp = 5;
+}
+
+enum STATE {
+    INIT = 0; // 初始状态
+    SEND = 1; // 已发
+    RECV = 2; // 已收
+    READ = 3; // 已读
+    OVER = 4; // 结束
+    // FAIL = 5; // 错误 放在外层,使用errCode和errDesc描述
+}
+
+// 有时间字段就更新时间字段以前的全部数据,没有时间字段就更新对应sn的数据
+message KefuReceipt{
+    USER_TYPE userType = 1; // 谁发的
+    int64 groupId = 2; // 客服群id
+    int64 sn = 3; // 消息的sn 不放在pbCommData中
+    STATE state = 4; // 发送状态
+    int64 time = 5; // 最后一条消息的时间
+    // string detail = 5; // 详细描述
+}
+/*
+可能的错误
+1. 全部客服离线
+*/
+
+
+
+// 接入
+// srcId=kefuId 
+message AnswerReq{
+    int64 kehuId = 1;
+    int64 groupId = 2;
+}
+message AnswerRsp{}
+/*
+可能的错误
+1. 正在被他人接入
+*/
+
+
+// 获取待接入客户列表
+// 客户端周期触发
+message FetchWaitCustomers{
+    int64 groupId = 1;
+}
+message WaitCustomer{
+    int64 kehuId = 1; // 客户id
+    int64 joinAt = 2; // 加入待接入列表的时间
+    int64 kefuId = 3; // 分配客服id
+    pb_pub.PBCommData pbCommData = 4;
+    KefuMessage message = 5;
+}
+// 有更新是服务端返回
+message WaitCustomers{
+    repeated WaitCustomer customers = 2;
+}
+
+
+
+// 历史消息
+message HistoriesReq{
+    int64 kehuId = 1;
+    int64 groupId = 2;
+    int64 time = 3; // 从给定时间点返回之前的100条数据
+}
+message History {
+    pb_pub.PBCommData pbCommData = 1;
+    KefuMessage message = 2;
+    STATE state = 3;
+}
+message HistoriesRsp{
+    repeated History histories = 1;
+}
+
+
+
+// 会话列表, 客服调 // srcId=kefuId
+message SessionsReq{
+    int64 groupId = 1; // ??? 
+    int64 time = 2; // 从给定时间点返回之前的100条数据
+}
+message Session{
+    pb_pub.PBCommData pbCommData = 1;
+    KefuMessage message = 2;
+}
+message SessionsRsp{
+    repeated Session sessions = 1;
+}
+
+// 客服删除一个会话 // srcId=kefuId
+message DeleteSessionReq{
+    int64 groupId = 1;
+    int64 kehuId = 2;
+}
+message DeleteSessionRsp{}
+
+
+//////////////////////////////////////
+// 客服管理接口, 同时支持 http
+//////////////////////////////////////
+
+message Kefu{
+    int64 kefuId = 1; // 是imId
+	int64 groupId = 2;
+	string kefuName = 3;
+    string phone = 4;
+	bool online = 5;
+}
+
+// 添加一个客服
+message AddKefuReq{
+    int64 kefuId = 1;
+	int64 groupId = 2;
+	string kefuName = 3;
+    string phone = 4;
+	bool online = 5;
+    int64 appId = 6;
+    string appUserId = 7;
+}
+message AddKefuRsp{}
+
+// 更新一个客服
+message UpdateKefuReq{
+    Kefu kefu = 1;
+    repeated string keys = 2;
+}
+message UpdateKefuRsp{
+    Kefu kefu = 1;
+}
+
+// 删除一个客服
+message DeleteKefuReq{
+    int64 kefuId = 1;
+    int64 groupId = 2;
+}
+message DeleteKefuRsp{}
+
+// 查看一个客服
+message GetKefuReq{
+    int64 kefuId = 1;
+    int64 groupId = 2;
+}
+message GetKefuRsp{
+    Kefu kefu = 1;
+}
+
+// 获取指定客服群的全部客服
+message GetKefusReq{
+    int64 groupId = 1;
+}
+message GetKefusRsp{
+    repeated Kefu kefus = 1;
+}
+
+// 查看一个用户的全部客服身份
+message GetKefuRolesReq {
+    int64 userId = 1;
+}
+message GetKefuRolesRsp {
+    repeated Kefu roles = 1; // len(roles) > 0 是客服  len(roles) == 0 不是客服
+}
+
+//////////////////////////////////////
+// 客服群管理接口, 同时支持 http
+//////////////////////////////////////
+
+
+/*
+客服系统层级
+app1
+    group1
+        kefu1
+        kefu2
+    group2
+app2
+*/
+
+
+// 客服群
+message KefuGroup {
+    int64 appId = 1; // 用来区分不同的app
+    int64 groupId = 2; // 客服群id
+    string name = 3; // 客服群名称
+    string avatar = 4; // 客服群头像
+}
+
+// 添加一个客服群
+message AddKefuGroupReq{
+    int64 appId = 1; // 用来区分不同的app
+    string name = 2;
+    string avatar = 3;
+}
+message AddKefuGroupRsp{
+    KefuGroup kefuGroup = 1;
+}
+
+// 更新一个客服群
+message UpdateKefuGroupReq{
+    KefuGroup kefuGroup = 1;
+    repeated string keys = 2;
+}
+message UpdateKefuGroupRsp{
+    KefuGroup kefuGroup = 1;
+}
+
+// 删除一个客服群
+message DeleteKefuGroupReq{
+    int64 groupId = 1;
+}
+message DeleteKefuGroupRsp{}
+
+// 查看一个客服群
+message GetKefuGroupReq{
+    int64 groupId = 1;
+}
+message GetKefuGroupRsp{
+    KefuGroup kefuGroup = 1;
+}
+
+// 使用appid获取客服组
+message GetKefuGroupsReq{
+    int64 offset = 1;
+    int64 length = 2;
+}
+message GetKefuGroupsRsp{
+    repeated KefuGroup groups = 1;
+}

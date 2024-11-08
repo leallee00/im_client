@@ -1,0 +1,274 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_pub";
+package pb_pub;
+
+
+
+//# RetCode 返回码.
+enum ErrCode
+{
+	// deprecated 弃用
+	// 0-17 为 GRPC 错误码, 因此弃用下列错误码, 客户端收到 0-17的错误码的具体含义参考grpc错误码定义
+	// https://grpc.io/docs/guides/error/#error-status-codes
+	// https://github.com/grpc/grpc-go/blob/master/codes/codes.go
+	SUCCESS = 0;		// 成功
+
+	// 这中间给 codes使用
+	// Canceled indicates the operation was canceled (typically by the caller).
+		Canceled = 1;
+
+	// Unknown error. An example of where this error may be returned is
+	// if a Status value received from another address space belongs to
+	// an error-space that is not known in this address space. Also
+	// errors raised by APIs that do not return enough error information
+	// may be converted to this error.
+		UnknownErr = 2;
+
+	// InvalidArgument indicates client specified an invalid argument.
+	// Note that this differs from FailedPrecondition. It indicates arguments
+	// that are problematic regardless of the state of the system
+	// (e.g., a malformed file name).
+		InvalidArgument = 3;
+
+	// DeadlineExceeded means operation expired before completion.
+	// For operations that change the state of the system, this error may be
+	// returned even if the operation has completed successfully. For
+	// example, a successful response from a server could have been delayed
+	// long enough for the deadline to expire.
+		DeadlineExceeded = 4;
+
+	// NotFound means some requested entity (e.g., file or directory) was
+	// not found.
+		NotFound = 5;
+
+	// AlreadyExists means an attempt to create an entity failed because one
+	// already exists.
+		AlreadyExists = 6;
+
+	// PermissionDenied indicates the caller does not have permission to
+	// execute the specified operation. It must not be used for rejections
+	// caused by exhausting some resource (use ResourceExhausted
+	// instead for those errors). It must not be
+	// used if the caller cannot be identified (use Unauthenticated
+	// instead for those errors).
+		PermissionDenied = 7;
+
+	// ResourceExhausted indicates some resource has been exhausted, perhaps
+	// a per-user quota, or perhaps the entire file system is out of space.
+		ResourceExhausted = 8;
+
+	// FailedPrecondition indicates operation was rejected because the
+	// system is not in a state required for the operation's execution.
+	// For example, directory to be deleted may be non-empty, an rmdir
+	// operation is applied to a non-directory, etc.
+	//
+	// A litmus test that may help a service implementor in deciding
+	// between FailedPrecondition, Aborted, and Unavailable:
+	//  (a) Use Unavailable if the client can retry just the failing call.
+	//  (b) Use Aborted if the client should retry at a higher-level
+	//      (e.g., restarting a read-modify-write sequence).
+	//  (c) Use FailedPrecondition if the client should not retry until
+	//      the system state has been explicitly fixed. E.g., if an "rmdir"
+	//      fails because the directory is non-empty, FailedPrecondition
+	//      should be returned since the client should not retry unless
+	//      they have first fixed up the directory by deleting files from it.
+	//  (d) Use FailedPrecondition if the client performs conditional
+	//      REST Get/Update/Delete on a resource and the resource on the
+	//      server does not match the condition. E.g., conflicting
+	//      read-modify-write on the same resource.
+		FailedPrecondition = 9;
+
+	// Aborted indicates the operation was aborted, typically due to a
+	// concurrency issue like sequencer check failures, transaction aborts,
+	// etc.
+	//
+	// See litmus test above for deciding between FailedPrecondition,
+	// Aborted, and Unavailable.
+		Aborted = 10;
+
+	// OutOfRange means operation was attempted past the valid range.
+	// E.g., seeking or reading past end of file.
+	//
+	// Unlike InvalidArgument, this error indicates a problem that may
+	// be fixed if the system state changes. For example, a 32-bit file
+	// system will generate InvalidArgument if asked to read at an
+	// offset that is not in the range [0,2^32-1], but it will generate
+	// OutOfRange if asked to read from an offset past the current
+	// file size.
+	//
+	// There is a fair bit of overlap between FailedPrecondition and
+	// OutOfRange. We recommend using OutOfRange (the more specific
+	// error) when it applies so that callers who are iterating through
+	// a space can easily look for an OutOfRange error to detect when
+	// they are done.
+		OutOfRange = 11;
+
+	// Unimplemented indicates operation is not implemented or not
+	// supported/enabled in this service.
+		Unimplemented = 12;
+
+	// Internal errors. Means some invariants expected by underlying
+	// system has been broken. If you see one of these errors,
+	// something is very broken.
+		Internal = 13;
+
+	// Unavailable indicates the service is currently unavailable.
+	// This is a most likely a transient condition and may be corrected
+	// by retrying with a backoff. Note that it is not always safe to retry
+	// non-idempotent operations.
+	//
+	// See litmus test above for deciding between FailedPrecondition,
+	// Aborted, and Unavailable.
+		Unavailable = 14;
+
+	// DataLoss indicates unrecoverable data loss or corruption.
+		DataLoss = 15;
+
+	// Unauthenticated indicates the request does not have valid
+	// authentication credentials for the operation.
+		Unauthenticated = 16;
+
+	SYS_ERR = 30;		// 系统错误
+	USER_NOT_EXIST = 31; // 用户不存在
+	USER_NOT_ONLINE = 32;	// 用户不在线
+	PERMISSION_DENIED = 33; //权限不足
+	// PERMISSION_DENIED = 4; //权限不足
+
+	// 18-19 保留
+
+	// 20-40 内部错误
+	PB_NO_HANDLER = 34;
+
+	OTHER_DEVICE_LOGGED = 35; // 账号被其他设备登录过
+	OTHER_DEVICE_ONLINE_NOW = 36; // 账号当前正在被其他设备登录
+
+	// 频率限制
+	Rate_LIMIT = 37;
+	// 40-INF 服务错误
+
+	ROOM_NOT_FILE = 40;	//
+	LIVE_ROOM_NOTEXIT = 50;//直播间不存在
+	USER_IS_KICKED_OUT = 51;//用户被踢出
+	UNMARSHAL_FAILED = 52;//解析失败
+	USER_FORBID_SPEAKING = 53;//用户被禁言
+	SEND_MSG_FAILED	= 54;//消息发送失败
+	MARSHAL_FAILED = 55; // 序列化失败
+	USER_NOT_IN_ROOM = 56; // 用户不在直播间
+	USER_IS_KICKED_OUT_BY_ANCHOR = 57;
+	USER_IS_KICKED_OUT_BY_MANAGER = 58; // 用户被超管踢出了房间
+
+	// 交友房
+	NO_FREE_BENCH = 60; // 没有空位
+	CHAIR_NOT_EMPTY = 61;// 主席坐有人
+	NOT_CHAIR_MAIN = 62; // 主席才能操作
+	USER_IS_ON_ANCHOR_ALREADY = 63; // 用户已经上麦
+	USER_IS_IN_WAIT_LIST_ALREADY=64;// 用户已经在队列中
+	USER_NO_INVITATION = 65;//用户没有邀请函
+	USER_ON_ANCHOR_AUTH_FAILED = 66;
+	ROOM_IS_LIVING_ALREADY = 67; // 六人房已经在直播中
+	AIM_LOC_NOT_FREE = 68;	// 目标麦位非空
+	USER_ENTER_ROOM_AUTH_FAILED = 69; // 用户进场鉴权失败
+	LIVE_START_AUTH_FAILED = 70; // 开播鉴权失败
+	ROOM_NOT_IN_LIVING = 71; // 房间不在直播中
+
+	// 多人房优化新增
+	USER_NOT_ON_ANCHOR = 72; // 麦上无此用户
+	USER_ON_CHAT_ROOM_ALREADY  = 73; // 用户已在小黑屋中
+	AUDIO_ROOM_IS_LIVING_ALREADY = 74; // 八人房已经在直播中
+
+    //小黑屋
+    SECRET_ROOM_IS_NIL = 100; //Secretroom 为空
+    USER_IS_NOT_A_COMPERE = 101; //用户不是主持人
+    INPUT_IS_OUT_OF_RANGE = 102; //输入的值超出规定范围
+    TYPE_ASSERTION_ERR = 103; //类型断言错误
+    INVITER_IS_LEVEL_PRIVILEGE = 104; // 邀请方是神秘人
+    GET_BALANCE = 105; //获取余额失败
+    BALANCE_NOT_ENOUGH = 106; //余额不足
+    COUNT_OF_CHATROOM_UP_TO_LIMIT = 107; //小黑屋数量达到上限
+    INVITEE_IS_NOT_ON_ANCHOR = 108; //被邀请方不在普通麦位上
+    INVITER_ALREADY_ON_CHAT = 109; //邀请方已经在小黑屋中
+    INVITEE_ALREADY_ON_CHAT = 110; //被邀请方已经在小黑屋中
+    INVITER_IS_CHAIRMAN = 111; //邀请方在主持麦
+    INVITEE_IS_CHAIRMAN = 112; //被邀请方在主持麦
+    INVITER_HAS_LEFT_ROOM = 113; //邀请方已经离开房间
+    CREATE_INVITATION_FAILED = 114; //创建邀请失败
+    GET_INVITATION_FAILED = 115; //获取邀请失败
+    STATUS_IS_UNEXPECTED = 116; //状态不合法，非期望值
+    CREATE_CHATROOM_FAILED = 117; //创建chatroom失败
+    GET_CHATROOM_FAILED = 118; //获取chatroom失败
+    CHATROOM_IS_NIL = 119; //chatroom为空
+
+	// 交友包
+	USER_IS_BUSY = 201;   //用户正在忙碌状态
+	SCENE_NOTEXIT = 202;  //房间不存在
+
+	/////////////////////////////////////
+	// luck begin
+	LUCK_REFRESH_CFG_FAIL = 251; // 更新配置失败
+	// luck end
+	/////////////////////////////////////
+	// 注意 300-399 的错误码叫 pk_room 服务占用了
+	PK_ROOM_NOT_EXIST = 300;  // PK房间不存在
+
+	// 巅峰决赛 新增
+	FINAL_PK_ESCAPE = 331;    // 比赛时间无法提前退出
+	FINAL_PK_INVITE = 332;    // 请等待巅峰赛PK
+	FINAL_PK_BE_INVITE =333;  // 对方正在参与巅峰赛PK,无法邀请
+	FINAL_PK_ENQUEUE = 334;   // 请等待巅峰赛PK
+
+	// 注意 400-499 的错误码叫 ttk_game 服务占用了
+	BET_NOT_ALLOWED_IN_DEALING = 401;
+	UNKNOWN_KINGDOM = 402;
+	BET_AMOUNT_NOT_ALLOWED = 403;
+	NO_ENOUGH_BALANCE = 404;
+
+	// gate 错误 800-1000
+	PRIVATE_MESSAGE_LIMITED = 801; // 私信消息被限制
+
+	// 1100-1199为消息分析的错误码
+	SN_GET_CHATID_ERROR = 1100;      // 通过sn获取chatid失败
+	READ_CHAT_HISTORY_ERROR = 1101;  // 获取历史消息失败
+
+	COMMON_ERR = 10000;	// 通用错误.
+
+	// B_OSS oss服务错误号10010010001 ~ 10019999999
+	PIC_SO_BIG = 10010001; //上传图片过大
+	PIC_PUT_OSS_FAIL = 10010002; // 图片上传OSS失败
+	PIC_SECURE_CHECK_FAIL = 10010003; // 图片安全审查失败
+	PIC_NOT_SECURE = 10010004; // 图片未通过安全审查
+	VIDEO_SO_BIG = 10010005; //上传视频过大
+	VIDEO_PUT_OSS_FAIL = 10010006; // 视频上传OSS失败
+	VIDEO_SECURE_CHECK_FAIL = 10010007; // 视频安全审查失败
+	VIDEO_NOT_SECURE = 10010008; // 视频未通过安全审查
+	AUDIO_SO_BIG = 10010009; //上传音频过大
+	AUDIO_PUT_OSS_FAIL = 10010010; // 音频上传OSS失败
+	AUDIO_SECURE_CHECK_FAIL = 10010011; // 音频安全审查失败
+	AUDIO_NOT_SECURE = 10010012; // 音频未通过安全审查
+	GET_UPLOAD_FILE_FAIL = 10010013; // 获取上传文件失败
+	FILE_SO_BIG = 10010014; //上传文件过大
+	FILE_PUT_OSS_FAIL = 10010015; // 文件上传OSS失败
+
+	// call 服务错误码 1200-1299
+	CALLEE_NOT_ONLINE = 1200; // 被叫不在线
+	CALL_SCENE_NOT_EXIST = 1201; // 通话场景不存在
+	OPERATION_NOT_ALLOWED = 1202; // 通话当前状态不允许此操作
+	CALL_ACCEPTED = 1203; // 已被接听
+	CALLEE_NO_MONEY = 1204; // 被叫没钱接听
+	AUTH_ERR = 1205; // 鉴权失败
+	CALLER_IN_CALLEE_BLACK_LIST = 1206; // 主叫在被叫黑名单
+	CALLEE_NOT_ACCEPT = 1207; // 被叫未开启接听权限, 直接拨打情况
+	CALLER_INFO_NOT_COMPLETE = 1208; // 主叫信息不完善
+	CALLEE_INFO_NOT_COMPLETE = 1209; // 被叫信息不完善
+	CALLER_NO_MONEY = 1210; // 主叫没钱拨打
+
+	// customer_service 服务错误码 1300-1399
+	OTHER_KEFU_ANSWERING = 1300; // 客户正在被其他客服接入
+	SEND_MESSAGE_BEFORE_ANSWER = 1301; // 没有接入就发消息
+	ALL_KEFU_OFFLINE = 1302; // 全部客服离线
+
+	// 红包
+	RED_EDIT = 1401; // 未开放领取
+	RED_COMPLETED = 1402;// 已经被领取完了
+	RED_OVER_TIME = 1403; // 红包已失效，不可领取
+	RED_NOT_FOR_ME = 1404; // 私发红包，不是自己的不能领取
+}

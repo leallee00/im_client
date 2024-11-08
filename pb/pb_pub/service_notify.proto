@@ -1,0 +1,207 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_pub";
+package pb_pub;
+
+import "pb_pub/comm.proto";
+
+// 客户端获取方法
+// 开机获取系统通知，通过app接口获取
+message RedServiceNoticeReq{
+    int64 notifyIdBegin = 1; // 开始编号，不填则从头开始
+    int64 notifyIdEnd = 2; // 结束编号, 不填则为最大
+    int64 appId = 3;    // appId 如果=0则取im系统消息，!=0 则取特定app发送的通知
+    int32 wantCount = 4; // 获取条数,默认100，最大100每次
+}
+
+message RedServiceNoticeRsp{
+    int64 notifyIdBegin = 1; // 开始编号，不填则从头开始
+    int64 notifyIdEnd = 2; // 结束编号, 不填则为最大
+    int64 appId = 3;// appId 如果=0则取im系统消息，!=0 则取特定app发送的通知
+    int32 wantCount = 4; // 获取条数,默认100，最大100每次
+    int32 leaveCount = 5; // 符合编号范围的通知还剩下多少条
+    repeated ServiceNotice serviceNotice = 6;       //消息内容,ServiceNotify结构
+}
+
+// 服务器通知，服务端收到此消息后先存盘，在根据appId确定通知范围，发送ServiceNotify进行通知
+message ServiceNotice{
+    int64 id = 1; // 消息自增编号
+    int64 appId = 2;    // app Id
+    int32 messageType =3;   // 消息类型，由客户端和服务提供者协商意义,
+    string messageBody = 4; // json消息体
+}
+//enum SNReadStatus{
+//    CREATE = 0; //已创建
+//    SENT = 1;   // 已发送
+//    RECEIVED = 2;   // 已收
+//    READ = 3;   // 已读
+//}
+//message ServiceNoticeReceipt{
+//    int64 id = 1; // 消息自增编号
+//    int64 appId = 2;    // app Id
+//    int32 messageType =3;   // 消息类型，由客户端和服务提供者协商意义,
+//    SNReadStatus readStatus = 4; //读取状态
+//}
+
+
+//// 服务通知
+//message ServiceNotify{
+//    int64 notifyId = 1; // 通知类型，客户端根据类型解析
+//    int64 messageSn = 2;   // 通知编号，比如ServiceNotice的id，客户端收到相同id代表已经收过了，不需再次读取
+//    int32 messageType =3;   // 消息类型，由客户端和服务提供者协商意义,
+//    string messageBody = 4; // json消息体，扩展用，具体定义根据业务进行协商
+//}
+
+// 部分消息类型定义
+//enum ServiceNotifyId{
+//    HAVE_NEW_SERVICE_NOTICE = 0; // 有新的系统通知消息，客户端收到后通过app的http接口发送RedServiceNoticeReq进行读取，防止遗漏
+//}
+
+// 服务触发的消息 messageType = 2000
+message ServiceNotify{
+    int32 messageType =1;   // 消息类型，由客户端和服务提供者协商意义,
+    string messageBody = 2; // json消息体
+}
+
+// 频道查看
+//https://imnsq.yzapi.top/
+
+// 服务全站通知频道
+//topic:"t_service_notify", channel: "c_gate_%ip_%port"
+// 每个gate一个channel，接收全量消息 如: c_gate_120.27.213.73_8101,
+// jsStr={"pbCommData":{"msgSn":1000100010001,"srcId":10001,"aimId":10002,"time":1572664086,"exp":{"key1":"value1","key2":"value2"},"serviceType":6},"messageType":12,"exp":{"nkey1":"value1","nkey2":"value2"},"messageBody":"jsonStr"}
+//curl -d jsStr http://127.0.0.1:4151/pub?topic=t_service_notify
+// 全局通知消息结构
+message ServiceNotifyToAllUser{
+    PBCommData pbCommData = 1;
+    int32 messageType = 2;
+    map<string, string> exp = 3; // 扩展参数
+    string messageBody = 4; // 消息体,json串
+}
+
+//topic:"t_service_to_aim_user", channel: "c_service_to_aim_user"
+// 服务发送消息到特定用户
+// jsStr={"pbCommData":{"msgSn":1000100010001,"srcId":10001,"aimId":10002,"time":1572664086,"exp":{"key1":"value1","key2":"value2"},"serviceType":6},"aimUsers":[10001,10002], "messageType":12,"exp":{"nkey1":"value1","nkey2":"value2"},"messageBody":"jsonStr"}
+//curl -d '{"pbCommData":{"msgSn":1000100010001,"srcId":10001,"aimId":10002,"time":1572664086,"exp":{"key1":"value1","key2":"value2"},"serviceType":6},"aimUsers":[10001,10002], "messageType":12,"exp":{"nkey1":"value1","nkey2":"value2"},"messageBody":"jsonStr"}' http://127.0.0.1:4151/pub?topic=t_service_to_aim_user
+message ServiceNotifyToAimUser{
+    PBCommData pbCommData = 1;
+    repeated int64 aimUsers =2;  // 目标用户id列表
+    int32 messageType = 3;
+    map<string, string> exp = 4; // 扩展参数
+    string messageBody = 5;
+}
+
+//topic:"t_service_to_all_group", channel: "c_gate_%ip_%port"
+// 每个gate一个channel，接收全量消息 如: c_gate_120.27.213.73_8101,
+// 服务发送消息到所有群
+// jsStr={"pbCommData":{"msgSn":1000100010001,"srcId":10001,"aimId":10002,"time":1572664086,"exp":{"key1":"value1","key2":"value2"},"serviceType":6},
+//      "messageType":12,"exp":{"nkey1":"value1","nkey2":"value2"},"messageBody":"jsonStr"}
+//curl -d '{"pbCommData":{"msgSn":1000100010001,"srcId":10001,"aimId":10002,"time":1572664086,"exp":{"key1":"value1","key2":"value2"},"serviceType":6},"messageType":12,"exp":{"nkey1":"value1","nkey2":"value2"},"messageBody":"jsonStr"}' http://127.0.0.1:4151/pub?topic=t_service_to_all_group
+message ServiceNotifyToAllGroup{
+    PBCommData pbCommData = 1;
+    int32 messageType = 2;
+    map<string, string> exp = 3; // 扩展参数
+    string messageBody = 4;
+}
+
+//topic:"t_service_to_aim_group", channel: "c_service_to_aim_group"
+// 服务发送消息到特定群
+// jsStr={"pbCommData":{"msgSn":1000100010001,"srcId":10001,"aimId":10002,"time":1572664086,"exp":{"key1":"value1","key2":"value2"},"serviceType":6},
+//      "messageType":12,"exp":{"nkey1":"value1","nkey2":"value2"},"messageBody":"jsonStr"}
+//curl -d '{"pbCommData":{"msgSn":1000100010001,"srcId":10001,"aimId":10002,"time":1572664086,"exp":{"key1":"value1","key2":"value2"},"serviceType":6},"messageType":12,"exp":{"nkey1":"value1","nkey2":"value2"},"messageBody":"jsonStr"}' http://127.0.0.1:4151/pub?topic=t_service_to_aim_group
+message ServiceNotifyToAimGroup{
+    PBCommData pbCommData = 1;
+    int32 messageType =2;
+    map<string, string> exp =4; // 扩展参数
+    string messageBody = 5;
+}
+
+//老版本直播间控制消息同步到IM
+//topic:"t_yx_to_liveroom", channel: "c_yx_to_liveroom"
+// jsStr={"pbCommData":{"msgSn":1000100010001,"srcId":10001,"aimId":10002,"time":1572664086,"exp":{"key1":"value1","key2":"value2"},"serviceType":6},
+//      "groupId":100,"messageType":12,"exp":{"nkey1":"value1","nkey2":"value2"},"messageBody":"jsonStr"}
+//curl -d jsStr http://127.0.0.1:4151/pub?topic=t_yx_to_liveroom
+message YXLiveRoomNotify{
+    PBCommData pbCommData = 1;
+    int64 groupId = 2;
+    YXLiveRoomNotifyType messageType = 3;
+    string messageBody = 4;
+    map<string, string> exp =5; // 扩展参数
+}
+
+enum YXLiveRoomNotifyType
+{
+    LIVE_START = 0;		//主播开播
+    LIVE_STOP = 1;	    //主播下播
+    LIVEROOM_HEARTBEAT = 2;//直播间心跳
+    ENTER_ROOM = 3;//用户进入直播间
+    EXIT_ROOM = 4;//用户离开直播间
+    UNSET_USER_KICKOUT_STATUS = 5;//后台解除用户踢出直播间状态
+    LIVEROOM_PK_SCORE_UPDATE = 6;//PK数值更新
+    PKPROP = 7;//PK礼物属性
+
+    SEND_GIFT           = 8;    // 礼物消息
+    HOST_MODE           = 9;    // 房间主持模式信息
+    UPDATED_USER_INFO   = 10;   // 用户信息更新消息
+    ROOM_BARRAGE        = 11;   // 房间弹幕消息
+    ROOM_ACTION         = 12;   // 行为消息
+
+    UPDATE_ANCHOR_SCORE = 13;   // 多人房新增, 更新麦上用户贡献值
+    UPDATE_BILLBOARD    = 14;   // 多人房新增, 更新贡献榜
+    KICK_USER_OUT       = 15;   // 多人房新增, 踢出房间
+
+    // 多人房优化新增
+    SEND_LIVE_GIFT            = 16;
+    UPDATE_MULTI_ANCHOR_SCORE = 17;
+
+    // 金主新增
+    INVESTOR_CHANGE = 18;   // 金主变更通知
+    SECRET_GIFT = 19; // 小黑屋礼物
+
+    BACKGROUND_CHANGE = 20; // 壁纸变化消息
+
+    HAND_DRAWN_GIFT = 21; // 手绘礼物消息
+
+    // top1粉丝团改变通知
+    TOP1_FANS_CHANGE_NOTITFY = 22;
+}
+//用户进入直播间扩展参数
+//{"userId":"1"}
+
+//后台解除用户踢出直播间状态扩展参数 里面为需要解除踢出状态的用户ID
+//{"userId":"1"}
+
+//PK数值更新扩展参数
+//{"主播房间号":"PK值","主播房间号":"PK值"}
+
+//PK礼物属性扩展参数
+//{
+//    "giftId":"礼物ID",
+//    "giftImage":"礼物图片",
+//    "giftName","礼物名字",
+//    "actorId","发送的房间ID即主播ID",
+//    "targetName","发送的房间名字即主播名字",
+//    "userId","发送的用户ID",
+//    "headImg","发送的用户头像",
+//    "senderName","发送的用户名",
+//    "levelPrivilegeOpen","发送的用户是否开启神秘人",
+//    "startTime","道具使用开始时间",
+//    "endTime","道具使用结束时间",
+//    "curTime","当前时间",
+//    "giftNumber","送礼数量",
+//}
+
+// 大奖赛权限变更 t_pk_qualify_change
+message PKQualifyChangeNotify {
+    bool isQualifiedPkTournament = 1;
+    string pkTournamentBeginTime = 2;
+    string pkTounamentTip = 3;
+}
+
+// 三国游戏服务NSQ消息封装消息结构
+message TTKNSQMessage {
+    PBCommData pbCommData = 1;
+    string msgName = 2; // 即pbname: 1. 不必再定义消息类型枚举, 方便消息反解
+    string msgData = 3; // 即json string
+    map<string, string> exp =4;
+}
+

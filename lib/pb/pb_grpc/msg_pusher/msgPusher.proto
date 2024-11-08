@@ -1,0 +1,14 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_grpc/msg_pusher";
+package pb_grpc_msgPusher;
+
+import "pb_grpc/pub/grpc_pub.proto";
+import "pb_pub/comm.proto";
+import "pb_msg/msg_pusher/msgPusher.proto";
+
+service MsgPusher{
+    // 发送到指定用户群组
+    rpc SendToAimListUser(pb_grpc_pub.SendToAimUserListReq) returns (pb_pub.CommRsp) {}
+    rpc PushReceipt(pb_msg_msgPusher.PushReceiptReq) returns (pb_pub.CommRsp) {}
+    rpc PushTokenSync(pb_msg_msgPusher.PushTokenSyncReq) returns (pb_pub.CommRsp){}
+}

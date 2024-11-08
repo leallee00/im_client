@@ -1,0 +1,13 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/call";
+package pb_msg_call;
+
+// 开启接听通知
+message EnableAcceptNotify{
+    int64 userId = 1;
+}
+
+// 关闭接听通知
+message DisableAcceptNotify{
+    int64 userId = 2;
+}

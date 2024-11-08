@@ -1,0 +1,31 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/lucky";
+package pb_msg_lucky;
+
+message LuckyReq{
+	int64 betChips = 1;	// 每次投入筹码总数量
+	int64 betChipsFree = 2;	// 每次投入筹码中的免费筹码含量，
+	int64 betCount = 3;	// 摇奖次数
+	string poolId = 4; // 奖池，跟业务相关
+}
+
+// 中奖的结构
+message LuckyBean{
+	int64 No = 1;			// 中奖号码
+	int64 BetChips = 2; 	// 下注
+	int64 BetChipsFree = 3; 	// 免费下注
+	int64 Chance = 4;		// 概率
+	int64 Odds = 5;		// 赔率
+	int64 WinChips = 6;	// 赢取筹码总量
+	int64 WinChipsFree = 7;	// 赢取筹码中免费筹码含量
+}
+
+message LuckyRsp{
+	int64 betChips = 1;	// 每次投入筹码数量
+	int64 betChipsFree = 2;	// 每次投入筹码中的免费筹码含量，
+	int64 betCount = 3;	// 摇奖次数
+	int64 luckyTotalCount = 4;
+	int64 luckyTotalChips = 5; // 赢取筹码总量
+	int64 luckyTotalChipsFree = 6; // 赢取免费筹码总含量
+	repeated LuckyBean luckyBean = 7;	// 中奖列表
+}

@@ -1,0 +1,25 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/room_explain";
+package pb_msg_room_explain;
+
+
+
+message RoomExplainReq{
+    int64 roomId = 1;
+    string timestampBegin = 2;  // 开始时间（如2020年3月12日15点30分即为 202003121530）
+    string timestampEnd = 3;    // 结束时间，同上
+}
+
+message RoomExplainRsp{
+    int64 msgCount = 1;
+}
+
+message SrcUserExplainReq{
+    int64 srcId = 1;
+    string timestampBegin = 2;  // 开始时间（如2020年3月12日15点30分即为 202003121530）
+    string timestampEnd = 3;    // 结束时间，同上
+}
+
+message SrcUserExplainRsp{
+    int64 msgCount = 1;
+}

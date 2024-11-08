@@ -1,0 +1,149 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_grpc/live_room";
+
+import "google/protobuf/any.proto";
+// import "google/protobuf/empty.proto";
+import "pb_pub/comm.proto";
+import "pb_pub/service.proto";
+import "pb_pub/service_notify.proto";
+import "pb_msg/live_room/live_room.proto";
+import "pb_msg/pk_room/pk_room.proto";
+
+package pb_grpc_liveRoom;
+
+service LiveRoom {
+    // 老版本直播间控制消息同步到IM
+    // rpc LiveRoomNotify(pb_pub.YXLiveRoomNotify) returns (pb_pub.CommRsp) {}
+
+    // ALPHA 场景恢复
+    rpc LogonSuccessNotify(pb_pub.LogonSuccessNotifyNsq) returns (pb_pub.CommRsp) {}
+
+    // 主播状态同步
+    // rpc HeartBeat(pb_pub.HeartBeat) returns (pb_pub.HeartBeat) {}
+
+    // 主播状态同步
+    // rpc ClientBFSwitch(pb_pub.ClientBFSwitchReq) returns (pb_pub.ClientBFSwitchRsp) {}
+
+    // 主播信息
+    // rpc AnchorInfo(AnchorInfoReq) returns (AnchorInfoRsp) {}
+
+    // // 注册房间事件监听者
+    // rpc Register(Listener) returns (pb_pub.CommRsp) {}
+
+    // // 反注册房间事件监听者
+    // rpc Deregister (Listener) returns (pb_pub.CommRsp) {}
+
+    // // 更新房间事件监听者
+    // rpc UpdateListener (Listener) returns (pb_pub.CommRsp);
+
+    // // UpdateRoom
+    // rpc UpdateRoom (Fields) returns (pb_pub.CommRsp);
+
+    // rpc SetStatus (SetStatusReq) returns (SetStatusRsp);
+    // rpc KeepStatus (KeepStatusReq) returns (KeepStatusRsp);
+
+    rpc PKPeer (pb_msg_pk_room.PKUser) returns (pb_msg_pk_room.PKUser);
+
+    rpc PKLock (PKLockReq) returns (PKLockRsp);
+    rpc PKUnlock (PKUnlockReq) returns (PKUnlockRsp);
+    rpc PKLocking (PKLockingReq) returns (PKLockingRsp);
+
+    rpc PKMatched (pb_msg_pk_room.PKMatchedNotify) returns (pb_pub.CommRsp);
+    rpc PKPeerRefused (pb_msg_pk_room.PKPeerRefusedNotify) returns (pb_pub.CommRsp);
+    rpc PKStart (pb_msg_pk_room.PKStartNotify) returns (pb_pub.CommRsp);
+    rpc PKGameOver (pb_msg_pk_room.PKGameOverNotify) returns (pb_pub.CommRsp);
+    rpc PKOver (pb_msg_pk_room.PKOverNotify) returns (pb_pub.CommRsp);
+
+    rpc PassivePKRefuse (pb_msg_pk_room.PassivePKRefuseReq) returns (pb_pub.CommRsp);
+    rpc PKQualifyChange (pb_pub.PKQualifyChangeNotify) returns (pb_pub.CommRsp);
+    rpc CanJoinPkTournament (pb_msg_pk_room.CanJoinPkTournamentReq) returns (pb_msg_pk_room.CanJoinPkTournamentRsp);
+
+    // 3体推流回调
+    rpc TTTPushRtmpCB(TTTCallBackParamReq) returns (pb_pub.CommRsp);
+
+    // JSONCall, 处理使用JSON编码的消息
+    rpc JSONCall(pb_pub.JSONCallReq) returns (pb_pub.JSONCallRsp);
+    rpc SetRoomFansTop1Status (pb_msg_live_room.SetRoomFansTop1StatusNotify) returns (pb_pub.CommRsp);
+}
+
+// 三体推流回调
+message TTTCallBackParamReq {
+    string Channel = 1; // 房间id
+    int32 Code = 2;     // 0表示成功；2表示推流失败已销毁推流；500表示连接cdn失败需要更新推流地址
+    string Stream = 3;  // 推流地址
+}
+
+message AnchorInfoReq
+{}
+
+message AnchorInfoRsp
+{
+    int64  ID                  = 1; // ID
+    string Username            = 2; // 用户名
+    string HeaderImageOriginal = 3; // 头像
+    int64  Rank                = 4; // 段位
+    int64  VictoryTimes        = 5; // 连胜次数
+    string PullStreamAddress   = 6; // 拉流地址
+}
+
+enum EVENT {
+    UNKNOWN       = 0;
+    LIVE_START    = 1;
+    LIVE_STOP     = 2;
+    ENTER_ROOM    = 3;
+    EXIT_ROOM     = 4;
+    ROOM_TIME_OUT = 5;
+    USER_TIME_OUT = 6;
+}
+
+message Listener {
+    pb_pub.Service service = 1; // 服务名称
+    string fullMethod = 2; // 调用路径
+    int64 hashKey = 3; // 哈希key
+    int64 deadline = 4; // 过期
+    google.protobuf.Any data = 5; // 请求携带
+}
+
+message Notice {
+    EVENT event = 1;
+    google.protobuf.Any in = 2;
+    google.protobuf.Any data = 3; // 请求携带
+}
+
+message Fields {
+    google.protobuf.Any data = 1;
+}
+
+// message SetStatusReq {
+//     repeated int32 olds = 1;
+//     int32 new = 2;
+// }
+// message SetStatusRsp {
+// }
+
+// message KeepStatusReq {
+//     int32 status = 1;
+// }
+// message KeepStatusRsp {
+// }
+
+// message PKStartReq {
+//     int64 peerId = 1;
+// }
+// message PKStartRsp {
+// }
+
+// message PKOverReq {
+// }
+// message PKOverRsp {
+// }
+
+
+message PKLockReq {}
+message PKLockRsp {}
+
+message PKUnlockReq {}
+message PKUnlockRsp {}
+
+message PKLockingReq {}
+message PKLockingRsp {}

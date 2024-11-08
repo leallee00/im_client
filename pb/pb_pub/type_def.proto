@@ -1,0 +1,31 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_pub";
+package pb_pub;
+
+// 跟service绑定 Service
+//enum EnGroupType {
+//    EnGroupTypeCommRoom = 0; // 普通房间
+//    EnGroupTypeLiveRoom = 1; // 直播间
+//    EnGroupTypeAuctionRoom = 2; //拍卖行
+//}
+
+enum KickUserReason{
+    Sys = 0; // 系统错误
+    Relogon = 1; // 重复登录挤下线
+    ClientException = 2;// 客户端行为异常
+}
+
+enum PubRoomId {
+    Unknown = 0;    // 未知
+    PartyRoomHall = 1; // 交友房大厅id
+    TTKGame = 2; // 三国游戏房间id
+    WishHall = 3; //心愿大厅
+    CommRoomAuctionHouse = 4; //拍卖行
+}
+
+// exp keys exp 携带字段的key
+// 使用时把key转成字符串使用 如：pb_pub.ExpKey_ExpRoomId.String()
+enum ExpKey {
+    ExpUnknown = 0;
+    ExpGroupId = 1;
+}

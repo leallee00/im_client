@@ -1,0 +1,41 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_web/goods_store";
+package pb_web_goods_store;
+
+// 商品总库存(资产)、仓库库存统计相关
+
+// 商品基本信息
+message GoodsCommonInfo{
+  string code = 1; // 商品编码
+  string name = 2; // 商品名称
+  int32  kind = 3; // 商品性质 正式 临时
+  int32  source = 4; // 收录方式
+  int32  spuType = 5; // 标品、孤品等
+  int64  clientName = 6; // 供货商
+  string saleName = 7; // 所属BD
+  string costPrice = 8; // 成本价
+  string cumulativeCost = 9; // 累计成本
+  int32  identityResult = 10; // 鉴定结果
+  string ownerName = 11; // 商品所有人
+  int32  isAsset = 12; // 商品总库存状态
+  int32  isStock = 13; // 商品仓库库存状态
+}
+
+// 商品资产、仓库记录
+message GoodsStoreRecord{
+  GoodsCommonInfo goodsCommonInfo = 1;
+  string operateType = 2; // 操作类型
+  string operator = 3; // 操作人
+  int64 operated = 4; // 操作时间
+}
+
+// 总库存、仓库库存的期初、期末详情
+message GoodsStoreStartOrEndDetail{
+  repeated GoodsStoreRecord detail = 1;
+}
+
+// 总库存、仓库库存本期增加、本期减少详情
+message GoodsStoreAddOrSubDetail{
+  repeated GoodsCommonInfo detail = 1;
+}
+

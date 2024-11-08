@@ -1,0 +1,18 @@
+syntax = "proto3";
+package pb_grpc_call_scene;
+option go_package = "github.com/leallee00/pb/pb_grpc/call_scene";
+import "pb_msg/call_scene/call_scene.proto";
+import "pb_pub/comm.proto";
+
+service CallScene {
+    // 创建
+    rpc Dial(pb_msg_call_scene.DialReq) returns (pb_msg_call_scene.DialRsp) {}
+    // 拨打
+    rpc DoCall(pb_msg_call_scene.WaitForCalleeAnswerNotifyToServer) returns(pb_pub.CommRsp){}
+    // 应答
+    rpc AnswerCall(pb_msg_call_scene.AnswerCallReq) returns(pb_msg_call_scene.AnswerCallRsp){}
+    // 心跳
+    rpc HeartBeat(pb_pub.HeartBeat) returns(pb_pub.HeartBeat){}
+    // 挂断
+    rpc HangUp(pb_msg_call_scene.HangUpReq) returns(pb_msg_call_scene.HangUpRsp){}
+}

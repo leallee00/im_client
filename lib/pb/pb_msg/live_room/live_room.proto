@@ -1,0 +1,1048 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/live_room";
+package pb_msg_live_room;
+
+import "pb_pub/yx_msg.proto";
+import "pb_pub/yx_msg_type.proto";
+import "pb_pub/comm.proto";
+import "pb_pub/error_code.proto";
+//============主播开播相关消息定义======================
+// 主播开播请求
+message LiveStartReq {
+    RoomType roomType = 1; // 新增房间类型
+    string   roomName = 2; // 多人房新增
+    int64    roomId   = 3; // 房间id
+    PartyType partyType = 4; // 派对房类型，也通知给java
+    RoomTheme roomTheme = 5; // 派对房主题, 椰果派对房房新增
+}
+
+enum PartyType {
+    Six = 0;
+    Eight = 1;
+}
+
+enum RoomTheme {
+    UNKNOWN_THEME = 0;
+    BLIND_DATE = 2; // 相亲
+    SONG_TABLE = 3; // 点歌台
+    RADIO = 4; // 电台
+    GAME = 5; // 游戏
+}
+
+// ALPHA 主播开播逻辑改造
+message LiveStartRsp {
+    int32   streamType          = 1;
+    string  pushStreamAddress   = 2;
+    int32   liveMode            = 3;
+	string  coverImage          = 4;
+	string  unPassReason        = 5;
+	string  coverStatus         = 6;
+	bool    canLiveStatus       = 7;
+    string  message             = 8;
+    pb_pub.ErrCode result       = 9;  // 多人房新增 
+}
+
+//主播下播请求
+message LiveStopReq {
+    string reason = 1;
+}
+//主播下播应答
+message LiveStopRsp {
+}
+
+//推流成功，允许观众进入
+message LiveStartSuccessReq {
+}
+//推流成功，允许观众进入应答
+message LiveStartSuccessRsp {
+}
+
+//主播开播信息推送粉丝
+message LiveStartNotify {
+    int64 groupId = 1;//主播ID
+    string msg = 2;//开播通知消息内容
+    string title = 3;//标题
+    int32 type = 4;//ios开播类型
+    string nickName = 5;//开播房间名称
+    string bigImageOriginal = 6;
+}
+////============观众进入直播间相关消息定义======================
+// 用户进入房间
+message AudienceEnterLiveReq{
+    // PBCommData 里面的信息可以辨识，在这里留空
+}
+
+// 主播开播应答，鉴权返回码放到PBMessage的errcode
+// 如果失败则 map["result"] 里面取错误描述
+message UserEnterLiveRsp{
+    // 直播sdk类型，0：未知 1：zego，:2:三体
+    int32 streamType = 1;
+
+    // 违禁词更新时间，控制客户端是否更新违禁词
+    string wordUpdateTime = 2;
+}
+
+// 用户道具
+message LiveUserPropsNotify{
+    string MountInfo = 1;//坐骑信息 预留
+    string FansInfo = 2;//粉丝信息 预留
+}
+
+//房间相关消息
+//房间状态
+enum RoomStatus
+{
+    NORMAL = 0;         //正常 （预留）
+    LIVE_STOP = 1;		//主播下播
+}
+
+//房间状态推送
+message RoomStatusNotify{
+    int64 groupId = 1;//直播间ID
+    RoomStatus roomStatus = 2;
+}
+
+
+message YXCommMsgNode {
+    pb_pub.YXCommMsg yxMsg = 1;//消息内容
+    int64 time = 2;
+    int64 sn = 4;
+    int64 srcUserId = 5;
+    int64 groupId = 6;
+}
+
+// ALPHA 历史消息
+message HistoryMsg {
+    bytes               pbData = 1; // 序列化后的消息体
+    string              pbName = 2;
+    int64               time = 3;
+    int64               msgSn = 4;
+    int64               srcId = 5;
+    int64               groupId = 6;
+    pb_pub.MessageType  msgType = 7; // im 过滤消息类型用，前端无需关心
+}
+
+//获取直播间历史消息（10条文字）
+message HistoryYXCommMsgReq{
+}
+
+message HistoryYXCommMsgRsp{
+    int64 msgNum = 1;
+    repeated YXCommMsgNode msgList = 2;
+    int64 latestSn = 3;//直播间最新的消息的sn
+
+    // ALPHA 新的历史消息字段
+    repeated HistoryMsg historyMsgs = 4;
+    int64 latestMsgSn = 5; // 最新历史消息sn
+}
+
+//断线重连获取直播间历史消息（100条全部类型消息）
+message ReloadYXCommMsgReq{
+    int64 sn = 1;
+}
+
+message ReloadYXCommMsgRsp{
+    int64 msgNum = 1;
+    repeated YXCommMsgNode msgList = 2;
+    int64 latestSn = 3;//直播间最新的消息的sn
+
+    // ALPHA 新的历史消息字段
+    repeated HistoryMsg historyMsgs = 4;
+    int64 latestMsgSn = 5; // 最新历史消息sn
+}
+
+//PK数值更新
+message PKScoreNotify{
+    map<int64, int64> pkScore =1;//主播房间号:PK值
+}
+
+//PK礼物属性
+message PKPROPNotify{
+    int64 giftId = 1;//礼物ID
+    string giftImage = 2;//礼物图片
+    string giftName = 3;//礼物名字
+    int64 actorId = 4;//发送的房间ID即主播ID
+    string targetName = 5;//发送的房间名字即主播名字
+    int64 userId = 6;//发送的用户ID
+    string headImg = 7;//发送的用户头像
+    string senderName = 8;//发送的用户名
+    bool levelPrivilegeOpen = 9;//发送的用户是否开启神秘人
+    int64 startTime = 10;//道具使用开始时间
+    int64 endTime = 11;//道具使用结束时间
+    int64 curTime = 12;//当前时间
+    int64 giftNumber = 13;//送礼数量
+}
+
+// 房间消息: 礼物消息
+message LiveRoomGift{
+    pb_pub.Gift gift            = 1; // 礼物消息体
+}
+
+// 房间消息: 主持模式消息
+message HostMode{
+    bool isHostMode             = 1; //默认模式是否为主持人
+    bool isCurrentHostMode      = 2; //当前模式是否为主持人
+}
+
+// ALPHA 用户进房间改造
+// 用户进房间通知
+message RoomInfo {
+    // 房间相关
+    int64   roomId                  = 1;
+    int64   onLineNum               = 2;
+    int32   roomStatus              = 3;
+    bool    switchToBack            = 22; // true 在后台 false 在前台
+
+    // 主播相关
+    int64   actorId                 = 4;
+    string  imId                    = 5; // 主播的云信ID
+    string  roomNotice              = 6;
+    string  actorLevel              = 7;
+    int32   actorGrade              = 8;
+    int64   actorCurrentExperience  = 9;
+    string  headerImageOriginal     = 10;
+    string  headPendantUrl          = 11;
+    string  bigImageOriginal        = 12;
+    int64   recentReceiveCoins      = 13;
+    string  nickName                = 14;
+    string  fansCardName            = 15;
+
+    // 其他
+    int64   broadcastLimitCoins     = 20; // 礼物广播的阈值
+    int64   updateTime              = 21; // 违禁词更新时间
+
+    // 多人房新增
+    RoomType      roomType          = 23; // 房间类型
+    map<string,bytes> exp           = 24; // 不同房间类型可能携带不同的数据
+    string pullStreamAddress        = 25; // 拉流地址
+    string roomName                 = 26; // 房间名称
+    string backgroundImageUrl       = 27; // 背景图片
+
+    int64   rank                    = 41; // 段位积分
+    int64   victoryTimes            = 42; // 连胜次数
+
+    // int32   pkStatus                = 43; // pk状态
+    // int32   pkType                  = 44; // pk类型
+
+    string dynamicBackgroundImage   = 43; // 动态壁纸url
+    bool   isQualifiedPkTournament  = 45; // 是否参加大奖赛,true->可参加
+    string pkTournamentBeginTime    = 46; // 大奖赛开始时间
+    string pkTounamentTip           = 47; // 大奖赛展示
+
+    PartyType partyType             = 48; // roomType = Party 时有效, 派对房类型
+    RoomTheme roomTheme             = 49; // 派对房主题, 椰果派对房房新增
+
+    bool FansTop1Status = 50; // 房主粉丝团是不是top1
+}
+
+// ALPHA 用户进房间改造
+// 用户属性,其他群发消息需要挂载或替换,历史消息会记录
+message UserProp {
+    bool    levelPrivilege      = 1;  // 是否是神秘人
+    int32   nobleGrade          = 2;  // 贵族类型 1 子爵 2 伯爵 3 侯爵 4 公爵 5 亲王 6 国王 7 皇帝
+    string  username            = 3;  // 用户名字
+    int64   userId              = 4;  // 用户ID
+    int32   userLevel           = 5;  // 用户等级
+    string  medalUrl            = 6;  // 勋章
+    int32   guardType           = 7;  // 守护类型 1 白银 2 黄金 3 钻石
+    string  userDefineEquipName = 8;  // 守护名字
+    int32   role                = 9;  // 用户角色 1 当前主播 2 房管 3 超管
+    int32   managerSubType      = 10; // 超管类型 1 超管 2 巡管 3 客服
+    int32   fansCardStatus      = 11; // 粉丝牌状态 0 未加入，1 加入未过期 2 加入已过期
+    int32   fansCardLevel       = 12; // 粉丝牌等级 
+    int32   corpType            = 13; // 超级粉丝团类型
+    string  headImg             = 14; // 用户头像
+    string  nobilityMedalUrl    = 15; // 贵族勋章地址
+    int32   guardMedalType      = 16; // 空:不展示, 否则根据类型展示守护勋章
+    int32   vipGrade = 17; // vip等级
+    string  vipMedalUrl = 18; // vip勋章
+}
+
+// ALPHA 用户进房间改造
+// 进房间成功触发请求
+message EnterRoomReadyReq{}
+
+// ALPHA 用户进房间改造
+// 进房间成功触发应答
+message EnterRoomReadyRsp{
+    UserProp    userProp                = 1; // 用户属性
+    int64       userStatus              = 2; // 0: 正常 1: 禁言 2: 被踢
+    string      horseEffectUrl          = 3; // 坐骑地址
+    bool        concrenRealtion         = 4; // 是否关注了主播
+    int64       userCurrentExperience   = 5; // 用户当前经验值
+    string      horseEffectName         = 6; // 坐骑名称
+    MAnchorRole mAnchorRole             = 7; // 用户在多人方中的角色 多人房新增
+    string horseEffectMp4Android = 8; // Android Mp4格式坐骑地址
+    string horseEffectMp4Ios = 9; // IOS Mp4格式坐骑地址
+}
+
+// ALPHA 用户进房间改造
+// 房间消息: 观众进房间
+message AudienceEnterRoom{
+    UserProp    userProp            = 1; // 用户属性
+    string      horseEffectUrl      = 2; // 坐骑地址
+    string      headerImageOriginal = 3; // 用户的头像，飘屏的时候展示用
+    string      horseEffectName     = 4; // 坐骑名称
+    string horseEffectMp4Android = 5; // Android Mp4格式坐骑地址
+    string horseEffectMp4Ios = 6; // IOS Mp4格式坐骑地址
+}
+
+// ALPHA 发房间消息改造
+// 房间消息: 弹幕消息
+message RoomBarrage {
+    UserProp    userProp            = 1; // 用户属性
+    string      msg                 = 2; // 消息体
+    int32       type                = 3; // 弹幕类型 1 房间弹幕 2 全站弹幕
+    string      headerImageOriginal = 4; // 用户的头像，飘屏的时候展示用
+    map<string, string> exp         = 5; // 拓展字段
+    bool jumpEnabled = 6; // 是否可以跳转
+    int64 jumpRoomId = 7; // 跳转的房间id
+}
+
+// 房间消息: 普通消息
+message RoomNormal {
+    UserProp            userProp        = 1; // 用户属性
+    string              msg             = 2; // 消息体
+    repeated string     targetUserName  = 3; // 被@的用户用户名列表
+    repeated int64      targetUserId    = 4; // 被@的用户ID列表
+}
+
+// 房间消息: 送礼
+// message RoomGift {
+//     UserProp    userProp        = 1;
+//     int64       giftId          = 2; // 礼物ID
+//     int64       giftCount       = 3; // 礼物数量
+//     int64       sendDegree      = 4; // 礼物组数 比如礼物数量100，组数5即送出5组20个
+//     string      content         = 5; // 直接拼完你们看成不，即 “开出10个飞机，2个四阶宝珠，1个1阶宝珠”
+// }
+
+// 房间消息
+message RoomAction {
+    UserProp            userProp    = 1;
+    ACTION_TYPE         type        = 2;
+    map<string, string> exp         = 3;
+}
+enum ACTION_TYPE{
+    UNKNOWN         = 0;
+    GIFT            = 1;
+    FOLLOW          = 2;
+    SHARE           = 3;
+    LIGHT           = 4;
+    UPGRADE         = 5;
+    // JOIN_FANS_CARD  = 6;
+    // JOIN_GUARD      = 7;
+    // JOIN_NOBLE      = 8;
+    FISH            = 9;
+    REENTER         = 10; // 连续进入
+}
+
+message UpdatedUserInfo {
+    int32   nobleGrade          = 1;  // 贵族类型 1 子爵 2 伯爵 3 侯爵 4 公爵 5 亲王 6 国王 7 皇帝
+    string  username            = 2;  // 用户名字
+    int32   userLevel           = 3;  // 用户等级
+    string  medalUrl            = 4;  // 勋章
+    int32   guardType           = 5;  // 守护类型 1 白银 2 黄金 3 钻石
+    string  userDefineEquipName = 6;  // 守护名字
+    int32   role                = 7;  // 用户角色 1 当前主播 2 房管 3 超管
+    int32   fansCardStatus      = 8;  // 粉丝牌状态 0 未加入，1 加入未过期 2 加入已过期
+    int32   fansCardLevel       = 9;  // 粉丝牌等级 
+    int32   corpType            = 10; // 超级粉丝团类型
+    int32   guardMedalType      = 11; // 空:不展示, 否则根据类型展示守护勋章
+    int32   vipGrade = 12; // vip等级
+    string  vipMedalUrl = 13; // vip勋章
+}
+
+message UpdatedRoomInfo {
+    // 房间相关
+    // int64   roomId                  = 1;
+    // int64   onLineNum               = 2;
+    // int32   roomStatus              = 1; // 房间状态更新
+    bool switchToBack                  = 1;
+    // int64 rank                         = 2; // 段位积分
+    // int64 victoryTimes                 = 3; // 连胜次数
+
+    // 主播相关
+    // int64   actorId                 = 4;
+    // string  imId                    = 5;
+    // string  roomNotice              = 6;
+    // string  actorLevel              = 7;
+    // int32   actorGrade              = 8;
+    // int64   actorCurrentExperience  = 9;
+    // string  headerImageOriginal     = 10;
+    // string  headPendantUrl          = 11;
+    // string  bigImageOriginal        = 12;
+    // int64   recentReceiveCoins      = 13;
+    // string  nickName                = 14;
+    // string  fansCardName            = 15;
+
+    // 其他
+    // int64   broadcastLimitCoins     = 20; // 礼物广播的阈值
+    // int64   updateTime              = 21; // 违禁词更新时间
+}
+
+// JAVA告诉im当前top1团id
+message Top1ChangeNotify {
+    RoomType roomType = 1;
+    int64 roomId = 2;
+}
+
+message SetRoomFansTop1StatusNotify {
+    bool top1Status = 1;
+}
+
+// ALPHA PK&CALL
+
+/*
+拓展房间状态 RoomStatus
+    0 默认值
+    1 已创建        -- 房间对象已创建
+    2 直播中        -- 
+    3 已下播        -- 心跳超时,主播主动下播
+    // 4 观众连麦中
+    // 5 主播连麦中
+    // 6 匹配PK中
+    // 7 邀请PK中
+    4 PK中
+
+
+房间信息增加 PKStatus
+    0 空闲中  -- 初始值,我方拒绝,响铃超时,惩罚结束
+    1 排队中  -- 申请随机PK或申请段位PK
+    // 2 呼叫中  -- 邀请PK拨号中
+    2 响铃中  -- 匹配成功询问主播是否同意开启 被其他主播邀请
+    3 等待中  -- 我已同意,等待对方主播同意
+    4 比赛中  -- 双方同意 邀请成功
+    5 惩罚中  -- 比赛结束,惩罚中
+
+
+房间信息增加 PKType
+    0 随机PK
+    1 段位PK
+    2 邀请PK
+
+
+用户信息增加 CallStatus
+    0 空闲中 -- 初始值,观众挂机,主播挂机
+    1 排队中 -- 也就是邀请状态,在队列中,等待被主播翻牌
+    2 响铃中 -- 主播邀请中
+    3 通话中 -- 观众已同意
+
+
+房间信息增加 CallStatus
+    0 空闲中 -- 初始值, 观众挂机,己方主播挂机,对方主播挂机
+    1 响铃中 -- 被其他主播邀请
+    2 呼叫中 -- 主播拨号邀请
+    3 通话中 -- 对方已同意
+
+*/
+
+/* 连麦暂时别用
+// 用户连麦状态更新通知
+message UserCallStatusChangeNotify
+{
+    int32 callStatus  = 10; // 连麦状态
+}
+
+// 房间连麦状态通知
+message CallStatusChangeNotify
+{
+    int32  roomStatus  = 1; // 房间状态更新
+    int32  callStatus  = 2; // 连麦状态
+}
+*/
+
+
+// // 房间PK状态更新通知
+// message PKStatusChangeNotify
+// {
+//     int32    roomStatus   = 1; // 房间状态更新
+//     int32    pkStatus     = 2; // pk状态
+//     int64    endTime      = 3; // 状态结束时间点
+// }
+
+// // 匹配成功通知消息
+// message PKMatchedNotify
+// {
+//     int32  pkType                  = 1; // 1 随机 2 段位 3 邀请
+//     string pkTopic                 = 2; // pk主题
+//     int64  peerId                  = 3; // 对方ID
+//     string peerUsername            = 4; // 对方用户名
+//     string peerHeaderImageOriginal = 5; // 对方头像
+//     int64  peerRank                = 6; // 对方段位
+//     int64  peerVictoryTimes        = 7; // 对方连胜次数
+//     string peerPullStreamAddress   = 8; // 对方拉流地址
+// }
+
+// // 对方已拒绝
+// message PKPeerRefusedNotify
+// {}
+
+// // PK比赛阶段结束
+// message PKGameOverNotify
+// {
+//     int64    pkScore     = 1; // 我方PK值
+//     int64    peerPKScore = 2; // 对方PK值
+//     int64    winnerId    = 3;
+//     END_TYPE endType     = 4;
+//     MVP      mvp         = 5;
+// }
+// // PKGameOverNotify 中 MVP 信息
+// message MVP
+// {
+//     int32   actorGrade          = 1;
+//     string  bigImageOriginal    = 2;
+//     string  headerImageOriginal = 3;
+//     bool    isLiving            = 4;
+//     bool    levelPrivilegeOpen  = 5;
+//     string  nickName            = 6;
+//     int64   userID              = 7;
+//     string  userLevel           = 8;
+// }
+// // PKGameOverNotify 中 END_TYPE
+// enum END_TYPE
+// {
+//     NATURAL = 0; // 自然结束
+//     MANUAL  = 1; // 手动结束
+// }
+
+// // PK开始
+// message PKStartNotify
+// {
+//     int64  endTime                 = 2; // 截止时间
+//     int32  pkType                  = 3; // 1 随机 2 段位 3 邀请
+//     string pkTopic                 = 4; // pk主题
+//     int64  peerId                  = 5; // 对方ID
+//     string peerUsername            = 6; // 对方用户名
+//     string peerHeaderImageOriginal = 7; // 对方头像
+//     int64  peerRank                = 8; // 对方段位
+//     int64  peerVictoryTimes        = 9; // 对方连胜次数
+//     string peerPullStreamAddress   = 10; // 对方拉流地址
+// }
+
+
+/*  暂时不搞,后期可能移到独立的包中
+
+//////////
+// 连麦相关
+//////////
+
+
+// 用户请求加入连麦队列
+message AudienceEnqueueReq  // srcid 观众 aimid 主播
+{}
+message AudienceEnqueueRsp
+{}
+
+
+// 用户取消连麦
+message AudienceDequeueReq  // srcid 观众 aimid 主播
+{}
+message AudienceDequeueRsp
+{}
+
+
+// 主播选好观众发起连麦
+message CallAudienceReq  // srcid: 主播 aimid: 观众
+{}
+message CallAudienceRsp
+{}
+
+
+// 观众响应是否接受邀请
+message AudienceAnswerReq // srcid 观众 aimid 主播
+{
+    ANSWER answer = 1;
+}
+message AudienceAnswerRsp
+{}
+
+
+// 主播与观众之间连麦结束
+message AudienceCallOverReq  // srcid 观众 aimid 主播
+{}
+message AudienceCallOverRsp
+{}
+
+
+// 主播A邀请主播B连麦
+message CallAnchorReq  // srcid: 主播A aimid: 主播B
+{}
+message CallAnchorRsp
+{}
+
+
+// 主播B响应主播A连麦请求
+message AnchorAnswerReq // srcid: 主播B aimid: 主播A
+{
+    ANSWER answer = 1;
+}
+
+message AnchorAnswerRsp
+{}
+
+
+// 主播与主播之间连麦结束
+message AnchorCallOverReq  // srcid 主叫方主播 aimid 被叫方主播
+{}
+message AnchorCallOverRsp
+{}
+
+
+// 连麦心跳 
+message CallHeartBeat
+{}
+
+*/
+
+
+
+/* 已经移到 pb_msg/pk_room包中
+
+/////////
+// PK相关
+/////////
+
+// 匹配PK
+
+// 主播申请加入随机PK请求
+message PKEnqueueReq
+{}
+
+message PKEnqueueRsp
+{}
+
+// 从PK队列中移除
+message PKDequeueReq
+{}
+
+message PKDequeueRsp
+{}
+
+
+// 主播响应是否接受随机创建的PK
+message PKAnswerReq{
+    ANSWER answer = 1;
+}
+message PKAnswerRsp
+{}
+
+
+
+// 主动结束PK,逃兵
+message PKOverReq  // srcid 主退主播 aimid 被退主播
+{}
+message PKOverRsp
+{}
+
+
+
+
+// 邀请PK
+
+// 主播A邀请主播B进行PK
+message PKInviteReq  // srcid 邀请方 aimid 被邀方
+{
+    int32 pkType = 1;
+}
+message PKInviteRsp
+{}
+
+
+// 邀请方取消PK邀请
+message PKInviteStopReq
+{}
+message PKInviteStopRsp
+{}
+
+// 被邀请方响应是否接受邀请
+message InvitePKAnswerReq
+{
+    ANSWER answer = 1;
+}
+
+message InvitePKAnswerRsp
+{}
+
+// PK心跳
+message PKHeartBeat
+{}
+
+
+enum ANSWER
+{
+    REFUSE = 0;  // 拒绝连麦
+    AGREE  = 1;  // 同意连麦
+}
+
+*/
+enum RoomType {
+    Unknow = 0;
+    Video  = 1;   // 视频房
+    Audio  = 2;   // 语音房
+    Party  = 3;   // 派对房
+}
+
+enum MAnchorRole{
+    Audience = 0;
+    Anchor   = 1;
+    Owner    = 2;
+    Manager  = 3;
+}
+
+//////////////////////////////////////////////////
+// 交友房消息定义 开始
+message MAnchorData {
+    int64 userId = 1;
+    int32 videoState = 2;
+    int32 audioState = 3;
+    string nickName = 4;
+    string avatar = 5;
+    int64 score = 6;
+    MAnchorRole mAnchorRole = 7;
+    // int32 level = 8;
+    string pullStreamUrl = 8;
+    int32 forbidState = 9; // 0 正常  >0 被禁麦(目前被禁麦=1  以后可根据需要拓展, 如: 1 被主持人禁麦 2 被房主禁麦 3 被超管禁麦)
+    string gender = 10; // 主播性别
+    string authAccess = 11; // 实名认证
+    int64 timestamp = 12; // 魅力值更新的时间
+    string streamId = 13; // 流ID
+    STREAM_STATE streamState = 14; // 流状态
+    int64 pkScore = 15; // PK贡献值
+    string userOnAnchorPendantUrl = 16; // 用户麦上挂件
+}
+
+message MWaitUser {
+    int64 userId = 1;
+    string nickName = 2;
+    string avatar = 3;
+    int32 level = 4;
+    int32 loc = 5;
+}
+
+message MAnchorScoreChangeNotify {
+    int64 score   = 1; // 贡献值变化通知
+    int64 actorId = 2; // 被送用户Id
+    int64 timestamp = 3; // 魅力值更新的时间
+}
+
+// 贡献榜变化通知
+message BillboardChangeNotify {
+    repeated Billboard users = 1;
+}
+message Billboard {
+    int32 actorGrade = 1;
+    string bigImageOriginal = 2;
+    string headerImageOriginal = 3;
+    bool isLiving = 4;
+    bool levelPrivilegeOpen = 5;
+    string nickName = 6;
+    int64 score = 7;
+    int64 userId = 8;
+    string userLevel = 9;
+}
+
+// 位置变化通知
+message MAnchorLocChangeNotify{
+    MAnchorData chair = 1;
+    // repeated MAnchorData Bentch = 2;
+    map<int32, MAnchorData> bentch = 2;
+}
+
+// 排队上麦列表变化通知
+// 位置变化通知
+message WaitBenchListChangeNotify{
+    repeated MWaitUser waitQue = 1;
+}
+
+// 主持人换的副播 
+// 使用 OnAnchor 代替
+// message ChairSwitchToAnchorReq{ // srcid: 自己, aimid: 房间id
+//     int32 anchorLoc = 1;
+//     pb_pub.ErrCode result = 2;
+// }
+// message ChairSwitchToAnchorRsp{
+//     pb_pub.ErrCode result = 1;
+// }
+
+// 自己下麦
+message OffAnchorReq{ // srcid: 自己, aimid: 房间id
+}
+message OffAnchorRsp{
+    pb_pub.ErrCode result = 1;
+}
+
+// 关闭房间,用老的 LiveStopReq 即可
+//message CloseLiveRoomReq{
+//}
+//message CloseLiveRoomRsp
+//{
+//    pb_pub.ErrCode result = 1;
+//}
+
+// 请求主持
+message OnChairReq{ // srcid: 自己, aimid: 房间id
+}
+message OnChairRsp{
+    pb_pub.ErrCode result = 1;
+    string errDesc = 2;
+}
+
+// 申请连麦
+message OnAnchorReq{ // srcid: 自己, aimid: 房间id
+    int32 loc = 1; // 麦位
+}
+message OnAnchorRsp{
+    // int32 AnchorLoc = 1; // 上播位置 0~5 为位置， -1 为在等待列表中
+    pb_pub.ErrCode result = 1;
+    string errDesc = 2;
+}
+
+// 观众申请连麦
+// message OnWaitReq {
+//     int32 loc = 1;
+// }
+
+// message OnWaitRsp {
+//     pb_pub.ErrCode result = 1;
+// }
+
+
+
+// 主持人上麦请求者
+message ChairManPutOnAnchorReq{ // srcid: 自己, aimid: 房间id
+    int64 aimId = 1;
+}
+message ChairManPutOnAnchorRsp{
+    int64 aimId = 1;
+    pb_pub.ErrCode result = 2;
+}
+// 上播通知到客户端
+message ChairManPutOnAnchorNotify{
+    int32 anchorLoc = 1;
+    int64 optId = 2;
+    int64 aimId = 3;
+}
+
+// 邀请上麦
+message ChairManInviteAudienceReq{ // srcid: 自己, aimid: 房间id
+    int64 inviteeId = 1;    // 被邀请者id
+    int64 inviterId = 2;    // 邀请者id
+    int64 roomId = 3; // 邀请房间id
+}
+message ChairManInviteAudienceRsp{
+    // int64 inviteeId = 1;
+    pb_pub.ErrCode result = 1;
+}
+
+// 客户端加入3T房间成功后发通知到服务端
+// Result = ErrCode_SUCCESS 则同步sei到三T， 否则为推流失败，下麦该用户
+message Enter3TChannelResultNotifyToServer{
+    pb_pub.ErrCode Result = 1;  // 0 进入成功，其他失败原因
+}
+
+enum AnswerType{
+    Agree = 0;
+    Refuse = 1;
+}
+
+// 邀请应答
+message ChairManInviteAudienceAnswerReq{ // srcid: 自己, aimid: 房间id
+    int64 inviteeId = 1;    // 被邀请者i
+    int64 inviterId = 2;    // 邀请者id
+    AnswerType answerType = 3;
+}
+message ChairManInviteAudienceAnswerRsp{
+    int32 anchorLoc = 1; // 上播位置 0~5 为位置， -1 为在等待列表中
+    pb_pub.ErrCode result = 2;
+}
+
+// 主持人下麦副播
+message ChairManOffAnchorReq{ // srcid: 自己, aimid: 房间id
+    int64 aimId = 1;
+}
+message ChairManOffAnchorRsp{
+    // int64 aimId = 1;
+    pb_pub.ErrCode result = 1;
+}
+// 下播通知到客户端
+message ChairManOffAnchorNotify{
+    int64 aimId = 1;
+}
+
+// 场景恢复
+message RecoverLiveRoomReq { // srcid: 自己, aimid: 房间id
+}
+
+message RecoverLiveRoomRsp {
+    pb_pub.ErrCode result = 1;
+}
+
+message VideoStateChangeNotify{ // srcid: 自己, aimid: 房间id
+    int32 state  = 1; // 0 关 1 开
+}
+message AudioStateChangeNotify{ // srcid: 自己, aimid: 房间id
+    int32 state  = 1; // 0 关 1 开
+}
+
+// 发表情
+message RoomMsgExpression{ // srcid: 自己, aimid: 房间id
+    int32      expressionId = 1;
+    int32      loc          = 2;
+    map<string, string> exp = 3;
+}
+
+// 交友房消息定义 结束
+//////////////////////////////////////////////////
+
+//////////////////////////////////////////////////
+// 到后端java接口
+// 开房间认证接口
+//http://x.x.x/liveshowcenter/api/yz/live_start_auth
+// message LiveStartAuthReq {
+//     int64 auchorId = 1;
+//     RoomType roomType = 2;
+// }
+// message LiveStartAuthRsp {
+// 	int32 liveMode = 1;
+// 	int32 streamType = 2;
+// 	string pushStreamAddress = 3;
+// 	string coverImage  = 4;
+// 	string unPassReason  = 5;
+// 	string coverStatus  = 6;
+// 	bool canLiveStatus = 7;
+// 	string message  = 8;
+// }
+
+// 通知结构
+// message MRoomNotifyJavaReq {
+//     int64 RoomId = 1;   // 房间id
+//     // int64 OptId = 2;    // 操作者id
+//     int64 AnchorId = 3; // 主播id
+//     int64 Time = 4;     // 操作时间
+// }
+// message MRoomNotifyJavaRsp {
+// }
+
+// 上麦认证
+// message TSOnAnchorAuthReq{
+//     int64 RoomId = 1;
+//     int64 UserId = 2;
+// }
+
+// message TSOnAnchorAuthRsp{
+//     // int64 RoomId = 1;
+//     // int64 UserId = 2;
+//     int32 result = 3; // 错误码， 0 成功，其他错误
+//     MAnchorRole Role = 4; // 角色
+// }
+
+
+// 到后端java接口 结束
+
+//////////////////////////////////////////////////
+// 使用roomInfo替代
+// message RecoverLiveRoomNotify {
+//     RoomInfo          roomInfo = 1;
+//     map<string,bytes> exp      = 2;
+// }
+
+message KickUserOutNotify {
+    int64 userId = 1; // 被踢用户ID
+}
+
+
+/////////////////////////////////////////////////////////////////////
+// 多人房优化新增
+
+// 禁麦
+message ForbidStateChangeNotify {
+    int64 aimId = 1; // 被禁用户ID
+    int32 state = 2; // 状态
+}
+
+// 多主播礼物消息
+message LiveGiftNotify {
+    UserProp sender = 1;
+    RoomType roomType = 2;
+    enum SendType {
+        SINGLE = 0;
+        MULTI = 1;
+    }
+    SendType sendType = 3;
+    repeated Receiver receivers = 4;
+    LiveGift gift = 5;
+}
+
+message Receiver {
+    int64 actorId = 1; // 收礼人ID
+    string actorName = 2; // 收礼人名字
+    map<string, string> exp = 3; // 礼物中不同主播的个性化数据拓展
+    string headerImageOriginal = 4; // 收礼人头像
+}
+
+message LiveGift {
+    int64 giftId = 1; // 礼物ID
+    int64 giftNumber = 2; // 送礼数量
+    int32 giftType = 3; // 礼物类型 0：普通礼物 1：幸运礼物 2：福袋 3：钓鱼 4：幸运补偿
+    int64 giftConfLastUpdateTime = 4; // 缓存时间
+    int32 batteryType = 5; // 单词连击的个数
+    repeated int64 batteryTypeList = 6; // 每次连击的个数数组
+    map<string, string> exp = 7; // 扩展字段
+}
+
+// 多主播魅力值更新
+message MultiAnchorScoreChangeNotify {
+    message Anchor {
+        int64 score   = 1; // 魅力值
+        int64 actorId = 2; // 主播Id
+        int64 timestamp = 3; // 魅力值更新的时间
+    }
+    repeated Anchor anchors = 1;
+}
+
+// 金主变更通知
+message InvestorChangeNotify {
+    int64  userId = 1;
+    string nickName = 2;
+    string headerImageOriginal = 3;
+    bool   levelPrivilegeOpen = 4;
+}
+
+message BackgroundChangeNotify {
+    string dynamicBackgroundImage = 1;
+}
+
+message HandDrawnGiftNotify {
+    UserProp sender = 1;
+    RoomType roomType = 2;
+    enum SendType {
+        SINGLE = 0;
+        MULTI = 1;
+    }
+    SendType sendType = 3;
+    repeated Receiver receivers = 4;
+    message HandDrawnGift {
+        int32 giftId = 1;
+        repeated float path = 2;
+        int64 giftConfLastUpdateTime = 3;
+    }
+    int64 screenWidth = 5;
+    int64 screenHeight = 6;
+    repeated HandDrawnGift gifts = 7;
+}
+
+
+/////////////////////////////////////////
+// 即构
+
+
+// 流状态通知
+message StreamStateChangeNotify { 
+    STREAM_STATE state = 1;
+    string streamId = 2;
+}
+
+enum STREAM_STATE {
+    CLOSED = 0;
+    CREATED = 1;
+}

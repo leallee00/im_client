@@ -1,0 +1,19 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_grpc/black_list";
+package pb_grpc_blackList;
+
+import "pb_msg/black_list/blackList.proto";
+
+service BlackList{
+    // 加入黑名单
+    rpc SaveBlackList(pb_msg_blackList.SaveBlackListReq) returns (pb_msg_blackList.SaveBlackListRsp) {}
+
+    // 读取黑名单列表
+    rpc ReadBlackList(pb_msg_blackList.ReadBlackListReq) returns (pb_msg_blackList.ReadBlackListRsp) {}
+
+    // 从黑名单移除
+    rpc DeleteBlackList(pb_msg_blackList.DeleteBlackListReq) returns (pb_msg_blackList.DeleteBlackListRsp) {}
+
+    // 判断aimuser是否在srcuser的黑名单列表中
+    rpc JudgeBlackList(pb_msg_blackList.JudgeBlackListReq) returns (pb_msg_blackList.JudgeBlackListRsp) {}
+}

@@ -1,0 +1,69 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/groups";
+package pb_msg_groups;
+
+
+import "pb_pub/comm.proto";
+
+// srcid 发消息的id
+// aimid 群id
+
+message CreateGroupReq{}
+message CreateGroupRsp{
+	int64 groupId = 1;
+}
+
+message DeleteGroupReq{}
+message DeleteGroupRsp{}
+
+message AddMemberReq{
+	int64 userId = 1;
+}
+message AddMemberRsp{}
+
+message RemoveMemberReq{
+	int64 userId = 1;
+}
+message RemoveMemberRsp{}
+
+message UpdateMemberReq{
+	bool online = 1;
+	string addr = 2;
+}
+message UpdateMemberRsp{}
+
+message UpdateUserReq{
+	bool online = 1;
+	string addr = 2;
+}
+message UpdateUserRsp{}
+
+// message UserOfflineReq{}
+// message UserOfflineRsp{}
+
+// 使用 aimid 查
+message GroupMembersReq{}
+message GroupMembersRsp{
+	repeated int64 members = 1;
+}
+
+// 使用 srcid 查
+message MemberGroupsReq{}
+message MemberGroupsRsp{
+	repeated int64 groups = 2;
+}
+
+// groupid 是业务的group
+// aimid 填本服务的groupid
+message GroupMessageReq{
+	string pbName = 1;
+    bytes pbData = 2;
+}
+message GroupMessageRsp{}
+
+message Member {
+	int64 id = 1;
+	pb_pub.CLIENT_TYPE client = 2;
+	bool online = 3;
+	string addr = 4;
+}

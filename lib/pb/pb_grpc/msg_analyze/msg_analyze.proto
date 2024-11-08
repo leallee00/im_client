@@ -1,0 +1,16 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_grpc/msg_analyze";
+package pb_grpc_msgAnalyze;
+
+import "pb_msg/msg_analyze/msg_analyze.proto";
+
+service msgAnalyze {
+    // 获取历史消息
+    rpc ReadMsgHistory(pb_msg_msgAnalyze.ReadMsgHistoryReq) returns (pb_msg_msgAnalyze.ReadMsgHistoryRsp) {}
+    // 获取有用户会话
+    rpc ChatSessions(pb_msg_msgAnalyze.ChatSessionsReq) returns (pb_msg_msgAnalyze.ChatSessionsRsp) {}
+    // 获取有历史聊天消息
+    rpc ChatHistories(pb_msg_msgAnalyze.ChatHistoriesReq) returns (pb_msg_msgAnalyze.ChatHistoriesRsp) {}
+    // 聊天统计
+    rpc ChatStats(pb_msg_msgAnalyze.ChatStatsReq) returns (pb_msg_msgAnalyze.ChatStatsRsp) {}
+}

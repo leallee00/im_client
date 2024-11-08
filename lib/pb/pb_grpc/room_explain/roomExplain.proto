@@ -1,0 +1,11 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_grpc/room_explain";
+package pb_grpc_roomExplain;
+
+import "pb_msg/room_explain/room_explain.proto";
+
+service RoomExplain{
+    // 获取房间消息数
+    rpc GetRoomExplain(pb_msg_room_explain.RoomExplainReq) returns (pb_msg_room_explain.RoomExplainRsp){}
+    rpc GetSrcUserExplain(pb_msg_room_explain.SrcUserExplainReq) returns (pb_msg_room_explain.SrcUserExplainRsp){}
+}

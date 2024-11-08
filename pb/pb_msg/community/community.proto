@@ -1,0 +1,892 @@
+syntax = "proto3";
+
+option go_package = "github.com/leallee00/pb/pb_msg/community";
+package pb_msg_community;
+
+
+/////////////////////////////////////////////////////////////////////////////
+// 模型及相关写操作
+
+// 关联类型枚举
+enum RefType {
+	UNKNOWN = 0;
+	POST = 1;	// 帖子
+	COMMENT = 2; // 评论
+	REPLY = 3; // 回复
+	VIDEO = 4; // 视频
+	IMAGE = 5; // 图片
+	AUDIO = 6; // 音频
+	VOTE = 7; // 投票
+	LINK = 8; // 链接
+}
+
+// 点赞类型枚举
+enum LikeType {
+	UP = 0; // 顶
+	DOWN = 1; // 踩
+	A = 2; 	// 表情A
+	B = 3;	// 表情B
+	C = 4;	// 表情C
+	D = 5;	// 表情D
+}
+
+// Topic 话题模型
+message Topic {
+	int64 id = 1;
+	int64 createAt = 2; // 创建时间
+	string name = 3; // 话题名称
+	string cover = 4; // 话题封面
+	int64 count = 5; // 引用该话题的帖子数
+}
+
+message AddTopicReq{
+    int64 parentId = 1;  // 父话题id
+	string name = 2; // 话题名称
+	string  cover = 3; // 话题封面
+}
+message AddTopicRsp{}
+
+message AddGiftReq{
+    int64 price = 1;   // 礼物价格
+	string url = 2;    // 礼物图片
+	string name = 3;   // 礼物名称
+}
+
+message AddGiftRsp{}
+
+
+//////////////////////////////////////////////////////////////////////////////////////
+// 社区管理相关接口
+
+enum JoinType {
+	FREE = 0; // 自由加入
+	APPLY = 1; // 申请方式
+	PASSWORD = 2; // 密码方式
+	ANSWER = 3; // 答题方式
+}
+
+// Community 社区
+message Community {
+	int64 id = 1;
+	int64 createAt = 2;
+	string name = 3;      // 圈子名称
+	string avatar = 4;    // 圈子头像
+	string describe = 5;  // 圈子描述
+	string positiveRules = 6;  // 正向话题规则,服务端存储为string,客户端处理
+	string negativeRules = 7;  // 负向话题规则,服务端存储为string,客户端处理
+	JoinType joinType = 8; // 入团方式
+	// bool freeJoin = 10;        // 0. 是否开启自由入团
+	// bool applyJoin = 11;       // 1. 是否开启申请入团,如果开启自由入团此种方式无效
+	bool inviteJoin = 12;      // 2. 是否开启邀请入团
+	// bool passwordJoin = 13;    // 3. 是否开启口令入团,如果开启自由入团此种方式无效
+	// bool answerJoin = 14;      // 4. 是否开启答题入团,如果开启自由入团此种方式无效
+	string password = 20;      // 入团口令,开启口令入团时有效
+	string question = 21;      // 入团问题,答题入团时有效
+	string answer = 22;        // 入团答案,答题入团时有效
+}
+
+// 创建社团
+message CreateCommunityReq{
+	string name = 1;      // 圈子名称
+	string avatar = 2;    // 圈子头像
+	string describe = 3;  // 圈子描述
+	string positiveRules = 4;  // 正向话题规则,服务端存储为string,客户端处理
+	string negativeRules = 5;  // 负向话题规则,服务端存储为string,客户端处理
+	JoinType joinType = 6; // 入团方式
+	// bool freeJoin = 10;        // 是否开启自由入团
+	// bool applyJoin = 11;       // 是否开启申请入团,如果开启自由入团此种方式无效
+	bool inviteJoin = 12;      // 是否开启邀请入团
+	// bool passwordJoin = 13;    // 是否开启口令入团,如果开启自由入团此种方式无效
+	// bool answerJoin = 14;      // 是否开启答题入团,如果开启自由入团此种方式无效
+	string password = 20;      // 入团口令,开启口令入团时有效
+	string question = 21;      // 入团问题,答题入团时有效
+	string answer = 22;        // 入团答案,答题入团时有效
+}
+
+message CreateCommunityRsp{
+	Community community = 1;
+}
+
+message UpdateCommunityReq{
+	Community community = 1;
+	repeated string keys = 2; // 更新的字段
+}
+message UpdateCommunityRsp{}
+
+// 申请入团
+message ApplyJoinReq{}
+message ApplyJoinRsp{}
+
+// 答复入团申请
+message AnswerApplyReq{
+	bool agree = 1;
+}
+message AnswerApplyRsp{}
+
+// 邀请入团
+message InviteJoinReq{
+	repeated User invitees = 1;
+}
+message InviteJoinRsp{}
+
+// 答复入团邀请
+message AnswerInviteReq{
+	bool agree = 1;
+}
+message AnswerInviteRsp{}
+
+// 自由加入,口令加入,答题加入
+// username 和 avatar 自带吧
+message JoinCommunityReq{
+	string username = 1;
+	string avatr = 2;
+	string answer = 3;
+	string password = 4;
+}
+message JoinCommunityRsp{}
+
+// 退出社团
+message QuitCommunityReq{}
+message QuitCommunityRsp{}
+
+message UserCommunitiesReq{
+	int64 offset = 1;
+	int64 count = 2;
+	int64 userId = 3;
+}
+message UserCommunitiesRsp{
+	repeated Community communities = 1;
+}
+
+message AllCommunitiesReq{
+	int64 offset = 1;
+	int64 count = 2;
+	string keyWord = 3;
+}
+
+message AllCommunitiesRsp{
+	repeated Community communities = 1;
+}
+
+message CommunityDetailReq{}
+message CommunityDetailRsp{
+	Community community = 1;
+}
+
+message Member {
+	int64 appId = 1;
+	string appUserId = 2;
+	int64 userId = 3;
+	string username = 4;     // 名称
+	string avatar = 5;       // 头像
+	int32 role = 6;          // 角色
+}
+
+message MembersReq{}
+message MembersRsp{
+	repeated Member members = 1;
+}
+
+message UpdateMemberReq{
+	Member member = 1;
+	repeated string keys = 2; // 更新的字段
+}
+message UpdateMemberRsp{}
+
+
+
+
+// Video 视频模型
+message Video {
+	int64 id = 1;
+	string url = 2;       // 视频地址
+	int64 Plays = 3;      // 播放总量
+	int64 Barrages = 4;   // 弹幕总量
+}
+
+// Image 图片模型
+message Image {
+	int64 id = 1;
+    string url = 2; // 图片地址
+    repeated Tag tags = 3; // 图片标签
+}
+
+// Tag 图片标签
+message Tag {
+	int64 id = 1;
+	int32 type = 2; // 标签类型, 服务端只存储,由客户端定义和解析
+    string content = 3; // 标签内容, 先判断类型再解析内容
+    int64 x = 4; // 标签所在位置的x轴
+	int64 y = 5; // 标签所在位置的y轴
+}
+
+// Audio 音频模型
+message Audio {
+	int64 id = 1;
+	string url = 2; // 音频地址
+	string cover = 3; // 封面地址
+}
+
+// Link 链接模型
+message Link {
+	int64 id = 1;
+	string name = 2;     // 链接名称
+	string url = 3;      // 链接地址
+}
+
+// Vote 投票模型
+message Vote {
+	int64 id = 1;
+    string content = 2;  // 投票主题
+    repeated Option options = 3; // 投票选项
+}
+
+// Option 投票选项
+message Option {
+	int64 id = 1;
+	string content = 2; // 选项内容
+	int64 count = 3;    // 总数
+}
+
+
+// Post 帖子模型
+message Post {
+	int64 id = 1;
+	int64 createAt = 2;
+
+	int64 topicId = 3; // 话题id
+	string topicName = 4; // 话题名称
+
+	int64 appId = 5; // 平台id
+	int64 userId = 6;       // 用户ID
+	string appUserId = 7;
+	string username = 8;     // 名称
+	string avatar = 9;       // 头像
+
+	string content = 10;      // 内容
+
+	int64 communityId = 11; // 社团id
+	string communityName = 12; // 社团名称
+
+	repeated Video videos = 20;        // 视频列表
+	repeated Image images = 21;        // 图片列表
+	repeated Audio audios = 22;        // 音频列表
+	repeated Link links = 23;         // 链接列表
+	repeated Vote votes = 24;         // 投票列表
+
+	int64 likes = 30;         // 点赞总数
+	int64 likeas = 31;        // 表情a总数
+	int64 likebs = 32;        // 表情b总数
+	int64 likecs = 33;        // 表情c总数
+	int64 likeds = 34;        // 表情d总数
+	int64 shares = 35;        // 分享总数
+	int64 watchs = 36;        // 插眼总数
+	int64 comments = 37;      // 评论总数
+
+	bool award = 50;          // 是否开启打赏
+	int64 awards = 51;        // 打赏总额
+
+	repeated Comment topComments = 60; // 热门评论 1条
+}
+
+
+// 发布帖子
+message PostReq{
+	int64 topicId = 1;  // 话题ID
+	string topicName = 2;
+    string content = 3; // 内容
+    bool award = 4; // 是否开启打赏
+    repeated Video videos = 5; // 视频列表
+    repeated Audio audios = 6; // 音频列表
+    repeated Image images = 7; // 图片列表
+    repeated Vote votes = 8; // 投票列表
+    repeated Link links = 9; // 连接列表
+	int64 communityId = 10; // 社团id
+	string communityName = 11; // 社团名称
+}
+message PostRsp{}
+
+// Comment 评论模型
+message Comment {
+	int64 id = 1;
+	int64 createAt = 2;
+
+	int64 appId = 3; // 平台id
+	int64 userId = 4;
+	string appUserId = 5;
+	string username = 6;
+	string avatar = 7;
+
+	int64 refId = 8;
+	int32 refType = 9;
+	string content = 10; // 评论内容
+	bool stamped = 11;   // 是否是神评
+
+	repeated Video videos = 20;        // 视频列表
+	repeated Image images = 21;        // 图片列表
+	repeated Audio audios = 22;        // 音频列表
+
+	int64 likes = 30;  // 点赞得分
+	int64 shares = 31;  // 分享总数
+	int64 watchs = 32;  // 插眼总数
+	int64 replies = 33;  // 回复总数
+
+	repeated Reply topReplies = 41; // 热门回复 2条
+}
+
+// 发表评论
+message CommentReq{
+    int64 refId = 1;
+	int32 refType = 2;
+    string content = 3; // 内容
+    repeated Video videos = 4; // 视频列表
+    repeated Audio audios = 5; // 音频列表
+    repeated Image images = 6; // 图片列表
+}
+message CommentRsp{
+	Comment comment = 1;
+}
+
+// Reply 回复模型
+message Reply {
+	int64 id = 1;
+	int64 createAt = 2;
+
+	int64 appId = 3;
+	int64 userId = 4;
+	string appUserId = 5;
+	string username = 6;
+	string avatar = 7;
+
+	int64 commentId = 8;  // 评论ID
+	string content = 9; // 评论内容
+	int64 talkId = 10;  // 对话ID
+	int64 toAppId = 11;
+	int64 toUserId = 12; // 被回复用户ID
+	string toAppUserId = 13;
+	string toUsername = 14; // 被回复用户名
+
+	repeated Video videos = 20;        // 视频列表
+	repeated Image images = 21;        // 图片列表
+	repeated Audio audios = 22;        // 音频列表
+
+	int64 Likes = 31;  // 点赞得分
+}
+
+// 回复
+// 如果是回复>评论 TalkId ToUserId ToUsername 三项为零值
+// 如果是回复>回复 TalkId 是被回复的回复ID, ToUserId ToUsername 是被回复的用户ID和用户名
+// 如果是回复>回复的回复 TalkId 是被回复的回复的TalkId, ToUserId ToUsername 是被回复的用户ID和用户名
+// 相对于评论没有插眼,没有恢复,没有分享
+message ReplyReq{
+	string content = 1;         // 内容
+	// int32 refType = 2;
+	// int64 refId = 3;
+	int64 commentId = 2;        // 评论ID
+	int64 talkId = 3;           // 对话ID
+
+	// 被回复用户信息
+	int64 toAppId = 10;
+	int64 toUserId = 11;        // 被回复用户ID
+	string toAppUserId = 12;        // 被回复用户ID
+	string toUsername = 13;      // 被回复用户名
+
+    repeated Video videos = 20;
+    repeated Audio audios = 21;
+    repeated Image images = 22;
+}
+message ReplyRsp{
+	Reply reply = 1;
+}
+
+
+// // Like 点赞记录
+// type Like struct {
+// 	Base     `xorm:"extends"`
+// 	UserId   string
+// 	Username string
+// 	Avatar   string
+// 	RefId    int64
+// 	RefType  int32
+// 	Type     int32
+// }
+
+
+// Barrage 视频弹幕
+// TODO 如果弹幕有交互操作也应返回id,暂不考虑
+message Barrage {
+	// UserId  string
+	// RefId   int64
+	// RefType int32
+	string content = 1; // 弹幕内容
+	int64 playAt = 2;  // 时间偏移
+	string font = 3; // 为了减小体积 简单处理 逗号分隔 客户单处理 服务端可提供配置
+}
+
+// 发弹幕
+message ShootReq{
+    int64 refId = 1;
+	int32 refType = 2;
+	string content = 3;
+	int64 playAt = 4; // 弹幕偏移,播放的时间点
+	string font = 5; // 弹幕字体,服务端只存储,客户端定义,客户端解析
+}
+message ShootRsp{}
+
+
+
+
+// 点赞, 下面类似的操作用户信息直接有客户端传递,原因:
+//  1. 主要是为了减少一次网络请求,因为这类操作非常频繁
+//  2. 相对评论和回复这类操作权限控制相对较弱,可以信任客户端
+message LikeReq{
+	// int64 appId = 1;
+	// int64 userId = 2;
+	// string appUserId = 3;
+	string username = 1; // 用户名
+	string avatar = 2; // 用户头像
+	int64 refId = 3; // 点赞对象的id
+	int32 refType = 4; // 枚举: RefType
+	int32 type = 5; // 枚举: LikeType
+}
+message LikeRsp{}
+
+message UnlikeReq{
+    int64 refId = 1;
+	int32 refType = 2;
+	int32 type = 3; // 取消的点赞类型
+}
+message UnlikeRsp{}
+
+// 分享
+message ShareReq{
+    int64 refId = 1;
+	int32 refType = 2;
+}
+message ShareRsp{}
+
+
+// Ballot 投票记录
+message Ballot {
+	// Base     `xorm:"extends"`
+	// UserId   string
+	// Username string
+	// Avatar   string
+	int64 voteId = 1; // 投票的id
+	int64 optionId = 2; // 选项的id
+}
+
+// 投票
+message VoteReq{
+	// int64 appId = 1; // 平台id
+	// int64 userId = 2;
+	// string appUserId = 3;
+	string username = 1; // 用户名称
+	string avatar = 2; // 用户头像
+	int64 postId = 3; // 帖子id
+	int64 voteId = 4; // 投票id
+	int64 optionId = 5; // 投票选项id
+}
+message VoteRsp{}
+
+
+// // Watch 插眼记录
+// type Watch struct {
+// 	Base    `xorm:"extends"`
+// 	UserId  string
+// 	RefId   int64
+// 	RefType int32
+// }
+
+// 插眼
+message WatchReq{
+    int64 refId = 1;
+	int32 refType = 2;
+}
+message WatchRsp{}
+
+// 取消插眼
+message UnwatchReq{
+    int64 refId = 1;
+	int32 refType = 2;
+}
+message UnwatchRsp{}
+
+// // Award 打赏记录
+// type Award struct {
+// 	Base       `xorm:"extends"`
+// 	UserId     string
+// 	Username   string
+// 	Avatar     string
+// 	RefId      int64
+// 	RefType    int32
+// 	GiftId     int64
+// 	GiftNumber int64
+// 	GiftPrice  int64
+// }
+
+// 打赏
+message AwardReq{
+    int64 refId = 1;
+	int32 refType = 2;
+	int64 giftId = 3;
+	int64 giftNumber = 4;
+	int64 giftPrice = 5;
+}
+message AwardRsp{}
+
+
+// // Favorite 收藏记录
+// type Favorite struct {
+// 	Base    `xorm:"extends"`
+// 	UserId  string
+// 	RefId   int64
+// 	RefType int32
+// }
+
+// 收藏
+message FavoriteReq{
+    int64 refId = 1;
+	int32 refType = 2;
+}
+message FavoriteRsp{}
+
+// 取消收藏
+message UnfavoriteReq{
+    int64 refId = 1;
+	int32 refType = 2;
+}
+message UnfavoriteRsp{}
+
+// // Follow 关注记录
+// type Follow struct {
+// 	Base             `xorm:"extends"`
+// 	FollowerId       string
+// 	FollowerUsername string
+// 	FollowerAvatar   string
+// 	FolloweeId       string
+// 	FolloweeUsername string
+// 	FolloweeAvatar   string
+// }
+
+// 观众用户
+message FollowReq{
+	// 用户信息
+	string followerUsername = 1;
+	string followerAvatar = 2;
+	// 被关注者信息
+	int64 followeeAppId = 3;
+	int64 followeeUserId = 4;
+	string followeeAppUserId = 5;
+	string followeeUsername = 6;
+	string followeeAvatar = 7;
+}
+message FollowRsp{}
+
+// 取消关注
+message UnfollowReq{
+	int64 followeeAppId = 1;
+	int64 followeeUserId = 2;
+	string followeeAppUserId = 3;
+}
+message UnfollowRsp{}
+
+
+// // Participate 参与记录
+// type Participate struct {
+// 	Base    `xorm:"extends"`
+// 	UserId  string
+// 	TopicId int64
+// }
+
+
+// 加入话题
+message ParticipateReq{
+    int64 topicId = 1;
+}
+message ParticipateRsp{}
+
+// 退出话题
+message UnparticipateReq{
+    int64 topicId = 1;
+}
+message UnparticipateRsp{}
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+// 读操作
+
+// 帖子列表查询,支持多种查询方式
+message PostsReq{
+	// 查询类型
+	enum Type {
+		Community = 0; // groupid指定的圈子的帖子
+		Followee = 1; // srcid指定的用户关注的用户或圈子的帖子
+		Recommend = 2; // 推荐的帖子
+	}
+	Type type = 1;
+
+	// 过滤, and关系
+	bool video = 11; // 必须包含视频
+	bool image = 12; // 必须包含图片
+	bool audio = 13; // 必须包含音频
+	bool vote = 14; // 必须包含投票
+	bool link = 15; // 必须包含链接
+
+ 	// 排序方式枚举
+	enum Order {
+		New = 0; // 最新
+		Hot = 1; // 最热
+	}
+	Order order = 21; // 列表牌型方式
+	int64 offset = 22; // 起始位置
+	int64 count = 23; // 数量
+}
+message PostsRsp{
+	repeated Post posts = 1;
+}
+
+// message FollowPostsReq{}
+// message FollowPostsRsp{}
+
+// message VideoPostsReq{}
+// message VideoPostsRsp{}
+
+// message ImagePostsReq{}
+// message ImagePostsRsp{}
+
+message PostDetailReq{
+	int64 postId = 1;
+}
+message PostDetailRsp{
+	Post post = 1;
+	repeated Comment comments = 2;
+}
+
+message CommentsReq{
+	int64 refId = 1;
+	int32 refType = 2;
+	enum Order { // 排序方式枚举
+		New = 0; // 最新
+		Hot = 1; // 最热
+	}
+	Order order = 10; // 排序类型
+	int64 offset = 11; // 起始位置
+	int64 count = 12; // 数量
+}
+message CommentsRsp{
+	repeated Comment comments = 1;
+}
+
+message CommentDetailReq{
+	int64 commentId = 1;
+}
+message CommentDetailRsp{
+	Comment comment = 1;
+	repeated Reply replies = 2;
+}
+
+message RepliesReq{
+	int64 commentId = 1;
+	int64 talkId = 2; // 对话Id
+	enum Order { // 排序方式枚举
+		New = 0; // 最新
+		Hot = 1; // 最热
+	}
+	Order order = 10; // 排序类型
+	int64 offset = 11; // 起始位置
+	int64 count = 12; // 数量
+}
+message RepliesRsp{
+	repeated Reply replies = 1;
+}
+
+message BarragesReq{
+	int64 refId = 1;
+	int32 refType = 2;
+	int64 playAt = 3;  // 时间偏移
+}
+message BarragesRsp{
+	repeated Barrage barrages = 1;
+}
+
+
+
+// 我的视角
+
+// 携带评论对象的评论,用于从我的视角展示评论
+message CommentRef {
+	Comment comment = 1;
+	Post post = 2;
+	// 这里目前只有帖子支持评论,如果有新的内容支持评论,比如视频,则拓展消息如下
+	// 如果视频也支持评论,客户端取到消息后可根据comment.RefType判断此条评论的对象
+	// Video video = 3;
+}
+
+// 这里是链: 帖子->评论->视频 (我的视角查询时反向引用)
+message VideoRef {
+	Video video = 1;
+	Post post = 2;
+	CommentRef comment = 3;
+}
+
+// message AudioRef {
+// 	Video video = 1;
+// 	Post post = 2;
+// }
+
+// message ImageRef {
+// 	Video video = 1;
+// 	Post post = 2;
+// }
+
+message BallotRef {
+	Ballot ballot = 1;
+	Vote vote = 2;
+	Post post = 3;
+}
+
+// 我的视角查询内容采用客户端缓存加增量同步的策略优化用户体验,降低服务端压力
+
+
+// 我的帖子
+message UserPostsReq {
+	int64 offset = 1;
+	int64 count = 2;
+	int64 userId = 3;
+}
+message UserPostsRsp {
+	repeated Post posts = 1;
+}
+
+// 我的评论
+message UserCommentsReq {
+	int64 offset = 1;
+	int64 count = 2;
+	int64 userId = 3;
+}
+message UserCommentsRsp {
+	repeated CommentRef comments = 1;
+}
+
+
+// 我的插眼
+message UserWatchsReq {
+	int64 offset = 1;
+	int64 count = 2;
+	int64 userId = 3;
+}
+message UserWatchsRsp {
+	repeated CommentRef comments = 1;
+	repeated Post posts = 2;
+}
+
+
+// 我的点赞
+message UserLikesReq {
+	int64 offset = 1;
+	int64 count = 2;
+	int64 userId = 3;
+}
+message UserLikesRsp {
+	repeated Post posts = 1;
+	repeated CommentRef comments = 2;
+	repeated VideoRef videos = 3;
+}
+
+
+// 关注视角用户
+message User {
+	int64 appId = 1;
+	int64 userId = 2;
+	string appUserId = 3;
+	string username = 4;
+	string avatar = 5;
+}
+
+// 关注我的
+message UserFollowersReq {
+	int64 offset = 1;
+	int64 count = 2;
+	int64 userId = 3;
+}
+message UserFollowersRsp {
+	repeated User followers = 1;
+}
+
+// 我的关注
+message UserFolloweesReq {
+	int64 offset = 1;
+	int64 count = 2;
+	int64 userId = 3;
+}
+message UserFolloweesRsp {
+	repeated User followees = 1;
+}
+
+// 我的收藏
+message UserFavoritesReq {
+	int64 offset = 1;
+	int64 count = 2;
+	int64 userId = 3;
+}
+message UserFavoritesRsp {
+	repeated Post posts = 1;
+}
+
+// 我参与的话题
+message UserParticipatesReq {
+	int64 offset = 1;
+	int64 count = 2;
+	int64 userId = 3;
+}
+message UserParticipatesRsp {
+	repeated Topic topics = 1;
+}
+
+// 我的投票记录
+message UserBallotsReq {
+	int64 offset = 1;
+	int64 count = 2;
+	int64 userId = 3;
+}
+message UserBallotsRsp {
+	repeated BallotRef ballots = 1;
+}
+
+// 我的文件
+message UserFilesReq {
+	int64 offset = 1;
+	int64 count = 2;
+	int64 userId = 3;
+}
+message UserFilesRsp {
+	repeated Video videos = 1;
+	repeated Image images = 2;
+	repeated Audio audios = 3;
+}
+
+// 我的打赏
+message UserAwardsReq {
+	int64 offset = 1;
+	int64 count = 2;
+	int64 userId = 3;
+}
+message UserAwardsRsp {}
+
+
+// 我的部分信息
+message UserInfoReq {
+	int64 userId = 1;
+}
+
+message UserInfoRsp {
+	// 获赞
+	string like = 1;
+	// 关注
+	string follow = 2;
+	// 粉丝
+	string follower = 3;
+}

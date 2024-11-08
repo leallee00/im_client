@@ -1,0 +1,156 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_grpc/commim_uaa";
+
+// import "google/protobuf/any.proto";
+ import "pb_pub/comm.proto";
+import "pb_msg/commim_uaa/commim_uaa.proto";
+// import "pb_msg/gate/gate.proto";
+// import "pb_grpc/live_room/live_room.proto";
+
+package pb_grpc_commim_uaa;
+
+service UAA {
+    // Singup .
+    // rpc Singup (pb_msg_commim_uaa.SingupReq) returns (pb_msg_commim_uaa.SingupRsp);
+
+    // 检查账号是否存在
+    rpc CheckAccountExist(pb_msg_commim_uaa.CheckAccountExistReq) returns (pb_msg_commim_uaa.CheckAccountExistRsp);
+
+    // 获取手机验证码，每日限制次数，输入图形验证码
+    rpc SendPhoneCode(pb_msg_commim_uaa.SendPhoneCodeReq) returns (pb_pub.CommRsp);
+
+    // 获取邮箱验证码，每日限制次数，输入图形验证码
+    rpc SendEmailCode(pb_msg_commim_uaa.SendEmailCodeReq) returns (pb_pub.CommRsp);
+
+    // 注册
+    rpc Signup (pb_msg_commim_uaa.SignupReq) returns (pb_msg_commim_uaa.SignupRsp);
+
+    // Login .
+    rpc Login (pb_msg_commim_uaa.LoginReq) returns (pb_msg_commim_uaa.LoginRsp);
+    // UpdateUserInfo .
+    rpc UpdateUserInfo (pb_msg_commim_uaa.UpdateUserInfoReq) returns (pb_msg_commim_uaa.UpdateUserInfoRsp);
+    // UserInfo .
+    rpc UserInfo (pb_msg_commim_uaa.UserInfoReq) returns (pb_msg_commim_uaa.UserInfoRsp);
+    // // UpdateUserRole .
+    // rpc UpdateUserRole (pb_msg_commim_uaa.UpdateUserRoleReq) returns (pb_msg_commim_uaa.UpdateUserRoleRsp);
+    // // BanUser .
+    // rpc BanUser (pb_msg_commim_uaa.BanUserReq) returns (pb_msg_commim_uaa.BanUserRsp);
+
+    // 使用账号，手机，邮箱中的一个
+    rpc FindUserInfoIntell (pb_msg_commim_uaa.FindUserInfoIntellReq) returns (pb_msg_commim_uaa.UserInfoRsp);
+
+    // 投诉建议
+    rpc AddSuggest (pb_msg_commim_uaa.AddSuggestReq) returns (pb_msg_commim_uaa.AddSuggestRsp); // 新建
+    rpc GetSuggestList (pb_msg_commim_uaa.GetSuggestListReq) returns (pb_msg_commim_uaa.GetSuggestListRsp); // 获取列表，只能获取自己的
+    rpc GetSuggestDetail (pb_msg_commim_uaa.GetSuggestDetailReq) returns (pb_msg_commim_uaa.GetSuggestDetailRsp); // 获取详情，只能获取自己的
+    rpc AddSuggestReply (pb_msg_commim_uaa.AddSuggestReplyReq) returns (pb_msg_commim_uaa.AddSuggestReplyRsp); // 添加答复列表
+    rpc GetSuggestReplyList (pb_msg_commim_uaa.GetSuggestReplyListReq) returns (pb_msg_commim_uaa.GetSuggestReplyListRsp); // 获取答复列表
+    rpc SetSuggestStatus (pb_msg_commim_uaa.SetSuggestStatusReq) returns (pb_msg_commim_uaa.SetSuggestReplyStatusRsp); // 设置处理结果状态 满意，不满意，未解决等
+
+    // 版本管理，自动更新
+    rpc CheckVersion (pb_msg_commim_uaa.CheckVersionReq) returns (pb_msg_commim_uaa.CheckVersionRsp); // 检查客户端版本，并返回最新版本
+
+    rpc FetchEndPoint(pb_msg_commim_uaa.FetchEndPointReq)returns (pb_msg_commim_uaa.FetchEndPointRsp); // 更新获取endPoint列表
+    rpc CheckDelay (pb_msg_commim_uaa.CheckDelayReq)returns (pb_msg_commim_uaa.CheckDelayRsp); // 检测时延
+
+    // 查询系统配置
+    rpc GetSysCfg (pb_msg_commim_uaa.GetSysCfgReq)returns (pb_msg_commim_uaa.GetSysCfgRsp); // 检测系统限制
+
+    // IM检查账号正确性
+    rpc ImLoginConfirm(pb_msg_commim_uaa.ImLoginConfirmReq)returns(pb_msg_commim_uaa.ImLoginConfirmRsp);
+
+    // 忘记密码重新设置密码
+    rpc ResetPassword(pb_msg_commim_uaa.ResetPasswordReq)returns(pb_msg_commim_uaa.ResetPasswordRsp);
+
+    // 注销账号
+    rpc Unregister(pb_msg_commim_uaa.UnregisterReq)returns(pb_pub.CommRsp);
+
+    // 添加地址
+    rpc AddAddress(pb_msg_commim_uaa.AddAddressReq)returns(pb_msg_commim_uaa.AddAddressRsp);
+
+    // 删除地址
+    rpc DelAddress(pb_msg_commim_uaa.DelAddressReq)returns(pb_pub.CommRsp);
+
+    // 修改地址
+    rpc EditAddress(pb_msg_commim_uaa.EditAddressReq)returns(pb_pub.CommRsp);
+
+    // 查
+    rpc FetchAddress(pb_msg_commim_uaa.FetchAddressReq)returns(pb_msg_commim_uaa.FetchAddressRsp);
+
+    // 查默认地址
+    rpc FetchDefaultAddress(pb_msg_commim_uaa.FetchDefaultAddressReq)returns(pb_msg_commim_uaa.FetchDefaultAddressRsp);
+
+    // 查
+    rpc FetchAddressList(pb_msg_commim_uaa.FetchAddressListReq)returns(pb_msg_commim_uaa.FetchAddressListRsp);
+
+    // 分组标签操作
+    rpc AddCategorizeTag(pb_msg_commim_uaa.AddCategorizeTagReq)returns(pb_msg_commim_uaa.AddCategorizeTagRsp);
+    rpc DelCategorizeTag(pb_msg_commim_uaa.DelCategorizeTagReq)returns(pb_pub.CommRsp);
+    rpc EditCategorizeTag(pb_msg_commim_uaa.EditCategorizeTagReq)returns(pb_pub.CommRsp);
+    rpc FetchCategorizeTagList(pb_msg_commim_uaa.FetchCategorizeTagListReq)returns(pb_msg_commim_uaa.FetchCategorizeTagListRsp);
+
+    // 分组标签成员操作
+    rpc AddCategorizeTagMember(pb_msg_commim_uaa.AddCategorizeTagMemberReq)returns(pb_msg_commim_uaa.AddCategorizeTagMemberRsp);
+    rpc DelCategorizeTagMember(pb_msg_commim_uaa.DelCategorizeTagMemberReq)returns(pb_pub.CommRsp);
+    // 不需要编辑，直接删除就好了
+    //  rpc EditCategorizeTagMember(pb_msg_commim_uaa.EditCategorizeTagMemberReq)returns(pb_pub.CommRsp);
+    rpc FetchCategorizeTagMemberList(pb_msg_commim_uaa.FetchCategorizeTagMemberListReq)returns(pb_msg_commim_uaa.FetchCategorizeTagMemberListRsp);
+
+//    rpc Complaint(pb_msg_commim_uaa.ComplaintReq)returns(pb_pub.CommRsp);
+
+    ///////////////////////
+    // 背景图片
+    rpc AddBackgroundPic(pb_msg_commim_uaa.AddBackgroundReq) returns (pb_msg_commim_uaa.AddBackgroundRsp);
+    //
+    rpc DelBackgroundPic(pb_msg_commim_uaa.DelBackgroundPicReq) returns (pb_msg_commim_uaa.DelBackgroundRsp);
+    rpc FetchBackgroundPicList(pb_msg_commim_uaa.FetchBackgroundPicListReq) returns (pb_msg_commim_uaa.FetchBackgroundPicListRsp);
+    ////////////////////////
+
+    ///////////////////////////
+    // 钱包
+    rpc WalletGetInfo(pb_msg_commim_uaa.WalletGetInfoReq) returns (pb_msg_commim_uaa.WalletGetInfoRsp);
+    rpc WalletAddValue(pb_msg_commim_uaa.WalletAddValueReq) returns (pb_msg_commim_uaa.WalletAddValueRsp);
+    rpc WalletReduceValue(pb_msg_commim_uaa.WalletReduceValueReq) returns (pb_msg_commim_uaa.WalletReduceValueRsp);
+    rpc WalletSetPassword(pb_msg_commim_uaa.WalletSetPasswordReq) returns (pb_pub.CommRsp);
+    rpc WalletGetChangeFlow(pb_msg_commim_uaa.WalletGetChangeFlowReq) returns (pb_msg_commim_uaa.WalletGetChangeFlowRsp);
+    // 钱包 end
+    /////////////////////////////
+
+//    /////////////////////////////
+//    // 发红包
+//    // 发红包
+//    rpc RedEnvelopeHandOut(pb_msg_commim_uaa.RedEnvelopeHandOutReq) returns (pb_msg_commim_uaa.RedEnvelopeHandOutRsp);
+//
+//    // 领红包
+//    rpc RedEnvelopeReceive(pb_msg_commim_uaa.RedEnvelopeReceiveReq) returns (pb_msg_commim_uaa.RedEnvelopeReceiveRsp);
+//
+//    // 红包信息获取
+//    rpc RedEnvelopeInfo(pb_msg_commim_uaa.RedEnvelopeInfoReq) returns (pb_msg_commim_uaa.RedEnvelopeInfoRsp);
+//
+//    // 红包信息下的领取列表
+//    rpc RedEnvelopeCurFlow(pb_msg_commim_uaa.RedEnvelopeCurFlowReq) returns (pb_msg_commim_uaa.RedEnvelopeCurFlowRsp);
+//
+//    // 红包领取列表
+//    rpc RedEnvelopeMyReceivedList(pb_msg_commim_uaa.RedEnvelopeMyReceivedListReq) returns (pb_msg_commim_uaa.RedEnvelopeMyReceivedListRsp);
+//
+//    // 发送的红包列表
+//    rpc RedEnvelopeMyHandedOutList(pb_msg_commim_uaa.RedEnvelopeMyHandedOutListReq) returns (pb_msg_commim_uaa.RedEnvelopeMyHandedOutListRsp);
+//    // 发红包 end
+//    /////////////////////////////
+
+    /////////////////////////////
+    // 签到
+    // 获取卡包列表，时间默认倒序
+    rpc GetCardPackageItems(pb_msg_commim_uaa.GetCardPackageItemsReq) returns (pb_msg_commim_uaa.GetCardPackageItemsRsp);
+
+    // 签到
+    rpc TaskSignUp(pb_msg_commim_uaa.TaskSignUpReq) returns (pb_msg_commim_uaa.TaskSignUpRsp);
+
+    // 获取本轮签到最新状态，连续签到的天数
+    rpc TaskSignUpStatus(pb_msg_commim_uaa.TaskSignUpStatusReq) returns (pb_msg_commim_uaa.TaskSignUpStatusRsp);
+
+    // 获取本次签到循环签到信息，任务完成信息
+    rpc TaskSignUpInfo(pb_msg_commim_uaa.TaskSignUpInfoReq) returns (pb_msg_commim_uaa.TaskSignUpInfoRsp);
+    // 签到 end
+    //////////////////////////////
+}

@@ -1,0 +1,64 @@
+syntax = "proto3";
+option go_package = "github.com/leallee00/pb/pb_msg/msg_analyze";
+package pb_msg_msgAnalyze;
+
+import "pb_pub/error_code.proto";
+import "pb_pub/comm.proto";
+
+// 查询A与B之间的历史消息
+message ReadMsgHistoryReq {
+    int64 useridA = 1;     // A用户id
+    int64 useridB = 2;     // B用户id
+    int64 num = 3;         // 请求的消息数
+    int64 time = 4;        // 从time开始的num条消息
+    int64 sn = 5;          // 通过sn判断查询开始消息
+}
+
+message ReadMsgHistoryRsp {
+    pb_pub.ErrCode result = 1;  //错误码
+    repeated MsgHistory msgHistory = 2;
+}
+
+// 历史消息结构
+message MsgHistory {
+    pb_pub.PBCommData pbCommData = 1;
+    string pbName = 2;
+    bytes  pbData = 3;
+//    int64  chatId = 4;   // 消息id
+}
+
+// 获取srcid的全部聊过天的用户
+message ChatSessionsReq {
+    int64 offset = 1;
+    int64 length = 2;
+    int64 time = 3;
+}
+
+message ChatSessionsRsp {
+    repeated MsgHistory chatSessions = 1;
+}
+
+// ChatHistoriesReq 获取历史聊天消息
+message ChatHistoriesReq {
+    int64 time = 1;
+    int64 num = 2;
+}
+
+message ChatHistoriesRsp {
+    repeated MsgHistory chatHistories = 1;
+}
+
+message ChatStatsReq {
+    int64 days = 1;
+}
+message ChatStatsRsp {
+    repeated ChatStats stats = 1;
+}
+message ChatStats {
+    int64 fromTime       = 1;
+	int64 toTime         = 2;
+	int64 sendNum        = 3;
+	int64 instantRecvNum = 4;
+	int64 offlineRecvNum = 5;
+	int64 notRecvNum     = 6;
+}
