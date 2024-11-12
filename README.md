@@ -1,27 +1,31 @@
 # 来往
 
-A new Flutter project.
+`来往` 是一个flutter实现的实时通讯(IM)客户端，支持一对一私聊，万人群聊
 
-cmd 设置代理
-netsh winhttp set proxy 127.0.0.1:4780
-netsh winhttp show proxy
-netsh winhttp reset proxy
+## 协议支持
+- `来往` 使用tcp长连接进行服务端信令交互，原始信息加密传输
+- 消息采用protobuf打包发送，速度快，效率高
+- 静态信息维护采用http协议，内容采用protobuf打包后发送
 
-## Getting Started
+## 全球网络打通
+- `来往` 服务端可以在全球各大区域分别部署接入点，客户端就近寻找节点连接，达到全球互通的目的
+- `来往` 获取节点配置，检测最近节点进行接入
+- `来往` 服务端节点无限级级联，可以通过多层级节点互联达到互通目的
+- `来往` 用户可以在全球任何地方与好友交互
 
-This project is a starting point for a Flutter application.
+## 版权
+- 本客户端任何人都可以自由使用，不做任何商业限制
 
-A few resources to get you started if this is your first Flutter project:
+## 联系我们
+- 如果有定制开发需求或服务端独立部署需求请发邮件到 `leallee00@outlook.com`
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+# 服务端简单介绍
+- `来往` 服务端是采用go语言实现的微服务，支持动态扩容，万人群聊
+- 服务端支持视频直播房间服务，一对一私聊服务，万人群服务，稳定在线运行6年，经历各种严酷挑战，稳定安全
+- 服务端各个服务之间采用grpc协议通讯，实时高效
+- 服务端对外提供 http、tcp、webscoket、grpc访问接口，以应对不同的接入需求
+- 服务端部署高度可伸缩，对于用户不多的组织把所有服务部署到一台机器即可满足需求
+- 对于具有大量用户的组织比如有百万级用户，可以部署一组服务器进行支撑，每台服务器安装全量服务，平行扩展即可
+- 对于具有超大量客户的组织，比如有千万、乙级用户则需要把各个服务独立进行部署，每个服务有多台机器支持，然后把所有机器部署到一个集群进行支撑
+- 对于有全球通讯需求的组织，把节点部署到距离用户最近的云，然后在通路上进行级联，直到中心服务集群，达到互通的目的
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-
-## 更新pb
-lib/pb 目录是个submodule
-使用 到pb目录下，运行 git submodule init 初始化子项目， git submodule update 拉pb代码
-其他更新和提交代码在pb目录跟普通项目一样操作
-不行就用这个 git submodule update --init --recursive
